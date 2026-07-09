@@ -1,0 +1,92 @@
+DST Content Migrate - components 组件功能说明
+==============================================
+（DST→DS 移植适配版，引擎通过 AddComponent 自动加载）
+
+
+月岛 / 启蒙系统
+--------------
+enlightenment.lua       启蒙系统核心。模拟月岛高理智值下月灵攻击、移速惩罚机制。
+                        启蒙值复用 sanity 本身，不维护独立数值。
+moonaltarlink.lua       月岛祭坛连接逻辑。多座祭坛之间建立锁链连接。
+moonaltarlinktarget.lua 祭坛连接目标端。被 link 的祭坛回调处理。
+moonbeastspawner.lua    月岛生物（月兽）生成器。
+moonbutterflyspawner.lua 月岛蝴蝶生成器。
+
+
+档案馆系统
+----------
+archivemanager.lua      档案馆电源管理器。控制档案馆供电/激活状态。
+
+
+Boss / 生物机制
+--------------
+bloomer.lua             开花组件。管理 bloom 栈，用于食人花等植物的绽放效果。
+damagetracker.lua       伤害追踪。记录谁对目标造成了伤害，用于掉落归属。
+epicscare.lua           史诗惊吓。大型Boss登场时附近小怪四散逃跑的机制。
+grogginess_dst.lua      眩晕状态。Boss被打晕后的硬直逻辑。
+stunnable.lua           可击晕标签。使实体具备被眩晕的能力。
+healthtrigger.lua       血量阈值触发。血量降到特定百分比时触发事件。
+injureddrops.lua        受伤掉落。实体受到伤害时掉落物品。
+klaussackloot.lua       克劳斯袋子战利品表。定义各巨头掉落池。
+                        注意：此文件非标准Class，手动require以注册全局函数。
+toadstoolspawner.lua    毒菌蟾蜍生成器。
+deerherding.lua         麋鹿放牧AI系统。管理鹿群的放牧、行走、进食行为。
+deerherdspawner.lua     麋鹿群生成器。控制鹿群生成和刷新。
+petleash.lua            宠物拴绳。管理宠物生成/销毁/数量限制，用于龙蝇幼虫。
+
+
+战斗 / 投射物
+-------------
+complexprojectile2.lua  复杂弹道。抛物线轨迹投射物，用于机器人光球、灭火器雪球。
+grouptargeter.lua       群体目标选择器。范围选择多个目标。
+
+
+视觉效果
+--------
+transparentonsanity_dst.lua 基于理智值的透明效果（客户端组件）。
+                        月岛高理智时物体变透明。
+
+
+生成器系统
+----------
+sinkholespawner.lua     地洞坍塌生成器。玩家附近产生地洞。
+rampingspawner.lua      递增式生成器。生成速度越来越快。
+spawnfader.lua          生成淡出效果。物体生成后逐渐消失。
+objectspawner.lua       通用物体生成器。管理生成物体的拥有权。
+periodicspawner_.lua    周期性生成器（DST版）。按固定间隔生成。
+
+
+减益 / 效果 / 环境
+------------------
+debuff.lua              减益组件。定义减益效果的数据和行为。
+debuffable.lua          可减益标签。使实体具备承受减益的能力。
+smotherer.lua           窒息效果。掩埋/窒息机制。
+lightningblocker.lua    闪电阻挡。阻止闪电击中特定范围。
+explosiveresist.lua     爆炸抗性。降低爆炸伤害。
+unevenground.lua        不平地形。影响行走速度的地形效果。
+
+
+容器 / 食物保鲜
+--------------
+preserver.lua           保鲜组件。DST冰箱/食物容器的保鲜倍率逻辑。
+perishable.lua          可腐烂。食物变质逻辑，适配了 preserver 组件和冰箱保鲜。
+
+
+交互 / 激活
+----------
+activatable_dst.lua     可激活组件（DST版）。检测玩家交互距离和条件。
+
+
+特殊物品 / 机制
+--------------
+bathbomb.lua            浴球组件。温泉/泡泡浴的效果逻辑。
+bathbombable.lua        浴球目标。可被浴球作用的物体。
+commander.lua           指挥官组件。控制从属单位。
+sanity_.lua             理智值组件（DST版）。
+heater.lua              加热器。热源温度逻辑，支持 exothermic/endothermic、
+                        carriedheat/equippedheat。
+hatchable.lua           可孵化。蛋类孵化逻辑，适配 DST 昼夜温度偏好。
+saltlicker.lua          盐舔器。动物舔盐块获得 buff，支持 finiteuses。
+playerprox.lua          玩家接近检测。玩家进入/离开范围时回调。
+teleportedoverride.lua  传送覆盖组件。
+worldsettingstimer.lua  世界设置计时器。

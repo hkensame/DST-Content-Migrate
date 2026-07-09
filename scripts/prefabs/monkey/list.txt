@@ -1,0 +1,30 @@
+monkey/ — 猴岛/猴子内容 Prefab 清单
+==========================================
+猴岛群系（猴子、香蕉丛、猴尾草等）
+共计 13 个 Lua 文件
+==========================================
+
+--- 生物 ---
+
+monkey.lua                         — 普通猴子（猴岛敌对生物）
+powdermonkey.lua                   — 火药猴（自爆猴子，猴岛特殊敌人）
+monkey_smallhat.lua                — 小猴帽（猴子掉落的帽子装饰，独立版本）
+
+--- 建筑/结构 ---
+
+monkeybarrel.lua                   — 猴子桶（刷新猴子的桶，类似猴岛刷怪笼）
+monkeyhut.lua                      — 猴子窝（猴子的住所，定时刷新猴子）
+monkeypillar.lua                   — 猴子图腾柱（猴岛装饰/结构物）
+
+--- 植物 ---
+
+bananabush.lua                     — 香蕉丛（猴岛食物来源，可采集香蕉）
+dug_bananabush.lua                 — 挖起的香蕉丛（可移植）
+cave_banana_tree.lua               — 洞穴香蕉树（地下香蕉树，含树桩/烧毁版）
+monkeytail.lua                     — 猴尾草（猴岛特色植物，可采集）
+dug_monkeytail.lua                 — 挖起的猴尾草（可移植）
+
+--- 物品/战斗 ---
+
+cutless.lua                        — 海盗短剑（猴子掉落的多功能刀具）
+monkeyprojectile.lua               — 猴子投射物（猴子投掷的远程攻击弹头）

@@ -1,0 +1,59 @@
+moonisland/ — 月岛内容 Prefab 清单
+============================================
+月岛群系（Return of Them 月岛相关全部内容）
+共计 38 个 Lua 文件
+============================================
+
+--- 生物 ---
+
+carrat.lua                         — 胡萝卜鼠（月岛温顺生物，月岛特色动物）
+fruitdragon.lua                    — 火龙果蜥蜴（找热源→成熟→变色→火焰攻击）
+lightcrab.lua                      — 光蟹（小型发光甲壳类，掉落灯泡和肉）
+lightflier.lua                     — 光飞虫（月岛发光飞行生物）
+lightflier_flower.lua              — 光飞虫的花（摘花生光飞虫，花计时再生）
+lunar_grazer.lua                   — 月辔（月岛中立生物）
+moonspider.lua                     — 破碎蜘蛛（月岛变异蜘蛛）
+moonspiderden.lua                  — 破碎蜘蛛巢穴
+moonspider_spike.lua               — 蜘蛛刺（破碎蜘蛛抛射物）
+moonbutterfly.lua                  — 月蛾（月岛蝴蝶变种，月树授粉作用）
+moonbutterflywings.lua             — 月蛾翅膀（月蛾掉落材料）
+
+--- 植物 ---
+
+moontree.lua                       — 月树（月岛标志性树木）
+moontree_blossom.lua               — 月树花（月树开花效果）
+planted_tree.lua                   — 各种树苗（月树苗，月蛾种植）
+sapling_moon.lua                   — 月岛树枝（月岛版树苗，长月岛树枝）
+dug_plantables.lua                 — 月岛可移植物（dug_sapling_moon、dug_rock_avocado_bush）
+rock_avocado_bush.lua              — 石果树（月岛特殊果树）
+rock_avocado_fruit.lua             — 石果（石果树果实，可食用）
+succulent_plant.lua                — 多肉植物（月岛装饰性植物）
+succulent_potted.lua               — 多肉盆栽（采集后可放置的盆栽版本）
+oceantree_pillar.lua               — 水中木（月岛水域树木）
+oceanvine.lua                      — 海藤（月岛水域藤蔓/采集物）
+
+--- 矿物/资源 ---
+
+moon_rocks.lua                     — 月光玻璃矿石（月岛矿石，含多种形态）
+moonglass.lua                      — 月光玻璃（合成材料）
+moonglassaxe.lua                   — 月光玻璃斧（月岛特色工具）
+glasscutter.lua                    — 玻璃刀（月岛近战武器）
+turf_meteor.lua                    — 流星地皮（可放置的陨星地皮）
+
+--- 天体科技系统 ---
+
+moon_altar.lua                     — 月岛科技雕像（天体科技主线，3种零件合成）
+moon_altar_pieces.lua              — 月岛科技碎片（天体科技场景道具）
+moon_altar_link.lua                — 月岛科技链接特效（天体雕像间的能量链接）
+moon_altar_break.lua               — 月岛科技破碎（天体科技建筑碎裂特效）
+moon_fissure.lua                   — 天体裂隙（月岛裂隙，产出月光玻璃）
+
+--- 场景/其他 ---
+
+hotspring.lua                      — 温泉（月岛地理场景，天体英雄场景）
+hotspring_old.lua                  — 旧版温泉（温泉替代版本）
+hotspring_placer.lua               — 温泉放置器
+bathbomb.lua                       — 浴球（温泉互动道具）
+dead_sea_bones.lua                 — 海骨（月岛海边可锤击获取骨头碎片）
+mooneye.lua                        — 月眼（6色发光可拾取植物，放置时显示小地图）
+trap_starfish.lua                  — 海星陷阱（地面陷阱，踩到造成伤害）

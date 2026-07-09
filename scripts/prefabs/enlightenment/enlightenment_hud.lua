@@ -1,0 +1,134 @@
+-- enlightenment_hud.lua - Enlightenment HUD display
+-- Single entry: Hook sanitybadge directly
+--
+-- DS Badge structure (badge.lua):
+--   self.anim   = UIAnim, bank/build = "sanity", anim = "anim"
+--   self.pulse  = UIAnim, bank/build = "hunger_health_pulse"
+--   self.warning = UIAnim, bank/build = "hunger_health_pulse", hidden by default
+--
+-- DS statusdisplays sanity delta triggers:
+--   IsCrazy() -> StartWarning (red pulse loop)
+--   sanity decreased -> PulseRed (red flash)
+--
+-- Strategy:
+--   - Override StartWarning/PulseRed on sanitybadge to use white during enlightenment
+--   - OnUpdate handles event-driven icon switch (not polling)
+--   - 6 FRAMES delay + transition animation for smooth icon change
+--   - Single source of truth for enlightenment state
+
+local UIAnim = require "widgets/uianim"
+
+local function SpawnTransitionFX(badge, anim)
+    local parent = badge.parent
+    if parent == nil then return end
+    local fx = parent:AddChild(UIAnim())
+    fx:SetPosition(badge:GetPosition())
+    fx:SetClickable(false)
+    fx.inst:ListenForEvent("animover", function(inst) inst.widget:Kill() end)
+    fx:GetAnimState():SetBank("status_sanity")
+    fx:GetAnimState():SetBuild("status_sanity")
+    fx:GetAnimState():Hide("frame")
+    fx:GetAnimState():PlayAnimation(anim)
+end
+
+AddClassPostConstruct("widgets/sanitybadge", function(self)
+    local is_enlightened = false  -- single source of truth
+    local transition_task = nil
+
+    -- [1] Override StartWarning: during enlightenment, force white color
+    local _StartWarning = self.StartWarning
+    function self:StartWarning()
+        _StartWarning(self)
+        if is_enlightened then
+            self.warning:GetAnimState():SetMultColour(1, 1, 1, 1)
+        end
+    end
+
+    -- [2] Override PulseRed: during enlightenment, flash white instead of red
+    local _PulseRed = self.PulseRed
+    function self:PulseRed()
+        if is_enlightened then
+            self.pulse:GetAnimState():SetMultColour(1, 1, 1, 1)
+            self.pulse:GetAnimState():PlayAnimation("pulse")
+        else
+            _PulseRed(self)
+        end
+    end
+
+    -- [3] Icon switching functions
+    local function SetLunacyIcon()
+        if self.anim then
+            self.anim:GetAnimState():OverrideSymbol("brain", "status_sanity", "lunacy_icon")
+        end
+        if self.circleframe then
+            self.circleframe:GetAnimState():OverrideSymbol("icon", "status_sanity", "lunacy_icon")
+        end
+        if self.backing then
+            self.backing:GetAnimState():OverrideSymbol("bg", "status_sanity", "lunacy_bg")
+        end
+    end
+
+    local function RestoreSanityIcon()
+        if self.anim then
+            self.anim:GetAnimState():ClearOverrideSymbol("brain")
+            self.anim:GetAnimState():SetMultColour(232/255, 123/255, 15/255, 1)
+        end
+        if self.circleframe then
+            self.circleframe:GetAnimState():ClearOverrideSymbol("icon")
+        end
+        if self.backing then
+            self.backing:GetAnimState():ClearOverrideSymbol("bg")
+        end
+    end
+
+    -- [4] OnUpdate: handle icon switch with transition
+    local _OnUpdate = self.OnUpdate
+    function self:OnUpdate(dt)
+        if _OnUpdate then
+            _OnUpdate(self, dt)
+        end
+
+        local enlight = self.owner and self.owner.components.enlightenment
+        local new_state = enlight and enlight:IsEnabled()
+        if new_state == is_enlightened then return end
+
+        -- Cancel any pending transition
+        if transition_task then
+            transition_task:Cancel()
+            transition_task = nil
+        end
+
+        if new_state then
+            -- Entering enlightenment
+            SpawnTransitionFX(self, "transition_lunacy")
+            transition_task = self.owner:DoTaskInTime(6 * FRAMES, function()
+                SetLunacyIcon()
+                transition_task = nil
+            end)
+            -- Show white warning immediately (StartWarning override handles subsequent updates)
+            if not self.warning.shown then
+                self.warning:Show()
+            end
+            self.warning:GetAnimState():SetMultColour(1, 1, 1, 1)
+            if not self.warning:GetAnimState():IsCurrentAnimation("pulse") then
+                self.warning:GetAnimState():PlayAnimation("pulse", true)
+            end
+        else
+            -- Exiting enlightenment
+            SpawnTransitionFX(self, "transition_sanity")
+            transition_task = self.owner:DoTaskInTime(6 * FRAMES, function()
+                RestoreSanityIcon()
+                transition_task = nil
+            end)
+            -- Restore warning behavior
+            local sanity = self.owner and self.owner.components.sanity
+            if sanity and sanity:IsCrazy() then
+                self.warning:GetAnimState():SetMultColour(1, 0, 0, 1)
+            else
+                self.warning:Hide()
+            end
+        end
+
+        is_enlightened = new_state
+    end
+end)

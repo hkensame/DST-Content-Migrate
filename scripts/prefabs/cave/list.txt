@@ -1,0 +1,74 @@
+cave/ — DST 洞穴/档案馆/月蘑菇森林 Prefab 清单
+===============================================
+DST 洞穴内容（月蘑菇森林、档案馆、洞穴水体、通风口、树木岩石等）
+共计 43 个 Lua 文件
+===============================================
+
+--- 档案馆系统 (Archive) ---
+archive_centipede.lua              — 档案馆蜈蚣（机械小怪，掉落齿轮和外壳）
+archive_chandelier.lua             — 档案馆吊灯（大型装饰/光源）
+archive_lockbox.lua                — 档案馆保险箱（知识保险箱，需解锁）
+archive_orchestrina_main.lua       — 档案馆风琴主机（核心解谜机制）
+archive_pillar.lua                 — 档案馆柱子（装饰/结构物）
+archive_props.lua                  — 档案馆场景道具合集（月亮雕像、符文、书桌等）
+archive_resonator.lua              — 档案馆谐振器（解谜道具）
+archive_sound_area.lua             — 档案馆环境音效区域（DST回调→独立prefab）
+cookpot_archive.lua                — 档案馆烹饪锅（特殊锅具）
+refined_dust.lua                   — 精炼尘埃（合成材料）
+retrofit_archiveteleporter.lua     — 档案馆传送装置（回溯传送）
+ruinsrespawner.lua                 — 遗迹重生器（刷新物体）
+turfcraftingstation.lua            — 地皮制作站（档案馆专属）
+
+--- 洞穴入口/出口 ---
+
+cave_hole.lua                      — 洞穴洞口装饰
+cavelight.lua                      — 洞穴出口光源
+dst_cave_entrance.lua              — DST风格洞穴入口（测试用）
+dst_cave_exit.lua                  — DST洞穴出口（测试用，直接回地表）
+
+--- 洞穴通风口/裂隙 (Cave Vents) ---
+
+cave_vent_ground_fx.lua            — 洞穴通风口地面特效
+cave_vent_mite.lua                 — 通风口蠕虫（洞穴螨）
+cave_vent_mite_spawner.lua         — 通风口蠕虫生成器
+cave_vents.lua                     — 洞穴通风口（结构物）
+
+--- 洞穴枯萎蕨 (Cave Fern) ---
+
+cave_fern_withered.lua             — 洞穴枯萎蕨（装饰植物）
+
+--- 月蘑菇群系 (Moon Mushroom Grove) ---
+
+moon_mushroom.lua                  — 月蘑菇帽（月蘑菇林特产食物）
+mushtree_moon.lua                  — 月蘑菇树（含树桩、烧毁特效）
+mushtree_moonspore.lua             — 月蘑菇孢子
+
+--- 月蘑菇森林 (Moon Mushroom Forest) ---
+
+cavelightmoon.lua                  — 月光洞穴灯
+moonglass_stalactites.lua          — 月玻璃钟乳石（纯顶部装饰）
+mushgnome.lua                      — 蘑菇地精（月蘑菇森林小怪）
+mushgnome_spawner.lua              — 蘑菇地精生成器
+
+--- 洞穴水体/瀑布 (Grotto) ---
+
+grotto_pool_big.lua                — 洞穴大型水池
+grotto_pool_moonglass.lua          — 月光玻璃水池
+grotto_pool_small.lua              — 洞穴小型水池
+grotto_waterfall_big.lua           — 洞穴大型瀑布
+grotto_waterfall_small.lua         — 洞穴小型瀑布
+grottopool_sfx.lua                 — 洞穴水池音效
+
+--- 树木岩石 (Tree Rocks) ---
+
+tree_rock_chop.lua                 — 树木岩石砍伐（砍伐后掉落）
+tree_rock_data.lua                 — 树木岩石数据（配置表）
+tree_rock_fall.lua                 — 树木岩石掉落（掉落动画）
+tree_rock_seed.lua                 — 树木岩石种子
+tree_rocks.lua                     — 树木岩石（主体prefab）
+
+--- 其他 ---
+
+dustmoth.lua                       — 尘蛾（档案馆生物）
+dustmothden.lua                    — 尘蛾巢穴
+flower_cave.lua                    — 洞穴花（装饰植物）

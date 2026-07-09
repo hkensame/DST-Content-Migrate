@@ -1,0 +1,15 @@
+moonbase/ — 月台Prefab 清单
+=================================================
+月台相关等内容
+共计 9 个 Lua 文件
+=================================================
+
+moonbase.lua                       — 月台（天体科技主线建筑，天体英雄召唤/战斗）
+opalstaff.lua                      — 蛋白石法杖（天体英雄掉落，强力武器）
+stafflight.lua                     — 法杖光球（opalstaff 发出的追踪光球）
+positronbeam.lua                   — 正电子光束（月岛基地发射的激光特效）
+moonhound.lua                      — 月犬（受天体英雄影响的猎犬变种，掉落犬牙）
+moonpig.lua                        — 月猪（月岛变异猪人）
+moonrocknugget.lua                 — 月岩块（月岛基地矿物材料）
+opalpreciousgem.lua                — 蛋白石宝石（珍贵的月岛宝石材料）
+gargoyles.lua                      — 石像鬼（天体英雄场景装饰/守卫）

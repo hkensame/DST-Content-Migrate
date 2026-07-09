@@ -1,0 +1,8 @@
+<Atlas><Texture filename="mooneye_images.tex" /><Elements>
+<Element name="purplemooneye" u1="0.656494140625" u2="0.687255859375" v1="0.437744140625" v2="0.468505859375" />
+<Element name="yellowmooneye" u1="0.312744140625" u2="0.343505859375" v1="0.000244140625" v2="0.031005859375" />
+<Element name="redmooneye" u1="0.562744140625" u2="0.593505859375" v1="0.343994140625" v2="0.374755859375" />
+<Element name="bluemooneye" u1="0.437744140625" u2="0.468505859375" v1="0.875244140625" v2="0.906005859375" />
+<Element name="greenmooneye" u1="0.406494140625" u2="0.437255859375" v1="0.656494140625" v2="0.687255859375" />
+<Element name="orangemooneye" u1="0.375244140625" u2="0.406005859375" v1="0.468994140625" v2="0.499755859375" />
+</Elements></Atlas>

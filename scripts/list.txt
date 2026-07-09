@@ -1,0 +1,77 @@
+scripts/ 公共 Lua 脚本功能清单
+==================================
+（按字母序）
+
+dst_archive_world.lua
+  → 档案馆 Prefab TheWorld 事件注入
+  archive_chandelier/vault_chandelier/crawler_chandelier 的电源/玩家进出事件
+  archive_switch_base 的电源开/关动画
+  archive_portal 传送门出口目标注册
+
+dst_component_api.lua
+  → DST 组件 API 兼容垫片
+  为 DS 缺失的 DST 组件（如 enlightenment mood 等）提供空桩/shim
+
+dst_dlc_patch.lua
+  → DLC worldgen nil 安全补丁
+  洞穴世界中 inst.topology.overrides 为 nil 导致 getworldgenoptions 崩溃的修复
+
+dst_entity_patches.lua
+  → 单个实体/prefab 的补丁集合
+  AddPrefabPostInit / AddSimPostInit 方式的注入（如蚁狮交易暖石、邪天翁生成）
+
+dst_foods.lua
+  → 食材/食物系统配置
+  食物属性（健康/饥饿/sanity/熟度）定义
+
+dst_global.lua
+  → 全局变量与全局函数导出
+  确保 modmain env 中可访问 GLOBAL 对象，导出 Helper 函数
+
+dst_init.lua
+  → Mod 初始化逻辑
+  启动时需要执行的初始化代码
+
+dst_player.lua
+  → 玩家相关补丁
+  AddPlayerPostInit 注入（如玩家属性、事件监听）
+
+dst_recipes.lua
+  → 配方与科技解锁定义
+  所有 DST 移植物品的合成配方、科技等级、station 绑定
+
+dst_sg.lua
+  → 状态图（StateGraph）补丁
+  对 DS 原生状态图进行扩展或修复
+
+dst_strings.lua
+  → 字符串/本地化定义
+  所有 DST 移植物品的名称、描述、检查文本
+
+dst_tile.lua
+  → AddTile() 函数定义（来自 DST 源码）
+  地皮注册的核心 API 实现
+
+dst_tuning.lua
+  → 数值/平衡常量定义
+  所有 DST 移植内容的 TUNING 常量（血量、伤害、时间等）
+
+dst_turf_registration.lua
+  → 地皮 AddTile() 注册调用
+  通过 AddTile() 注册所有 DST 移植地皮的条目（不含 API 实现）
+
+dst_widget_patches.lua
+  → UI Widget 补丁
+  HUD/Widget 相关的修改（如 leafcanopy、mindcontrolover）
+
+dst_worldgen_config.lua
+  → 世界生成条件加载
+  根据 mod 配置项（antlion/atrium/dragonfly 等）有条件地 modimport 地图脚本
+
+sourcemodifierlist.lua
+  → SourceModifierList 类（来自 DST 源码）
+  管理外部来源修饰器的数值叠加系统
+
+worldsettingsutil.lua
+  → DS 兼容桩模块
+  DST worldsettingsutil 的 DS 空桩，防止 childspawner 崩溃

@@ -1,0 +1,125 @@
+archive_chandelier.lua - Bugs 与修复建议
+=========================================
+
+对比源文件: DST 源码\scripts\prefabs\archive_chandelier.lua
+对比日期: 2026-07-07
+
+---
+问题 1: archive_master_postinit 缺少档案馆电源事件监听
+----------------------------------------------------------------
+严重程度: 高
+
+描述:
+  archive_chandelier 没有监听档案馆电源开关事件，
+  导致档案馆供电状态变化时，吊灯无法自动更新灯光。
+
+缺失代码 (应加在 archive_master_postinit 函数末尾):
+
+    inst:ListenForEvent("arhivepoweron", function() inst:updatelight() end, TheWorld)
+    inst:ListenForEvent("arhivepoweroff", function() inst:updatelight() end, TheWorld)
+
+---
+问题 2: vault_master_postinit 缺少玩家进出 vault 事件监听
+----------------------------------------------------------------
+严重程度: 高
+
+描述:
+  vault_chandelier 没有监听玩家进出 vault 的事件，
+  导致玩家进入/离开宝库时，吊灯无法自动开关。
+
+缺失代码 (应加在 vault_master_postinit 函数末尾):
+
+    inst:ListenForEvent("ms_vaultroom_vault_playerleft", function() inst:updatelight() end, TheWorld)
+    inst:ListenForEvent("ms_vaultroom_vault_playerentered", function() inst:updatelight() end, TheWorld)
+
+---
+问题 3: crawler_master_postinit 缺少玩家进出 vault 事件监听
+----------------------------------------------------------------
+严重程度: 高
+
+描述:
+  vault_crawler_chandelier 同样没有监听玩家进出 vault 的事件，
+  导致爪子吊灯无法自动响应。
+
+缺失代码 (应加在 crawler_master_postinit 函数末尾):
+
+    inst:ListenForEvent("ms_vaultroom_vault_playerleft", function() inst:updatelight() end, TheWorld)
+    inst:ListenForEvent("ms_vaultroom_vault_playerentered", function() inst:updatelight() end, TheWorld)
+
+---
+问题 4: 缺失 crawler_common_postinit 函数及相关爪子音效功能
+----------------------------------------------------------------
+严重程度: 中
+
+描述:
+  整个 crawler_common_postinit 函数、crawler_OnClawSfxDirty 函数、
+  crawler_TriggerClawSfx 函数均被省略。
+  虽然 DS 不需要网络同步的 net_tinybyte，但爪子音效逻辑本身仍有意义，
+  需要适配为 DS 可直接调用的形式。
+
+DS 适配后的建议实现:
+
+    local function crawler_TriggerClawSfx(inst, id)
+        if inst.sfxprop then
+            if id == 1 then
+                inst.sfxprop.SoundEmitter:PlaySound("rifts7/vault_claw/open")
+            elseif id == 2 then
+                inst.sfxprop.SoundEmitter:PlaySound("rifts7/vault_claw/withdraw")
+            end
+        end
+    end
+
+并将此函数添加到文件中，替换原 DST 的网络同步版本。
+
+---
+问题 5: crawler_OnAnimOver 中缺少爪子收回音效调用
+----------------------------------------------------------------
+严重程度: 中
+
+描述:
+  fall_pst 动画播放完毕后，没有触发爪子收回音效。
+
+缺失代码 (应加在 crawler_OnAnimOver 的 fall_pst 分支内):
+
+    crawler_TriggerClawSfx(inst, 2)
+
+---
+问题 6: crawler_DropCrawler 中缺少爪子打开音效调用
+----------------------------------------------------------------
+严重程度: 中
+
+描述:
+  开始掉落动画时，没有触发爪子打开音效。
+
+缺失代码 (应加在 crawler_DropCrawler 函数末尾):
+  (在 inst:updatelight() 调用之前或之后添加)
+
+    crawler_TriggerClawSfx(inst, 1)
+
+---
+问题 7: vault_crawler_chandelier 的 MakeChandelier 调用未传入 common_postinit
+----------------------------------------------------------------
+严重程度: 中
+
+描述:
+  Mod 第 450 行 MakeChandelier 调用中，common_postinit 参数传的是 nil，
+  但 DST 源码传入的是 crawler_common_postinit。
+
+修复:
+  将第 450 行中的第 6 个参数从 nil 改为 crawler_common_postinit
+  （或 DS 简化版版本）。
+
+---
+补充说明: Minimap
+----------------------------------------------------------------
+DST 源码的 minimap 目录中没有任何 chandelier 相关的图标文件。
+这三个 prefab 均带有 NOCLICK 和 FX 标签，属于纯视觉效果，
+不需要（也不应该）在 minimap 上显示，当前没有 minimap 是正常的。
+
+---
+补充说明: 附带 prefab（非 bug，仅信息参考）
+----------------------------------------------------------------
+DST 源码中还有一个独立的 vault_chandelier.lua 文件，包含:
+  - vault_chandelier_broken: 掉落的吊灯残骸（有碰撞箱，可检查）
+  - vault_chandelier_decor: 纯装饰吊灯（链条悬挂，无灯光逻辑）
+这两个 prefab 在 Mod 中未包含，如有需要可后续添加。
