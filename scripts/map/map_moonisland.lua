@@ -305,7 +305,7 @@ AddRoom("ForceDisconnectedRoom2", {
 					colour={r=.45,g=.75,b=.45,a=.50},
 					--type = "blank",
 					--tags = {"ForceDisconnected"},
-					value = GROUND.FUNGUSRED,
+					value = GROUND.GRASS,
 					contents = {},
 			})
 
@@ -380,7 +380,7 @@ AddTask("NoneTasks", {
 		locks={LOCKS.ISLAND7},
 		keys_given={KEYS.TIER2},
 		room_choices={ 
-			["DummyExitRoom"] = 1, 
+			["DummyExitRoom"] = 3, 
 		},  
 		room_bg=GROUND.IMPASSABLE,
 		colour={r=1,g=1,b=1,a=0.3}

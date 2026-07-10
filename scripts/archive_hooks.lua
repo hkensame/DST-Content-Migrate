@@ -84,10 +84,13 @@ AddPrefabPostInit("archive_ambient_sfx", function(inst)
     end)
 end)
 
--- 将 archivemanager 组件添加到 TheWorld
-AddPrefabPostInit("world", function(inst)
-    if not inst.components.archivemanager then
-        inst:AddComponent("archivemanager")
+-- 将 archivemanager 组件添加到 DST_CAVE 洞穴世界
+-- DS 的世界实体 prefab 名是 "cave" 或 "forest"，不是 "world"
+AddPrefabPostInit("cave", function(inst)
+    if inst.meta and inst.meta.level_id == "DST_CAVE" then
+        if not inst.components.archivemanager then
+            inst:AddComponent("archivemanager")
+        end
     end
 end)
 

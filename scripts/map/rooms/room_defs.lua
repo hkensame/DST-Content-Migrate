@@ -1433,54 +1433,170 @@ AddRoom("DST_FungusNoiseMeadow", {
 AddRoom("DST_BGVentsRoom", {
     colour={r=0.8,g=0.8,b=0.8,a=0.9},
     value = GROUND.VENT,
+    type = NODE_TYPE.Background,
+    random_node_exit_weight = 1,
+    tags = {"fumarolearea"},
+    contents =  {
+        countprefabs =
+        {
+            cave_vent_mite_spawner = 1,
+        },
+        distributepercent = .24,
+        distributeprefabs =
+        {
+            cave_vent_rock  = 0.1,
+            tree_rock1      = 0.045,
+            tree_rock2      = 0.045,
 
-    contents = {},
+            cave_fern_withered = 0.2,
+            flower_cave_withered = 0.03,
+            flower_cave_double_withered = 0.015,
+            flower_cave_triple_withered = 0.015,
+        },
+    },
 })
 AddRoom("DST_VentsRoom", {
     colour={r=.8,g=1,b=.8,a=.50},
     value = GROUND.VENT,
     random_node_exit_weight = 1,
+    tags = {"fumarolearea"},
+    contents =  {
+        countprefabs =
+        {
+            cave_vent_mite_spawner = 1,
+        },
+        distributepercent = .22,
+        distributeprefabs=
+        {
+            cave_vent_rock  = 0.5,
+            tree_rock1      = 0.15,
+            tree_rock2      = 0.15,
 
-    contents = {},
+            cave_fern_withered = 1.0,
+        },
+    },
 })
 AddRoom("DST_CentipedeNest", {
     colour={r=.8,g=1,b=.8,a=.50},
     value = GROUND.VENT,
     random_node_entrance_weight = 0,
     type = NODE_TYPE.Room,
+    tags = {"fumarolearea"},
+    contents =  {
+        distributepercent = .42,
+        distributeprefabs =
+        {
+            cave_vent_rock  = 0.4,
+            tree_rock1      = 0.02,
+            tree_rock2      = 0.02,
+            cave_fern_withered       = 0.8,
 
-    contents = {},
+            flower_cave_withered = 0.05,
+            flower_cave_double_withered = 0.025,
+            flower_cave_triple_withered = 0.025,
+        },
+    },
 })
 AddRoom("DST_RockTreeRoom", {
     colour={r=.8,g=1,b=.8,a=.50},
     value = GROUND.VENT,
     random_node_exit_weight = 0,
     type = NODE_TYPE.Room,
+    tags = {"fumarolearea"},
+    contents =  {
+        countprefabs = {
+            tree_rock1      = function() return math.random(3) end,
+            tree_rock2      = function() return math.random(3) end,
+        },
+        distributepercent = .12,
+        distributeprefabs=
+        {
+            cave_vent_rock  = 0.1,
+            tree_rock1      = 0.5,
+            tree_rock2      = 0.5,
+            cave_fern_withered       = 0.3,
 
-    contents = {},
+            flower_cave_withered = 0.04,
+            flower_cave_double_withered = 0.02,
+            flower_cave_triple_withered = 0.02,
+        },
+    },
 })
 AddRoom("DST_VentsRoom_exit", {
     colour={r=0.1,g=0.1,b=0.8,a=0.9},
     value = GROUND.VENT_NOISE,
-    random_node_entrance_weight = 0,
+	random_node_entrance_weight = 0,
+    tags = {"ExitPiece", "fumarolearea"},
+    contents =  {
+        countprefabs =
+        {
+            cave_vent_mite_spawner = 1,
+        },
+		distributepercent = 0.23,
+        distributeprefabs =
+        {
+            cave_vent_rock = 0.1,
+            tree_rock1 = 0.01,
+            tree_rock2 = 0.01,
+            cave_fern_withered = 0.2,
 
-    contents = {},
+            flower_cave_withered = 0.04,
+            flower_cave_double_withered = 0.02,
+            flower_cave_triple_withered = 0.02,
+        },
+    },
 })
 AddRoom("DST_RuinsIsland", {
     colour={r=0.1,g=0.1,b=0.8,a=0.9},
     value = GROUND.TILES,
     SafeFromDisconnect = true,
-
+    tags = {"ForceDisconnected", "RoadPoison", "not_mainland"},
     random_node_entrance_weight = 0,
-    contents = {},
+    contents =  {
+        countprefabs =
+        {
+            mushgnome_spawner = 1,
+        },
+        distributepercent = 0.35,
+        distributeprefabs =
+        {
+            mushtree_moon = 0.075,
+
+            lightflier_flower = 0.02,
+
+            cavelightmoon = 0.003,
+            cavelightmoon_small = 0.003,
+            cavelightmoon_tiny = 0.003,
+
+            moonglass_stalactite1 = 0.007,
+            moonglass_stalactite2 = 0.007,
+            moonglass_stalactite3 = 0.007,
+        },
+    }
 })
 AddRoom("DST_RuinsIsland_entrance", {
     colour={r=0.1,g=0.1,b=0.8,a=0.9},
     value = GROUND.VENT_NOISE,
     SafeFromDisconnect = true,
+    tags = {"ForceDisconnected", "RoadPoison", "not_mainland"},
+	random_node_exit_weight = 0,
+    contents =  {
+		distributepercent = 0.20,
+        distributeprefabs =
+        {
+			-- mushroom only
+			mushtree_tall =	0.30,
+            flower_cave = 0.10,
 
-    random_node_exit_weight = 0,
-    contents = {},
+			-- moon only
+            mushtree_moon = 0.40,
+            lightflier_flower = 0.01,
+
+			-- anywhere
+            cavelightmoon_small = 0.003,
+            cavelightmoon_tiny = 0.003,
+        },
+    },
 })
 
 -- ======================== 兔子区 RABBIT ========================

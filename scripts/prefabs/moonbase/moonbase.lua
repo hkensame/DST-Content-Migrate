@@ -346,7 +346,7 @@ local function OnStaffGiven(inst, giver, item)
         end
     end
 
-    inst.SoundEmitter:PlaySound("dontstarve/common/together/moonbase/moonstaff_place")
+    inst.SoundEmitter:PlaySound("dontstarve/common/teleportato/teleportato_add_divining")
 
     if staffname == MORPHED_STAFF then
         ShowColdStar(inst)
@@ -367,7 +367,7 @@ local function OnStaffTaken(inst, picker, loot)
     inst.components.pickable.caninteractwith = false
 
     inst.AnimState:ClearOverrideSymbol("swap_staffs")
-    inst.SoundEmitter:PlaySound("dontstarve/common/together/moonbase/moonstaff_place")
+    inst.SoundEmitter:PlaySound("dontstarve/common/teleportato/teleportato_add_divining")
 
     HideColdStar(inst)
 
