@@ -302,7 +302,8 @@ PrefabFiles =
   "cave/cave_vent_mite",
   "cave/cave_vent_mite_spawner",
   "cave/cave_fern_withered",
-  "cave/flower_cave",        -- 含 flower_cave_withered 等 3 个枯萎变种
+  "cave/pillar_cave_rock",      -- 洞穴岩石柱（装饰性障碍物）
+  "cave/flower_cave_withered",        -- 仅 3 种枯萎变种（普通荧光花由 DS 原版 cave/objects/flower_cave 提供）
   -- 远古守卫者 spawner（重生机制）
   "cave/minotaur_spawner",
 } 

@@ -230,10 +230,10 @@ AddTask("DST_ArchiveArea", {
     locks={LOCKS.ARCHIVE},
     keys_given= {},
     room_tags = {"nocavein"},
-    required_prefabs = {},
+    required_prefabs = {"archive_orchestrina_main", "archive_lockbox_dispencer"},
     entrance_room = "DST_ArchiveMazeEntrance",
     room_choices = {
-        ["DST_ArchiveMazeRooms"] = 2,
+        ["DST_ArchiveMazeRooms"] = 4,
         ["DST_ArchiveStart"] = 1,
         ["DST_ArchiveEnd"] = 1,
         ["DST_ArchiveKeyroom"] = 1,
@@ -242,9 +242,8 @@ AddTask("DST_ArchiveArea", {
         ["DST_ArchiveDistillery2"] = 1,
         ["DST_ArchiveDistillery3"] = 1,
     },
-    room_bg = GROUND.FUNGUSMOON,
-    -- maze_tiles 已禁用：DS 的 C++ 引擎不支持 meta-maze（GetPointsForMetaMaze）
-    -- maze_tiles = {rooms = {"archive_hallway","archive_hallway_two"}, bosses = {"archive_hallway"}, bridge_ground = GROUND.ARCHIVE},
+    room_bg = GROUND.ARCHIVE,
+    maze_tiles = {rooms = {"archive_hallway","archive_hallway_two"}, bosses = {"archive_hallway"}, bridge_ground = GROUND.ARCHIVE},
     background_room="DST_ArchiveMazeRooms",
     cove_room_chance = 0,
     cove_room_max_edges = 0,
@@ -603,8 +602,7 @@ AddTask("DST_AtriumMaze", {
     },
     room_bg = GROUND.TILES,
     background_room="DST_AtriumMazeRooms",
-    -- maze_tiles 已禁用：DS 的 C++ 引擎不支持 meta-maze
-    -- maze_tiles = {rooms = {"atrium_hallway", "atrium_hallway_two", "atrium_hallway_three"}, bosses = {"atrium_hallway_three"}},
+    maze_tiles = {rooms = {"atrium_hallway", "atrium_hallway_two", "atrium_hallway_three"}, bosses = {"atrium_hallway_three"}},
     make_loop = true,
     colour={r=0.2,g=0.1,b=0.2,a=0.9},
 })

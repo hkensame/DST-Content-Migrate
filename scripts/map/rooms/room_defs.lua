@@ -30,7 +30,7 @@ AddRoom("DST_Entrance", {
         distributepercent = .2,
         distributeprefabs = {
             cavelight = 0.05,
-            flower_cave = 0.5,
+            ["cave/objects/flower_cave"] = 0.5,
         },
     },
 })
@@ -53,9 +53,9 @@ AddRoom("DST_LightPlantField", {
         distributepercent = .2,
         distributeprefabs=
         {
-            flower_cave = 1.0,
-            flower_cave_double = 0.5,
-            flower_cave_triple = 0.5,
+            ["cave/objects/flower_cave"] = 1.0,
+            ["cave/objects/flower_cave_double"] = 0.5,
+            ["cave/objects/flower_cave_triple"] = 0.5,
 
             stalagmite_tall=0.05,
             stalagmite_tall_med=0.05,
@@ -80,9 +80,9 @@ AddRoom("DST_WormPlantField", {
         distributepercent = .15,
         distributeprefabs=
         {
-            flower_cave = 0.5,
-            flower_cave_double = 0.1,
-            flower_cave_triple = 0.1,
+            ["cave/objects/flower_cave"] = 0.5,
+            ["cave/objects/flower_cave_double"] = 0.1,
+            ["cave/objects/flower_cave_triple"] = 0.1,
 
             stalagmite_tall=0.05,
             stalagmite_tall_med=0.05,
@@ -107,9 +107,9 @@ AddRoom("DST_FernGully", {
         distributepercent = .25,
         distributeprefabs=
         {
-            flower_cave = 0.2,
-            flower_cave_double = 0.1,
-            flower_cave_triple = 0.1,
+            ["cave/objects/flower_cave"] = 0.2,
+            ["cave/objects/flower_cave_double"] = 0.1,
+            ["cave/objects/flower_cave_triple"] = 0.1,
 
             stalagmite_tall=0.5,
             stalagmite_tall_med=0.3,
@@ -134,9 +134,9 @@ AddRoom("DST_SlurtlePlains", {
         distributepercent = .20,
         distributeprefabs=
         {
-            flower_cave = 0.2,
-            flower_cave_double = 0.1,
-            flower_cave_triple = 0.1,
+            ["cave/objects/flower_cave"] = 0.2,
+            ["cave/objects/flower_cave_double"] = 0.1,
+            ["cave/objects/flower_cave_triple"] = 0.1,
 
             stalagmite_tall=1.5,
             stalagmite_tall_med=0.5,
@@ -163,9 +163,9 @@ AddRoom("DST_MudWithRabbit", {
         distributepercent = .15,
         distributeprefabs=
         {
-            flower_cave = 0.5,
-            flower_cave_double = 0.3,
-            flower_cave_triple = 0.2,
+            ["cave/objects/flower_cave"] = 0.5,
+            ["cave/objects/flower_cave_double"] = 0.3,
+            ["cave/objects/flower_cave_triple"] = 0.2,
 
             stalagmite_tall=0.5,
             stalagmite_tall_med=0.3,
@@ -2123,16 +2123,15 @@ AddRoom("DST_RuinedGuarden", {
 AddRoom("DST_AtriumMazeEntrance", {
     colour={r=0.2,g=0.1,b=0.2,a=0.9},
     value = GROUND.FAKE_GROUND,
-    -- DS 的 C++ 引擎不支持 meta-maze（GetPointsForMetaMaze），去掉 MazeEntrance 标签
-    tags = {"ForceConnected", "RoadPoison"},
+    tags = {"ForceConnected", "MazeEntrance", "RoadPoison"},
     type = NODE_TYPE.Room,
     contents = {},
 })
 AddRoom("DST_AtriumMazeRooms", {
     colour={r=0.2,g=0.1,b=0.2,a=0.9},
     value = GROUND.FAKE_GROUND,
-    -- DS 的 C++ 引擎不支持 Maze 标签的 meta-maze 处理，改为普通房间
-    tags = {"ForceDisconnected", "RoadPoison"},
+    tags = {"Maze", "ForceDisconnected", "RoadPoison"},
+    internal_type = NODE_INTERNAL_CONNECTION_TYPE.EdgeCentroid,
     type = NODE_TYPE.Room,
     contents = {},
 })
@@ -2160,8 +2159,7 @@ AddRoom("DST_AtriumEnd", {
 AddRoom("DST_ArchiveMazeEntrance", {
     colour={r=0.4,g=0.4,b=0.5,a=0.9},
     value = GROUND.FUNGUSMOON,
-    -- DS 的 C++ 引擎不支持 meta-maze（GetPointsForMetaMaze），去掉 MazeEntrance 标签
-    tags = {"ForceConnected", "RoadPoison"},
+    tags = {"ForceConnected", "MazeEntrance", "RoadPoison"},
     type = NODE_TYPE.Room,
     contents =  {
         distributepercent = 0.5,
@@ -2184,8 +2182,8 @@ AddRoom("DST_ArchiveMazeEntrance", {
 AddRoom("DST_ArchiveMazeRooms",  { -- layout contents determined by maze
     colour={r=0.4,g=0.4,b=0.5,a=0.9},
     value = GROUND.ARCHIVE,
-    -- DS 的 C++ 引擎不支持 Maze 标签的 meta-maze 处理，改为普通房间
-    tags = {"ForceDisconnected", "RoadPoison"},
+    tags = {"ForceDisconnected", "Maze", "RoadPoison"},
+    internal_type = NODE_INTERNAL_CONNECTION_TYPE.EdgeCentroid,
     type = NODE_TYPE.Room,
     contents = {},
 })

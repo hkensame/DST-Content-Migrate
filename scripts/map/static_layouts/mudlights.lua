@@ -62,7 +62,7 @@ return {
       objects = {
         {
           name = "",
-          type = "flower_cave",
+          type = "cave/objects/flower_cave",
           shape = "rectangle",
           x = 106,
           y = 54,
@@ -73,7 +73,7 @@ return {
         },
         {
           name = "",
-          type = "flower_cave",
+          type = "cave/objects/flower_cave",
           shape = "rectangle",
           x = 169,
           y = 83,
@@ -84,7 +84,7 @@ return {
         },
         {
           name = "",
-          type = "flower_cave",
+          type = "cave/objects/flower_cave",
           shape = "rectangle",
           x = 227,
           y = 107,
@@ -95,7 +95,7 @@ return {
         },
         {
           name = "",
-          type = "flower_cave",
+          type = "cave/objects/flower_cave",
           shape = "rectangle",
           x = 164,
           y = 186,
@@ -106,7 +106,7 @@ return {
         },
         {
           name = "",
-          type = "flower_cave",
+          type = "cave/objects/flower_cave",
           shape = "rectangle",
           x = 28,
           y = 160,

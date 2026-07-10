@@ -322,7 +322,7 @@ return {
         },
         {
           name = "",
-          type = "flower_cave",
+          type = "cave/objects/flower_cave",
           shape = "rectangle",
           x = 225,
           y = 96,
@@ -333,7 +333,7 @@ return {
         },
         {
           name = "",
-          type = "flower_cave",
+          type = "cave/objects/flower_cave",
           shape = "rectangle",
           x = 862,
           y = 387,
@@ -377,7 +377,7 @@ return {
         },
         {
           name = "",
-          type = "flower_cave",
+          type = "cave/objects/flower_cave",
           shape = "rectangle",
           x = 288,
           y = 736,

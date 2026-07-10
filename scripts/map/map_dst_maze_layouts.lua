@@ -154,7 +154,7 @@ Layouts["PondSinkhole"] = StaticLayout.Get("map/static_layouts/pondsinkhole", {
 -- 遗迹布局
 Layouts["WalledGarden"] = StaticLayout.Get("map/static_layouts/walledgarden", {
     areas = {
-        plants = function(area) return PickSomeWithDups(0.3 * area, {"cave_fern", "lichen", "flower_cave", "flower_cave_double", "flower_cave_triple"}) end,
+        plants = function(area) return PickSomeWithDups(0.3 * area, {"cave_fern", "lichen", "cave/objects/flower_cave", "cave/objects/flower_cave_double", "cave/objects/flower_cave_triple"}) end,
     },
     start_mask = PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
     fill_mask = PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,

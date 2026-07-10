@@ -49,7 +49,7 @@ function MushGnomeBrain:OnStart()
                 StandAndAttack(self.inst, nil, 7)),
             PanicTrigger(self.inst),
             -- 🟡 移除 ElectricFencePanicTrigger（DS 无此机制）
-            RunAway(self.inst, ThreatTest, 5, 10),
+            RunAway(self.inst, function(candidate) return ThreatTest(candidate, self.inst) end, 5, 10),
             Wander(self.inst),
         }, 1)
 

@@ -638,15 +638,11 @@ local function MakeRockTree(name, build, stage)
         growable.magicgrowable = true
         growable:StartGrowing()
 
-        -- DS 无 plantregrowth 组件（DST 植物再生系统）
-        local ok_pr, err_pr = pcall(function()
-            inst:AddComponent("plantregrowth")
+        inst:AddComponent("plantregrowth")
             inst.components.plantregrowth:SetRegrowthRate(GetBuild(inst).regrowth_tuning.OFFSPRING_TIME)
             inst.components.plantregrowth:SetProduct(GetBuild(inst).regrowth_product)
             inst.components.plantregrowth:SetSearchTag("rock_tree")
             inst.components.plantregrowth:SetSkipCanPlantCheck(true)
-        end)
-        if not ok_pr then print("[tree_rocks] plantregrowth skipped:", err_pr) end
 
         local colour = 0.5 + math.random() * 0.5
         inst.AnimState:SetSymbolMultColour("tree_rock_main", colour, colour, colour, 1)

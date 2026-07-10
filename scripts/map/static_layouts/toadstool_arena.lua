@@ -122,7 +122,7 @@ return {
         },
         {
           name = "",
-          type = "flower_cave_triple",
+          type = "cave/objects/flower_cave_triple",
           shape = "rectangle",
           x = 366,
           y = 146,
@@ -133,7 +133,7 @@ return {
         },
         {
           name = "",
-          type = "flower_cave_double",
+          type = "cave/objects/flower_cave_double",
           shape = "rectangle",
           x = 152,
           y = 168,
@@ -144,7 +144,7 @@ return {
         },
         {
           name = "",
-          type = "flower_cave",
+          type = "cave/objects/flower_cave",
           shape = "rectangle",
           x = 96,
           y = 241,
@@ -155,7 +155,7 @@ return {
         },
         {
           name = "",
-          type = "flower_cave_double",
+          type = "cave/objects/flower_cave_double",
           shape = "rectangle",
           x = 172,
           y = 458,
@@ -166,7 +166,7 @@ return {
         },
         {
           name = "",
-          type = "flower_cave",
+          type = "cave/objects/flower_cave",
           shape = "rectangle",
           x = 46,
           y = 338,
@@ -177,7 +177,7 @@ return {
         },
         {
           name = "",
-          type = "flower_cave",
+          type = "cave/objects/flower_cave",
           shape = "rectangle",
           x = 432,
           y = 78,
@@ -188,7 +188,7 @@ return {
         },
         {
           name = "",
-          type = "flower_cave_double",
+          type = "cave/objects/flower_cave_double",
           shape = "rectangle",
           x = 468,
           y = 233,

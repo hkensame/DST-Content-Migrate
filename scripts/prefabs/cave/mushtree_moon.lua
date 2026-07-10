@@ -230,15 +230,11 @@ local function maketree(name, data, state)
         inst.components.periodicspawner:SetDensityInRange(TUNING.MUSHSPORE_MAX_DENSITY_RAD, TUNING.MUSHSPORE_MAX_DENSITY)
         inst.components.periodicspawner:Stop()
 
-        -- DS 无 plantregrowth 组件（DST 植物再生系统）
-        local ok_pr, err_pr = pcall(function()
-            inst:AddComponent("plantregrowth")
-            inst.components.plantregrowth:SetRegrowthRate(TUNING.MUSHTREE_REGROWTH.OFFSPRING_TIME)
-            inst.components.plantregrowth:SetProduct(name)
-            inst.components.plantregrowth:SetSearchTag("mushtree")
-            inst.components.plantregrowth:SetSkipCanPlantCheck(true)
-        end)
-        if not ok_pr then print("[mushtree_moon] plantregrowth skipped:", err_pr) end
+        inst:AddComponent("plantregrowth")
+        inst.components.plantregrowth:SetRegrowthRate(TUNING.MUSHTREE_REGROWTH.OFFSPRING_TIME)
+        inst.components.plantregrowth:SetProduct(name)
+        inst.components.plantregrowth:SetSearchTag("mushtree")
+        inst.components.plantregrowth:SetSkipCanPlantCheck(true)
 
         inst:AddComponent("timer")
         --MakeHauntableIgnite(inst)

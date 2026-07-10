@@ -71,4 +71,4 @@ tree_rocks.lua                     — 树木岩石（主体prefab）
 
 dustmoth.lua                       — 尘蛾（档案馆生物）
 dustmothden.lua                    — 尘蛾巢穴
-flower_cave.lua                    — 洞穴花（装饰植物）
+flower_cave_withered.lua          — 洞穴花枯萎版（装饰植物，3种枯萎变种）
