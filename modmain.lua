@@ -330,6 +330,11 @@ PrefabFiles =
   "daywalker/daywalkerspawningground",
   "daywalker/daywalker_pillar",
   "daywalker/shadow_leech",
+  "daywalker/dreadstone",
+  "daywalker/horrorfuel",
+  "daywalker/armor_dreadstone",
+  "daywalker/hat_dreadstone",
+  "daywalker/wall_dreadstone",
 } 
 
 Assets = {
@@ -473,6 +478,14 @@ Assets = {
   Asset("ANIM", "anim/daywalker_pillar.zip"),
   Asset("ANIM", "anim/daywalker_swipe_fx.zip"),
   Asset("ANIM", "anim/shadow_leech.zip"),
+
+  -- 梦魇疯猪掉落物
+  Asset("ANIM", "anim/dreadstone.zip"),
+  Asset("ANIM", "anim/horrorfuel.zip"),
+  Asset("ANIM", "anim/armor_dreadstone.zip"),
+  Asset("ANIM", "anim/hat_dreadstone.zip"),
+  Asset("ANIM", "anim/wall_dreadstone.zip"),
+  Asset("ANIM", "anim/support_pillar_dreadstone.zip"),
 
 
   -- ========== SOUND ==========

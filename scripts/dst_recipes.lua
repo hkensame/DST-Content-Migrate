@@ -534,3 +534,39 @@ local opalstaff_deconst = Recipe("opalstaff",{
 }, RECIPETABS.MAGIC, TECH.LOST)
   opalstaff_deconst.atlas = "images/dst_boss.xml"
 --]]
+
+----------------<绝望石套装测试配方>----------------
+-- 测试用简易配方，后续从 Daywalker 掉落获取
+local dreadstone_recipe = Recipe("dreadstone", {
+    Ingredient("nightmarefuel", 5),
+    Ingredient("cutstone", 2),
+}, RECIPETABS.MAGIC, TECH.SCI_ONE)
+    dreadstone_recipe.image = "dreadstone.tex"
+    dreadstone_recipe.atlas = "images/dst_boss.xml"
+
+local horrorfuel_recipe = Recipe("horrorfuel", {
+    Ingredient("nightmarefuel", 2),
+    Ingredient("livinglog", 1),
+}, RECIPETABS.MAGIC, TECH.SCI_ONE)
+    horrorfuel_recipe.image = "horrorfuel.tex"
+    horrorfuel_recipe.atlas = "images/dst_boss.xml"
+
+local armordreadstone_recipe = Recipe("armordreadstone", {
+    Ingredient("dreadstone", 6),
+    Ingredient("horrorfuel", 3),
+}, RECIPETABS.MAGIC, TECH.SCI_TWO)
+    armordreadstone_recipe.image = "armordreadstone.tex"
+    armordreadstone_recipe.atlas = "images/dst_boss.xml"
+
+local dreadstonehat_recipe = Recipe("dreadstonehat", {
+    Ingredient("dreadstone", 4),
+    Ingredient("horrorfuel", 2),
+}, RECIPETABS.MAGIC, TECH.SCI_TWO)
+    dreadstonehat_recipe.image = "dreadstonehat.tex"
+    dreadstonehat_recipe.atlas = "images/dst_boss.xml"
+
+local wall_dreadstone_item_recipe = Recipe("wall_dreadstone_item", {
+    Ingredient("dreadstone", 2),
+}, RECIPETABS.MAGIC, TECH.SCI_ONE)
+    wall_dreadstone_item_recipe.image = "wall_dreadstone.tex"
+    wall_dreadstone_item_recipe.atlas = "images/dst_boss.xml"
