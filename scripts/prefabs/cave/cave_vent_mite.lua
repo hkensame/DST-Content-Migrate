@@ -113,7 +113,9 @@ local function fn()
     inst.AnimState:SetBuild("mite_cave")
     inst.AnimState:PlayAnimation("idle")
     inst.AnimState:HideSymbol("red_vent")
-    inst.AnimState:SetSymbolLightOverride("red_vent", 1)
+    if inst.AnimState.SetSymbolLightOverride then
+        inst.AnimState:SetSymbolLightOverride("red_vent", 1)
+    end
     inst.AnimState:AddOverrideBuild("cave_vent_fx")
 
     -- === Master Simulation ===

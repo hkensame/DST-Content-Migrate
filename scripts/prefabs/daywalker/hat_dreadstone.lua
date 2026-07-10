@@ -97,6 +97,9 @@ local function fn()
 	inst:AddComponent("waterproofer")
 	inst.components.waterproofer:SetEffectiveness(TUNING.DREADSTONEHAT_WATERPROOFNESS)
 
+	inst:AddComponent("repairable")
+	inst.components.repairable.repairmaterial = "dreadstone"
+
 	return inst
 end
 

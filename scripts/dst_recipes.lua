@@ -542,31 +542,31 @@ local dreadstone_recipe = Recipe("dreadstone", {
     Ingredient("cutstone", 2),
 }, RECIPETABS.MAGIC, TECH.SCI_ONE)
     dreadstone_recipe.image = "dreadstone.tex"
-    dreadstone_recipe.atlas = "images/dst_boss.xml"
+    dreadstone_recipe.atlas = "images/dreadstone.xml"
 
 local horrorfuel_recipe = Recipe("horrorfuel", {
     Ingredient("nightmarefuel", 2),
     Ingredient("livinglog", 1),
 }, RECIPETABS.MAGIC, TECH.SCI_ONE)
     horrorfuel_recipe.image = "horrorfuel.tex"
-    horrorfuel_recipe.atlas = "images/dst_boss.xml"
+    horrorfuel_recipe.atlas = "images/horrorfuel.xml"
 
 local armordreadstone_recipe = Recipe("armordreadstone", {
     Ingredient("dreadstone", 6),
     Ingredient("horrorfuel", 3),
 }, RECIPETABS.MAGIC, TECH.SCI_TWO)
     armordreadstone_recipe.image = "armordreadstone.tex"
-    armordreadstone_recipe.atlas = "images/dst_boss.xml"
+    armordreadstone_recipe.atlas = "images/armordreadstone.xml"
 
 local dreadstonehat_recipe = Recipe("dreadstonehat", {
     Ingredient("dreadstone", 4),
     Ingredient("horrorfuel", 2),
 }, RECIPETABS.MAGIC, TECH.SCI_TWO)
     dreadstonehat_recipe.image = "dreadstonehat.tex"
-    dreadstonehat_recipe.atlas = "images/dst_boss.xml"
+    dreadstonehat_recipe.atlas = "images/dreadstonehat.xml"
 
 local wall_dreadstone_item_recipe = Recipe("wall_dreadstone_item", {
     Ingredient("dreadstone", 2),
 }, RECIPETABS.MAGIC, TECH.SCI_ONE)
     wall_dreadstone_item_recipe.image = "wall_dreadstone.tex"
-    wall_dreadstone_item_recipe.atlas = "images/dst_boss.xml"
+    wall_dreadstone_item_recipe.atlas = "images/wall_dreadstone.xml"

@@ -100,6 +100,9 @@ local function fn()
 	inst.components.equippable:SetOnEquip(onequip)
 	inst.components.equippable:SetOnUnequip(onunequip)
 
+	inst:AddComponent("repairable")
+	inst.components.repairable.repairmaterial = "dreadstone"
+
 	return inst
 end
 

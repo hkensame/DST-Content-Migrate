@@ -327,6 +327,8 @@ PrefabFiles =
   -- 远古守卫者 spawner（重生机制）
   "cave/minotaur_spawner",
   -- 梦魇疯猪 Daywalker（洞穴版）
+  "daywalker/daywalker",
+  "daywalker/daywalker_sinkhole",
   "daywalker/daywalkerspawningground",
   "daywalker/daywalker_pillar",
   "daywalker/shadow_leech",
@@ -335,6 +337,7 @@ PrefabFiles =
   "daywalker/armor_dreadstone",
   "daywalker/hat_dreadstone",
   "daywalker/wall_dreadstone",
+  "daywalker/support_pillar_dreadstone_scaffold",
 } 
 
 Assets = {
@@ -487,6 +490,18 @@ Assets = {
   Asset("ANIM", "anim/wall_dreadstone.zip"),
   Asset("ANIM", "anim/support_pillar_dreadstone.zip"),
 
+  -- 绝望石套装图片（后续由用户放入 .tex/.xml）
+  Asset("IMAGE", "images/dreadstone.tex"),
+  Asset("ATLAS", "images/dreadstone.xml"),
+  Asset("IMAGE", "images/horrorfuel.tex"),
+  Asset("ATLAS", "images/horrorfuel.xml"),
+  Asset("IMAGE", "images/armordreadstone.tex"),
+  Asset("ATLAS", "images/armordreadstone.xml"),
+  Asset("IMAGE", "images/dreadstonehat.tex"),
+  Asset("ATLAS", "images/dreadstonehat.xml"),
+  Asset("IMAGE", "images/wall_dreadstone.tex"),
+  Asset("ATLAS", "images/wall_dreadstone.xml"),
+
 
   -- ========== SOUND ==========
   Asset("SOUND", "sound/antlion.fsb"),
@@ -503,6 +518,12 @@ Assets = {
   Asset("SOUND", "sound/turnoftides.fsb"),
   Asset("SOUND", "sound/turnoftides_amb.fsb"),
   Asset("SOUND", "sound/turnoftides_music.fsb"),
+  Asset("SOUND", "sound/daywalker.fsb"),
+  Asset("SOUND", "sound/saltydog.fsb"),
+  Asset("SOUND", "sound/waterlogged2.fsb"),
+  Asset("SOUND", "sound/waterlogged2_amb.fsb"),
+  Asset("SOUND", "sound/hookline.fsb"),
+  Asset("SOUND", "sound/hookline_2.fsb"),
 
   -- ========== SOUNDPACKAGE ==========
   Asset("SOUNDPACKAGE", "sound/antlion.fev"),
@@ -513,6 +534,11 @@ Assets = {
   Asset("SOUNDPACKAGE", "sound/toadstool.fev"),
   Asset("SOUNDPACKAGE", "sound/turf_crafting_station.fev"),
   Asset("SOUNDPACKAGE", "sound/turnoftides.fev"),
+  Asset("SOUNDPACKAGE", "sound/daywalker.fev"),
+  Asset("SOUNDPACKAGE", "sound/saltydog.fev"),
+  Asset("SOUNDPACKAGE", "sound/waterlogged2.fev"),
+  Asset("SOUNDPACKAGE", "sound/hookline.fev"),
+  Asset("SOUNDPACKAGE", "sound/hookline_2.fev"),
 
   -- ========== ATLAS ==========
   Asset("IMAGE", "images/banner_bg.tex"),

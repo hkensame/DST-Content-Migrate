@@ -242,8 +242,12 @@ local function rock_fn()
     inst.AnimState:SetBank("cave_vent")
     inst.AnimState:SetBuild("cave_vent")
     inst.AnimState:PlayAnimation("full")
-    inst.AnimState:HideSymbol("red_vents")
-    inst.AnimState:SetSymbolLightOverride("red_vents", 1)
+    if inst.AnimState.HideSymbol then
+        inst.AnimState:HideSymbol("red_vents")
+    end
+    if inst.AnimState.SetSymbolLightOverride then
+        inst.AnimState:SetSymbolLightOverride("red_vents", 1)
+    end
     inst.AnimState:AddOverrideBuild("cave_vent_fx")
 
     inst:SetPrefabNameOverride("cave_vent_rock")

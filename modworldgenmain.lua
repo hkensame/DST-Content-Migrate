@@ -90,6 +90,21 @@ do
     end
 end
 
+----------------<补丁：注册 DLC maptags 缺失的标签>----------------
+-- DLC0003（Hamlet）的 maptags.lua 缺少 "fumarolearea" / "not_mainland" 等标签，
+-- GetExtrasForRoom() 遇到未知标签时 self.map_tags.Tag[tag] 为 nil → crash。
+do
+    local maptags_module = require("map/maptags")
+    _G.package.loaded["map/maptags"] = function()
+        local result = maptags_module()
+        if result and result.Tag then
+            result.Tag["fumarolearea"] = result.Tag["fumarolearea"] or function(td) return "TAG", "fumarolearea" end
+            result.Tag["not_mainland"] = result.Tag["not_mainland"] or function(td) return "TAG", "not_mainland" end
+        end
+        return result
+    end
+end
+
 modimport "scripts/map/map_dst_maze_layouts.lua"
 
 modimport "scripts/dst_worldgen_config.lua"
