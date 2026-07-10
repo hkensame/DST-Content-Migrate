@@ -571,7 +571,7 @@ AddTask("DST_TheLabyrinth", {
         ["DST_Labyrinth"] = 6,
         ["DST_RuinedGuarden"] = 1,
     },
-    room_bg=GROUND.IMPASSABLE,
+    room_bg=GROUND.BRICK,
     background_room="DST_Labyrinth",
     colour={r=0.3,g=0.2,b=0.1,a=0.9},
 })

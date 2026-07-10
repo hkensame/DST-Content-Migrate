@@ -46,6 +46,17 @@ do
     end
 end
 
+-- ==================== 暴动循环注册 ====================
+-- 在 DST_CAVE 洞穴世界启动时挂载 nightmareclock 组件
+-- 组件文件位于 scripts/components/nightmareclock.lua
+AddSimPostInit(function(inst)
+    if inst.prefab and inst:HasTag("cave") then
+        if not inst.components.nightmareclock then
+            inst:AddComponent("nightmareclock")
+        end
+    end
+end)
+
 -- 覆写 LoadPrefabFile：确保多返回值的 prefab 文件的所有实体都被 mod.Prefabs 捕获
 -- DS 的 require() 只能拿到第一个返回值，而 LoadPrefabFile 内部用 {fn()} 捕获了全部
 -- 这里在原版基础上补充 mod.Prefabs，使 meta-prefab 能列出所有实体

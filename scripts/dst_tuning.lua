@@ -1125,3 +1125,18 @@ TUNING.ACID_INFUSION_MULT = TUNING.ACID_INFUSION_MULT or { STRONGER = 2 }
 -- 洞穴荧光花 (flower_cave)，仅枯萎变种使用
 TUNING.FLOWER_CAVE_REGROW_TIME = TUNING.FLOWER_CAVE_REGROW_TIME or total_day_time
 
+----------------<暴动循环 Nightmare Cycle TUNING>----------------
+-- 暴动各阶段段数（每段 = SEG_TIME 秒）
+-- DST 默认：CALM=6, WARN=3, WILD=6, DAWN=3
+TUNING.NIGHTMARE_SEGS = TUNING.NIGHTMARE_SEGS or {
+    CALM = 6,
+    WARN = 3,
+    WILD = 6,
+    DAWN = 3,
+}
+-- 阶段时长随机偏移（单位：段）
+TUNING.NIGHTMARE_SEG_VARIATION = TUNING.NIGHTMARE_SEG_VARIATION or 1
+-- segment 秒数（DST 默认 30）
+TUNING.SEG_TIME = TUNING.SEG_TIME or 30
+
+

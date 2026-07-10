@@ -2058,8 +2058,8 @@ AddRoom("DST_BGSacredRoom", Roomify(bgsacred))
 -- ======================== 遗迹：迷宫 LABYRINTH ========================
 AddRoom("DST_LabyrinthEntrance", {
     colour={r=0.3,g=0.2,b=0.1,a=0.9},
-    value = GROUND.TILES,
-
+    value = GROUND.MUD,
+    tags = {"ForceConnected", "LabyrinthEntrance"},
     type = NODE_TYPE.Room,
     contents =  {
         distributepercent = .2,
@@ -2078,8 +2078,9 @@ AddRoom("DST_LabyrinthEntrance", {
 
 AddRoom("DST_Labyrinth", {
     colour={r=0.3,g=0.2,b=0.1,a=0.9},
-    value = GROUND.IMPASSABLE,
-
+    value = GROUND.MUD,
+    tags = {"Labyrinth"},
+    internal_type = NODE_INTERNAL_CONNECTION_TYPE.EdgeCentroid,
     type = NODE_TYPE.Room,
     contents =  {
         distributepercent = 0.1,
@@ -2104,8 +2105,10 @@ AddRoom("DST_Labyrinth", {
 AddRoom("DST_RuinedGuarden", {
     colour={r=0.3,g=0.2,b=0.1,a=0.3},
     value = GROUND.MUD,
+    tags = {"LabyrinthEntrance"},
     required_prefabs = {"minotaur_spawner"},
     type = NODE_TYPE.Room,
+    internal_type = NODE_INTERNAL_CONNECTION_TYPE.EdgeSite,
     contents =  {
         countstaticlayouts = {
             ["WalledGarden"] = 1,
