@@ -47,10 +47,10 @@ do
 end
 
 -- ==================== 暴动循环注册 ====================
--- 在 DST_CAVE 洞穴世界启动时挂载 nightmareclock 组件
--- 组件文件位于 scripts/components/nightmareclock.lua
+-- 仅挂载到 DST_CAVE 自定义层级，不影响 DS 原版洞穴
+-- 原版洞穴自己有 nightmareclock 且事件名不同（phasechange vs nightmarephasechanged）
 AddSimPostInit(function(inst)
-    if inst.prefab and inst:HasTag("cave") then
+    if inst.meta and inst.meta.level_id == "DST_CAVE" then
         if not inst.components.nightmareclock then
             inst:AddComponent("nightmareclock")
         end
