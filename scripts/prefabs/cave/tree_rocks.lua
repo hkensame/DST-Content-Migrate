@@ -95,7 +95,8 @@ end
 
 local function GetLootWeightedTable(inst)
     local x, y, z = inst.Transform:GetWorldPosition()
-    local id, index = TheWorld.Map:GetTopologyIDAtPoint(x, y, z)
+    local theWorld = inst:GetTheWorld()
+    local id, index = theWorld and theWorld.Map:GetTopologyIDAtPoint(x, y, z)
     if id then
         local loot_key = GetLootKey(id)
         if loot_key then
@@ -367,7 +368,7 @@ local function MakeRock(inst, no_change_physics)
     inst:RemoveComponent("workable")
     inst:RemoveTag("shelter")
     inst:RemoveComponent("hauntable")
-    MakeHauntableWork(inst)
+    if rawget(_G, "MakeHauntableWork") then MakeHauntableWork(inst) end
 
     if not no_change_physics then
         RemovePhysicsColliders(inst)
@@ -637,11 +638,15 @@ local function MakeRockTree(name, build, stage)
         growable.magicgrowable = true
         growable:StartGrowing()
 
-        inst:AddComponent("plantregrowth")
-        inst.components.plantregrowth:SetRegrowthRate(GetBuild(inst).regrowth_tuning.OFFSPRING_TIME)
-        inst.components.plantregrowth:SetProduct(GetBuild(inst).regrowth_product)
-        inst.components.plantregrowth:SetSearchTag("rock_tree")
-        inst.components.plantregrowth:SetSkipCanPlantCheck(true)
+        -- DS 无 plantregrowth 组件（DST 植物再生系统）
+        local ok_pr, err_pr = pcall(function()
+            inst:AddComponent("plantregrowth")
+            inst.components.plantregrowth:SetRegrowthRate(GetBuild(inst).regrowth_tuning.OFFSPRING_TIME)
+            inst.components.plantregrowth:SetProduct(GetBuild(inst).regrowth_product)
+            inst.components.plantregrowth:SetSearchTag("rock_tree")
+            inst.components.plantregrowth:SetSkipCanPlantCheck(true)
+        end)
+        if not ok_pr then print("[tree_rocks] plantregrowth skipped:", err_pr) end
 
         local colour = 0.5 + math.random() * 0.5
         inst.AnimState:SetSymbolMultColour("tree_rock_main", colour, colour, colour, 1)
@@ -663,7 +668,7 @@ local function MakeRockTree(name, build, stage)
 
         inst:DoTaskInTime(0, SetupVineLoot)
 
-        MakeHauntableWork(inst)
+        if rawget(_G, "MakeHauntableWork") then MakeHauntableWork(inst) end
 
         return inst
     end

@@ -1828,7 +1828,7 @@ local bgwilds = {
     }
 }
 AddRoom("DST_BGWilds", bgwilds)
-AddRoom("DST_BGWildsRoom", Roomify(bgwils))
+AddRoom("DST_BGWildsRoom", Roomify(bgwilds))
 
 -- ======================== 遗迹：住宅区 RESIDENTIAL ========================
 AddRoom("DST_Vacant", {
@@ -2123,15 +2123,16 @@ AddRoom("DST_RuinedGuarden", {
 AddRoom("DST_AtriumMazeEntrance", {
     colour={r=0.2,g=0.1,b=0.2,a=0.9},
     value = GROUND.FAKE_GROUND,
-    tags = {"ForceConnected", "MazeEntrance", "RoadPoison"},
+    -- DS 的 C++ 引擎不支持 meta-maze（GetPointsForMetaMaze），去掉 MazeEntrance 标签
+    tags = {"ForceConnected", "RoadPoison"},
     type = NODE_TYPE.Room,
     contents = {},
 })
 AddRoom("DST_AtriumMazeRooms", {
     colour={r=0.2,g=0.1,b=0.2,a=0.9},
     value = GROUND.FAKE_GROUND,
-    tags = {"Maze", "ForceDisconnected", "RoadPoison"},
-    internal_type = NODE_INTERNAL_CONNECTION_TYPE.EdgeCentroid,
+    -- DS 的 C++ 引擎不支持 Maze 标签的 meta-maze 处理，改为普通房间
+    tags = {"ForceDisconnected", "RoadPoison"},
     type = NODE_TYPE.Room,
     contents = {},
 })
@@ -2159,7 +2160,8 @@ AddRoom("DST_AtriumEnd", {
 AddRoom("DST_ArchiveMazeEntrance", {
     colour={r=0.4,g=0.4,b=0.5,a=0.9},
     value = GROUND.FUNGUSMOON,
-    tags = {"ForceConnected", "MazeEntrance", "RoadPoison"},
+    -- DS 的 C++ 引擎不支持 meta-maze（GetPointsForMetaMaze），去掉 MazeEntrance 标签
+    tags = {"ForceConnected", "RoadPoison"},
     type = NODE_TYPE.Room,
     contents =  {
         distributepercent = 0.5,
@@ -2182,8 +2184,8 @@ AddRoom("DST_ArchiveMazeEntrance", {
 AddRoom("DST_ArchiveMazeRooms",  { -- layout contents determined by maze
     colour={r=0.4,g=0.4,b=0.5,a=0.9},
     value = GROUND.ARCHIVE,
-    tags = {"ForceDisconnected", "Maze", "RoadPoison"},
-    internal_type = NODE_INTERNAL_CONNECTION_TYPE.EdgeCentroid,
+    -- DS 的 C++ 引擎不支持 Maze 标签的 meta-maze 处理，改为普通房间
+    tags = {"ForceDisconnected", "RoadPoison"},
     type = NODE_TYPE.Room,
     contents = {},
 })

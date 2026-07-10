@@ -51,7 +51,13 @@ local function PlayFossilizingAnim(proxy, anim)
         inst.entity:SetParent(parent.entity)
     end
 
-    inst.Transform:SetFromProxy(proxy.GUID)
+    -- DS 无 SetFromProxy，手动复制 proxy 位置
+    if inst.Transform.SetFromProxy then
+        inst.Transform:SetFromProxy(proxy.GUID)
+    elseif proxy and proxy.Transform then
+        local x, y, z = proxy.Transform:GetWorldPosition()
+        inst.Transform:SetPosition(x, y, z)
+    end
 
     inst.AnimState:SetBank("sinkhole_spawn_fx")
     inst.AnimState:SetBuild("sinkhole_spawn_fx")

@@ -48,7 +48,7 @@ local function fn()
 
     MakeSmallBurnable(inst)
     MakeSmallPropagator(inst)
-    MakeHauntableIgnite(inst)
+    if rawget(_G, "MakeHauntableIgnite") then MakeHauntableIgnite(inst) end
 
     inst.OnSave = onsave
     inst.OnLoad = onload

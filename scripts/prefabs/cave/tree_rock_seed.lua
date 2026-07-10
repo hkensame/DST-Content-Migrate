@@ -22,14 +22,23 @@ local function OnDeploy(inst, pt)
 end
 
 local function CanDeploy(inst, pt, mouseover, deployer, rot)
-    local tile = TheWorld.Map:GetTileAtPoint(pt:Get())
+    local theWorld = rawget(_G, "TheWorld")
+    if theWorld == nil then return false end
+    local tile = theWorld.Map:GetTileAtPoint(pt:Get())
     if not TileGroupManager:IsLandTile(tile) then
         return false
     end
     if TileGroupManager:IsTemporaryTile(tile) then
         return false
     end
-    if not TheWorld.Map:IsDeployPointClear(pt, inst, inst.replica.inventoryitem:DeploySpacingRadius()) then
+    local spacing = 2 -- DS 无 replica/deploy_spacing，用固定值
+    if inst.replica and inst.replica.inventoryitem then
+        spacing = inst.replica.inventoryitem:DeploySpacingRadius() or 2
+    elseif inst.components and inst.components.inventoryitem
+           and inst.components.inventoryitem.deploy_spacing then
+        spacing = inst.components.inventoryitem.deploy_spacing
+    end
+    if not theWorld.Map:IsDeployPointClear(pt, inst, spacing) then
         return false
     end
     return true
@@ -86,7 +95,7 @@ local function fn()
 
     MakeSmallBurnable(inst, TUNING.SMALL_BURNTIME)
     MakeSmallPropagator(inst)
-    MakeHauntableLaunchAndIgnite(inst)
+    if rawget(_G, "MakeHauntableLaunchAndIgnite") then MakeHauntableLaunchAndIgnite(inst) end
 
     return inst
 end

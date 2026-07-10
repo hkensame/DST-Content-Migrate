@@ -126,7 +126,8 @@ local function scanfordevice(inst)
     if not ent then
 
         inst.registered_devices = {} -- clear, then populate via calling_all_devices
-        TheWorld:PushEvent("calling_moon_relics", {caller = inst})
+        local theWorld = inst:GetTheWorld()
+        if theWorld then theWorld:PushEvent("calling_moon_relics", {caller = inst}) end
 
         local ents = inst.registered_devices --TheSim:FindEntities(x, y, z, 9999, MOON_RELIC_MUST_TAG)
 
@@ -147,7 +148,8 @@ local function scanfordevice(inst)
     if not ent then
         local crown = false
         inst.registered_devices = {} -- clear, then populate via calling_all_devices
-        TheWorld:PushEvent("calling_moon_relics", {caller = inst})
+        local theWorld = inst:GetTheWorld()
+        if theWorld then theWorld:PushEvent("calling_moon_relics", {caller = inst}) end
         local ents = inst.registered_devices
         for i, thisent in ipairs(ents)do
             if thisent.prefab == "moon_altar_crown" or thisent.prefab == "moon_altar_cosmic" then

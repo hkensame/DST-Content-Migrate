@@ -25,19 +25,15 @@ local function testbetweenpoints(pt1,pt2)
     local x = x1 + xdiff
     local z = z1 + zdiff
 
-    local world = rawget(_G, "TheWorld")
-    if world == nil then return false end
-    return world.Map:IsVisualGroundAtPoint(x,0,z)
+    return TheWorld.Map:IsVisualGroundAtPoint(x,0,z)
 end
 
 local WAYPOINT_MUST_TAGS = {"archive_waypoint"}
 local function findwaypoint(inst)
-
     local target = nil
     local x,y,z = 0,0,0
     local wp = inst.lastwaypointGUID and Ents[inst.lastwaypointGUID] or nil
     if not wp then
-        -- find nearest instead.. using the inst doesnt work well.
         x,y,z = inst.Transform:GetWorldPosition()
         local ents = TheSim:FindEntities(x,y,z, WAYPOINT_RANGE,WAYPOINT_MUST_TAGS)
         local dist = 9999*9999
@@ -80,8 +76,6 @@ local function findwaypoint(inst)
     return target
 end
 
----------------------------------------------------------------------------------------------------------
-
 local function GetLeaderPos(inst)
     local leader = GetLeader(inst)
     return leader and leader:GetPosition() or nil
@@ -120,7 +114,7 @@ end
 local POWERPOINT_MUST_TAGS = { "security_powerpoint" }
 local POWERPOINT_CANT_TAGS =  { "INLIMBO", "FX" }
 
-local function FindPowerPoint(inst) -- keep similar logic to vault_security_desk::IsPowerPointNear
+local function FindPowerPoint(inst)
     local hasleader = GetLeader(inst) ~= nil
 
     local x, y, z = inst.Transform:GetWorldPosition()
@@ -163,18 +157,18 @@ function Archive_SecurityPulseBrain:OnStart()
         Follow(self.inst, FindPowerPoint, MIN_FOLLOW_POWERPOINT, TARGET_FOLLOW_POWERPOINT, MAX_FOLLOW, false, nil, true),
         WhileNode(function() return ShouldHoldFormation(self.inst) end, "HoldFormation",
             PriorityNode({
-	        	NotDecorator(FailIfSuccessDecorator(Leash(self.inst, GetSparkFormationPos, 0.5, 0.5))),
+                NotDecorator(FailIfSuccessDecorator(Leash(self.inst, GetSparkFormationPos, 0.5, 0.5))),
             }, .25)),
         WhileNode(function() return self.inst.patrol == true end, "find waypoints",
             Follow(self.inst, findwaypoint, MIN_FOLLOW, TARGET_FOLLOW, MAX_FOLLOW, false)),
         DoAction(self.inst, GoHomeAction),
         ParallelNodeAny{
-			SequenceNode{
-				WaitNode(GetDespawnTime),
-				ActionNode(function() self.inst:Despawn() end),
-			},
-			Wander(self.inst, nil, nil, WANDER_TIMES),
-		},
+            SequenceNode{
+                WaitNode(GetDespawnTime),
+                ActionNode(function() self.inst:Despawn() end),
+            },
+            Wander(self.inst, nil, nil, WANDER_TIMES),
+        },
         StandStill(self.inst),
     }, .25)
     self.bt = BT(self.inst, root)

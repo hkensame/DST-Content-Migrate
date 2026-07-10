@@ -342,11 +342,23 @@ local function MakeChandelier(name, build, light_params, flamedata, sfxheight, c
 end
 
 
+local function archive_OnSave(inst, data)
+    data.lightphase = inst._lightphase
+end
+
+local function archive_OnLoad(inst, data)
+    if data and data.lightphase then
+        inst._lightphase = data.lightphase
+    end
+end
+
 local function archive_master_postinit(inst)
 	inst:AddComponent("playerprox")
 	inst.components.playerprox:SetDist(20, 23)
 	inst.components.playerprox:SetOnPlayerNear(inst.updatelight)
 	inst.components.playerprox:SetOnPlayerFar(inst.updatelight)
+    inst.OnSave = archive_OnSave
+    inst.OnLoad = archive_OnLoad
 end
 
 
@@ -429,10 +441,33 @@ local function crawler_DropCrawler(inst)
 	inst:updatelight()
 end
 
+local function crawler_OnSave(inst, data)
+    data.lightphase = inst._lightphase
+    data.dropped = inst.dropped or nil
+    data.detached = inst.detached or nil
+end
+
+local function crawler_OnLoad(inst, data)
+    if data then
+        inst.dropped = data.dropped or nil
+        inst.detached = data.detached or nil
+        if inst.dropped then
+            inst.persists = false
+            inst.Light:Enable(false)
+            inst.AnimState:ClearBloomEffectHandle()
+        end
+        if data.lightphase then
+            inst._lightphase = data.lightphase
+        end
+    end
+end
+
 local function crawler_master_postinit(inst)
 	inst.vaultpowered = true
 	inst.updatelight = crawler_UpdateLight
 	inst.DropCrawler = crawler_DropCrawler
+    inst.OnSave = crawler_OnSave
+    inst.OnLoad = crawler_OnLoad
 
 	inst:updatelight()
 end

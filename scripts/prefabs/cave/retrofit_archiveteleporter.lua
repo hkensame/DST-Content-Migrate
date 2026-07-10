@@ -12,12 +12,14 @@ local prefabs = {
 }
 
 local function can_spawn_here(x, z)
+	local theWorld = rawget(_G, "TheWorld")
+	if theWorld == nil then return false end
 	local min_space = .5
-	if TheWorld.Map:IsAboveGroundAtPoint(x, 0, z) and
-		TheWorld.Map:IsAboveGroundAtPoint(x + min_space, 0, z) and
-		TheWorld.Map:IsAboveGroundAtPoint(x, 0, z + min_space) and
-		TheWorld.Map:IsAboveGroundAtPoint(x - min_space, 0, z) and
-		TheWorld.Map:IsAboveGroundAtPoint(x, 0, z - min_space) then
+	if theWorld.Map:IsAboveGroundAtPoint(x, 0, z) and
+		theWorld.Map:IsAboveGroundAtPoint(x + min_space, 0, z) and
+		theWorld.Map:IsAboveGroundAtPoint(x, 0, z + min_space) and
+		theWorld.Map:IsAboveGroundAtPoint(x - min_space, 0, z) and
+		theWorld.Map:IsAboveGroundAtPoint(x, 0, z - min_space) then
 		return #TheSim:FindEntities(x, 0, z, min_space) == 0
 	end
 
@@ -26,10 +28,12 @@ end
 
 local function DoRetrofitting(inst, force_pt)
 	local w2 = nil
+	local theWorld = rawget(_G, "TheWorld")
+	if theWorld == nil then return end
 	if force_pt == nil then
 		-- find location in blue mush forest for a wormhole to add
 		local id_prefx = "BlueForest"
-		local topology = TheWorld.topology
+		local topology = theWorld.topology
 		local mush_node_indexies = {}
 		for i, id in ipairs(topology.ids) do
 			if id:sub(1, #id_prefx) == id_prefx then
@@ -40,7 +44,7 @@ local function DoRetrofitting(inst, force_pt)
 
 		for _, index in ipairs(mush_node_indexies) do
 			local area =  topology.nodes[index]
-			local points_x, points_z = TheWorld.Map:GetRandomPointsForSite(area.x, area.y, area.poly, 15)
+			local points_x, points_z = theWorld.Map:GetRandomPointsForSite(area.x, area.y, area.poly, 15)
 			for i = 1, #points_x do
 				if can_spawn_here(points_x[i], points_z[i]) then
 					w2 = SpawnPrefab("wormhole")

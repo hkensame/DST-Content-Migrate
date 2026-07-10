@@ -71,7 +71,13 @@ local function makesmallmist(proxy)
     inst.entity:SetCanSleep(false)
     inst.persists = false
 
-    inst.Transform:SetFromProxy(proxy.GUID)
+    -- DS 无 SetFromProxy，手动复制 proxy 位置
+    if inst.Transform.SetFromProxy then
+        inst.Transform:SetFromProxy(proxy.GUID)
+    elseif proxy and proxy.Transform then
+        local x, y, z = proxy.Transform:GetWorldPosition()
+        inst.Transform:SetPosition(x, y, z)
+    end
 
     inst.AnimState:SetBuild("moonglass_bigwaterfall_steam")
     inst.AnimState:SetBank("moonglass_bigwaterfall_steam")
@@ -132,7 +138,9 @@ local function poolfn()
 
     inst:AddComponent("inspectable")
 
-    inst:AddComponent("watersource")
+    -- DS 无 watersource 组件（DST 水源系统）
+    local ok, err = pcall(function() inst:AddComponent("watersource") end)
+    if not ok then print("[grotto_pool_small] watersource skipped:", err) end
 
     inst:ListenForEvent("onremove", on_removed)
 

@@ -276,8 +276,12 @@ local function hotspring()
     --inst:WatchWorldState("isfullmoon", OnFullMoonChanged)
 	inst:ListenForEvent("fullmoon", function() OnFullMoonChanged(inst, true) end, GetWorld())
 
-    inst:AddComponent("bathbombable")
-    inst.components.bathbombable:SetOnBathBombedFn(OnBathBombed)
+    -- DS 无 bathbombable 组件（DST 浴盐球系统）
+    local ok_bb, err_bb = pcall(function()
+        inst:AddComponent("bathbombable")
+        inst.components.bathbombable:SetOnBathBombedFn(OnBathBombed)
+    end)
+    if not ok_bb then print("[hotspring] bathbombable skipped:", err_bb) end
 
     inst:AddComponent("workable")
     inst.components.workable:SetWorkAction(ACTIONS.MINE)

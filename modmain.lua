@@ -76,7 +76,7 @@ PrefabFiles =
   "rock_break_fx", --特效
   "cave_hole",
   "sacred_chest",
-  "fx",
+  -- "fx", -- 已移除，改用 dst_fx.lua
 --天体英雄
   "alterguardian/alterguardian_phase1",
   "alterguardian/alterguardian_phase2",
@@ -249,6 +249,8 @@ PrefabFiles =
   "cave/moon_mushroom",
   -- 月蘑菇森林（Moon Mushroom Forest）
   "cave/cavelightmoon", --月光洞穴灯（3种 prefab）
+  "cave/molebat", --无眼蝠
+  "cave/molebathill", --无眼蝠巢穴
   "cave/cavelight", --洞穴灯（含 cavelight_atrium）
   "cave/mushgnome", --月蘑菇地精
   "cave/mushgnome_spawner", --月蘑菇地精生成器
@@ -351,6 +353,8 @@ Assets = {
   Asset("ANIM", "anim/cave/turf_archives.zip"),
   Asset("ANIM", "anim/cave/turf_fungus_moon.zip"),
   Asset("ANIM", "anim/cave/turfcraftingstation.zip"),
+  Asset("ANIM", "anim/cave/molebat.zip"),
+  Asset("ANIM", "anim/cave/molebathill.zip"),
 
   -- vent 区动画
   Asset("ANIM", "anim/tree_rock_short.zip"),

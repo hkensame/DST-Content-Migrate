@@ -94,3 +94,19 @@ modimport "scripts/map/map_dst_maze_layouts.lua"
 
 modimport "scripts/dst_worldgen_config.lua"
 
+----------------<诊断：包裹 forest_map.Generate 以定位闪退>----------------
+do
+    local fm = require "map/forest_map"
+    local _origGen = fm.Generate
+    fm.Generate = function(prefab, w, h, tasks, wgc, lt, level)
+        print("[DIAG-WG] GenerateVoro START prefab="..tostring(prefab).." w="..tostring(w).." h="..tostring(h).." tasks="..tostring(#(tasks or {})))
+        local ok, result = pcall(_origGen, prefab, w, h, tasks, wgc, lt, level)
+        if not ok then
+            print("[DIAG-WG] GenerateVoro ERROR: "..tostring(result))
+            return nil
+        end
+        print("[DIAG-WG] GenerateVoro DONE, result="..tostring(result ~= nil))
+        return result
+    end
+end
+

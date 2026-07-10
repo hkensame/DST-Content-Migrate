@@ -275,7 +275,7 @@ CommonStates.AddWalkStates(states, {
     endtimeline = {
         TimeEvent(0, PlayFootstep),
     },
-}, true)
+}, nil, true)
 
 CommonStates.AddRunStates(states, {
     runtimeline = {

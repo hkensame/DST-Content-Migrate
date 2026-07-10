@@ -755,7 +755,7 @@ local function checkforgems(inst)
 
     local theWorld = inst:GetTheWorld()
     local archive = theWorld ~= nil and theWorld.components.archivemanager
-    if archive and #ents >= 1  then
+    if archive and #ents >= 3  then
         archive:SwitchPowerOn(true)
         startpowersound(inst)
         startshadowwar(inst)
@@ -837,18 +837,24 @@ local function OnSaveSwitch(inst, data)
     if inst.shadowwartask then
         data.startwar = true
     end
+    if inst.gem then
+        data.gem = true
+    end
 end
 
 local function OnLoadPostPassSwitch(inst, newents, data)
     if data and data.spawnopal then
         local opal = SpawnPrefab("opalpreciousgem")
-        inst.components.trader:AcceptGift(nil,opal)
+        inst.components.trader:AcceptGift(nil, opal)
     end
 
-    if not inst.components.pickable.caninteractwith then
-        OnGemTaken(inst)
-    else
-        OnGemGiven(inst)
+    -- 从存档数据恢复宝石状态，因为 pickable.caninteractwith 不会自动存档
+    if data and data.gem then
+        inst.gem = true
+        inst.components.pickable.caninteractwith = true
+        inst.components.trader:Disable()
+        inst.AnimState:PlayAnimation("idle_full", false)
+        checkforgems(inst)
     end
 
     if data and data.startwar then

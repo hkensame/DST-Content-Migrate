@@ -215,7 +215,8 @@ local function fn()
     inst.entity:AddAnimState()
     inst.entity:AddSoundEmitter()
     inst.entity:AddMiniMapEntity()
-    inst.entity:AddNetwork()
+    -- DS 无 AddNetwork / SetPristine（DST 网络系统）
+    if inst.entity.AddNetwork then inst.entity:AddNetwork() end
 
     inst.MiniMapEntity:SetIcon("sacred_chest.png")
 
@@ -226,9 +227,10 @@ local function fn()
     inst.scrapbook_anim = "closed"
     inst.scrapbook_specialinfo = "SACREDCHEST"
 
-    inst.entity:SetPristine()
+    if inst.entity.SetPristine then inst.entity:SetPristine() end
 
-    if not TheWorld.ismastersim then
+    -- DS 单机无 ismastersim 概念，始终为 true；跳过非主机 return
+    if rawget(_G, "TheWorld") and TheWorld.ismastersim == false then
         return inst
     end
 
@@ -236,14 +238,24 @@ local function fn()
 	inst.components.inspectable.getstatus = getstatus
 
     inst:AddComponent("container")
-    inst.components.container:WidgetSetup("sacred_chest")
+    -- DS 无 WidgetSetup，手动设置槽位数（sacred_chest = 9 格）
+    if inst.components.container.WidgetSetup then
+        inst.components.container:WidgetSetup("sacred_chest")
+    else
+        inst.components.container:SetNumSlots(9)
+    end
     inst.components.container.onopenfn = onopen
     inst.components.container.onclosefn = onclose
     inst.components.container.skipclosesnd = true
     inst.components.container.skipopensnd = true
 
-    inst:AddComponent("hauntable")
-    inst.components.hauntable.cooldown = TUNING.HAUNT_COOLDOWN_SMALL
+    -- DS 无 hauntable 组件
+    if rawget(_G, "AddComponent") or true then
+        local ok, err = pcall(function()
+            inst:AddComponent("hauntable")
+            inst.components.hauntable.cooldown = TUNING.HAUNT_COOLDOWN_SMALL or 4
+        end)
+    end
 
     inst:AddComponent("timer")
     inst:ListenForEvent("timerdone", OnTimerDone)

@@ -2,7 +2,7 @@
 -- 从 DST 源码 scripts/prefabs/cavelightmoon.lua 移植
 -- 改动：
 --   🔴 移除 AddNetwork / SetPristine / ismastersim 守卫
---   🔴 移除 molebat 生成器（spawner 组件 + playerprox + WorldSettings）
+--   🟢 保留 molebat 生成器（spawner 组件 + playerprox）用于大号月光灯
 --   🔴 移除 net_tinybyte 网络变量，改用普通字段
 --   🔴 移除 WatchWorldState，改用 DoPeriodicTask 轮询
 --   🟡 洞穴月相判定改用 GetClock() + GetWorld()
@@ -10,6 +10,11 @@
 local assets =
 {
     Asset("ANIM", "anim/cave_exit_lightsource.zip"),
+}
+
+local large_prefabs =
+{
+    "molebat",
 }
 
 local moonlight_params =
@@ -165,7 +170,22 @@ local function OnInit(inst)
     inst._phasepoll = inst:DoPeriodicTask(5, OnPhasePoll)
 end
 
-local function common_fn(widthscale)
+-- 必须在 common_fn 之前定义（strict.lua 要求变量先声明后使用）
+local function onvacate(inst, child)
+    child.sg:GoToState("fall")
+    if inst._player_spawn_target ~= nil and inst._player_spawn_target:IsValid() then
+        child.components.combat:SuggestTarget(inst._player_spawn_target)
+    end
+end
+
+local function on_player_near(inst, player)
+    if inst.components.spawner ~= nil and not inst.components.spawner:IsSpawnPending() then
+        inst._player_spawn_target = player
+        inst.components.spawner:SpawnWithDelay(5 + math.random() * 5)
+    end
+end
+
+local function common_fn(widthscale, is_spawner)
     local inst = CreateEntity()
 
     inst.entity:AddTransform()
@@ -204,13 +224,23 @@ local function common_fn(widthscale)
     inst:DoTaskInTime(0, OnInit)
 
     -- 🔴 DS 不需要 SetPristine / ismastersim 守卫
-    -- 🔴 DS 移除了 molebat spawner 组件
+
+    if is_spawner and TUNING.MOLEBAT_ENABLED then
+        inst:AddComponent("spawner")
+        inst.components.spawner:Configure("molebat", TUNING.MOLEBAT_ALLY_COOLDOWN * 2)
+        inst.components.spawner.onvacate = onvacate
+        inst.components.spawner:CancelSpawning()
+
+        inst:AddComponent("playerprox")
+        inst.components.playerprox:SetDist(5, 10)
+        inst.components.playerprox:SetOnPlayerNear(on_player_near)
+    end
 
     return inst
 end
 
 local function normalfn()
-    return common_fn(0.7)
+    return common_fn(0.7, true)
 end
 
 local function smallfn()
@@ -221,6 +251,6 @@ local function tinyfn()
     return common_fn(0.2)
 end
 
-return Prefab("cavelightmoon", normalfn, assets),
+return Prefab("cavelightmoon", normalfn, assets, large_prefabs),
        Prefab("cavelightmoon_small", smallfn, assets),
        Prefab("cavelightmoon_tiny", tinyfn, assets)

@@ -107,3 +107,25 @@ AddPrefabPostInit("archive_lockbox_dispencer", function(inst)
         end, theWorld)
     end)
 end)
+
+-- archive_resonator：注入 GetTheWorld（供 scanfordevice 调用 TheWorld:PushEvent）
+AddPrefabPostInit("archive_resonator", _injectGetTheWorld)
+
+-- tree_rocks：注入 GetTheWorld（供 GetLootWeightedTable 调用 TheWorld.Map）
+AddPrefabPostInit("tree_rocks", _injectGetTheWorld)
+
+-- molebat：注入 GetTheWorld + 注册地震事件（DS 无 TheWorld.net，事件源为 TheWorld 本身）
+AddPrefabPostInit("molebat", function(inst)
+    _injectGetTheWorld(inst)
+    inst:DoTaskInTime(0, function()
+        local theWorld = rawget(GLOBAL, "TheWorld")
+        if theWorld == nil then return end
+        inst:ListenForEvent("startquake", function()
+            inst._quaking = true
+            if inst.components.sleeper then inst.components.sleeper:WakeUp() end
+        end, theWorld)
+        inst:ListenForEvent("endquake", function()
+            inst._quaking = nil
+        end, theWorld)
+    end)
+end)

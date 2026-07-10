@@ -57,7 +57,7 @@ end
 
 -- 挑战系统
 local function OnNewTarget(inst, data)
-    if data.target:HasTag("fruitdragon") then
+    if data and data.target and data.target:HasTag("fruitdragon") then
         inst._min_challenge_attacks = inst._is_ripe and 0 or 2
     end
 end
@@ -115,16 +115,16 @@ end
 local function OnLostChallenge(inst)
     inst.components.entitytracker:ForgetEntity("home")
     inst.components.timer:StartTimer("panicing", TUNING.FRUITDRAGON and TUNING.FRUITDRAGON.CHALLENGE_LOST_PANIC_TIME or 15)
-    inst.components.combat:DropTarget()
+    inst.components.combat:SetTarget(nil)
 end
 
 local function onattackother(inst, data)
     if data.target and data.target:HasTag("fruitdragon") then
         if not KeepTarget(inst, data.target) then
-            inst.components.combat:DropTarget()
+            inst.components.combat:SetTarget(nil)
         elseif inst._min_challenge_attacks <= 0 and math.random() < (TUNING.FRUITDRAGON and TUNING.FRUITDRAGON.CHALLENGE_WIN_CHANCE or 0.3) then
             data.target:PushEvent("lostfruitdragonchallenge")
-            inst.components.combat:DropTarget()
+            inst.components.combat:SetTarget(nil)
             inst.components.combat:TryRetarget()
         end
         inst._min_challenge_attacks = inst._min_challenge_attacks - 1

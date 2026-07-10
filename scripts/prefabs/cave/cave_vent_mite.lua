@@ -157,7 +157,8 @@ local function fn()
     inst:AddComponent("sanityaura")
     inst.components.sanityaura.aura = -TUNING.SANITYAURA_MED
 
-    inst:AddComponent("drownable")
+    -- DS 无 drownable 组件（无海洋系统）
+    -- inst:AddComponent("drownable")
     inst:AddComponent("knownlocations")
 
     inst:AddComponent("eater")
@@ -171,9 +172,10 @@ local function fn()
         inst.components.timer:StartTimer("shield_cooldown", 2 + math.random() * 3)
     end
 
-    inst:AddComponent("acidinfusible")
-    inst.components.acidinfusible:SetFXLevel(4)
-    inst.components.acidinfusible:SetMultipliers(TUNING.ACID_INFUSION_MULT.STRONGER)
+    -- DS 无 acidinfusible 组件（无酸蚀系统）
+    -- inst:AddComponent("acidinfusible")
+    -- inst.components.acidinfusible:SetFXLevel(4)
+    -- inst.components.acidinfusible:SetMultipliers(TUNING.ACID_INFUSION_MULT.STRONGER)
 
     inst.SetVentPhysics = SetVentPhysics
     inst.SetCharacterPhysics = SetCharacterPhysics
@@ -184,8 +186,8 @@ local function fn()
     MakeMediumBurnableCharacter(inst, "mite_body")
     MakeMediumFreezableCharacter(inst, "mite_body")
 
-    MakeHauntablePanic(inst)
-    AddHauntableCustomReaction(inst, CustomOnHaunt, true)
+    if rawget(_G, "MakeHauntablePanic") then MakeHauntablePanic(inst) end
+    if rawget(_G, "AddHauntableCustomReaction") then AddHauntableCustomReaction(inst, CustomOnHaunt, true) end
 
     return inst
 end

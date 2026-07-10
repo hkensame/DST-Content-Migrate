@@ -290,8 +290,8 @@ local function rock_fn()
 
     inst:DoTaskInTime(0, UpdateVentilation, POPULATING)
 
-    MakeHauntableWork(inst)
-    AddHauntableCustomReaction(inst, CustomOnHaunt, false)
+    if rawget(_G, "MakeHauntableWork") then MakeHauntableWork(inst) end
+    if rawget(_G, "AddHauntableCustomReaction") then AddHauntableCustomReaction(inst, CustomOnHaunt, false) end
 
     return inst
 end

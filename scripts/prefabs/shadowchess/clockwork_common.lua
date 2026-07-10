@@ -243,9 +243,9 @@ local function TryBefriendChess(inst, doer)
 		local target = inst.components.combat.target
 		if target and (IsAlly(inst, target) or (target.isplayer and not (TheNet and TheNet.GetPVPEnabled and TheNet:GetPVPEnabled()))) then
 			if target.components.combat and target.components.combat:TargetIs(inst) then
-				target.components.combat:DropTarget()
+				target.components.combat:SetTarget(nil)
 			end
-			inst.components.combat:DropTarget()
+			inst.components.combat:SetTarget(nil)
 		end
 
 		return true

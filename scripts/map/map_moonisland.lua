@@ -92,7 +92,7 @@ AddRoom("MoonIsland_Forest", {
 		contents = {
 		countstaticlayouts =
 		{
-			["moontrees_2"] = 2 + math.random(1, 5), --function(area) return 2 + math.max(1, math.floor(area / 75)) end,
+			["moontrees_2"] = 1 + math.random(1, 3), -- 减量避免放不下
             ["MoonTreeHiddenAxe"] = 1,
 		},
 		countprefabs =
@@ -328,7 +328,8 @@ AddRoom("ForceDisconnectedRoom2", {
 			["MoonIsland_Mine3"] = 1, -- 神像祭坛碎片
 			["MoonIsland_Mine4"] = 1, -- 种子祭坛碎片
 			["MoonIsland_Baths"] = 2,
-			["MoonIsland_Meadows"] = 3,
+			["MoonIsland_Meadows"] = 2,
+			["ForceDisconnectedRoom2"] = 1, -- 空房间缓冲，降低密度
 		},
 		room_bg=GROUND.METEOR,
 		--background_room="ForceDisconnectedRoom", --有这个很容易连到出生地

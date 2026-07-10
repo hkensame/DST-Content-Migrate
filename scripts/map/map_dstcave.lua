@@ -33,6 +33,10 @@ Layouts["DSTCaveEntrance"] = {
 ----------------<洞穴出生点静态布局>----------------
 Layouts["DSTCaveSpawn"] = StaticLayout.Get("map/static_layouts/dst_cave_spawn")
 
+----------------<月蘑菇水池静态布局>----------------
+Layouts["GrottoPoolBig"] = StaticLayout.Get("map/static_layouts/grotto_pool_large")
+Layouts["GrottoPoolSmall"] = StaticLayout.Get("map/static_layouts/grotto_pool_small")
+
 ----------------<DST 洞穴 Task 定义>----------------
 
 --===========================================================
@@ -239,7 +243,8 @@ AddTask("DST_ArchiveArea", {
         ["DST_ArchiveDistillery3"] = 1,
     },
     room_bg = GROUND.FUNGUSMOON,
-    maze_tiles = {rooms = {"archive_hallway","archive_hallway_two"}, bosses = {"archive_hallway"}, bridge_ground = GROUND.ARCHIVE},
+    -- maze_tiles 已禁用：DS 的 C++ 引擎不支持 meta-maze（GetPointsForMetaMaze）
+    -- maze_tiles = {rooms = {"archive_hallway","archive_hallway_two"}, bosses = {"archive_hallway"}, bridge_ground = GROUND.ARCHIVE},
     background_room="DST_ArchiveMazeRooms",
     cove_room_chance = 0,
     cove_room_max_edges = 0,
@@ -573,7 +578,7 @@ AddTask("DST_TheLabyrinth", {
 })
 
 AddTask("DST_SacredAltar",{
-    locks={LOCKS.RUINS, KEYS.SACRED},
+    locks={LOCKS.RUINS, LOCKS.SACRED},
     keys_given= {KEYS.RUINS},
     room_tags = {"Nightmare"},
     room_choices = {
@@ -598,7 +603,8 @@ AddTask("DST_AtriumMaze", {
     },
     room_bg = GROUND.TILES,
     background_room="DST_AtriumMazeRooms",
-    maze_tiles = {rooms = {"atrium_hallway", "atrium_hallway_two", "atrium_hallway_three"}, bosses = {"atrium_hallway_three"}},
+    -- maze_tiles 已禁用：DS 的 C++ 引擎不支持 meta-maze
+    -- maze_tiles = {rooms = {"atrium_hallway", "atrium_hallway_two", "atrium_hallway_three"}, bosses = {"atrium_hallway_three"}},
     make_loop = true,
     colour={r=0.2,g=0.1,b=0.2,a=0.9},
 })

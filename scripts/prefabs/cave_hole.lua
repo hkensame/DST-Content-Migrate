@@ -284,7 +284,8 @@ local function fn()
     inst.entity:AddAnimState()
     inst.entity:AddSoundEmitter()
     inst.entity:AddMiniMapEntity()
-    inst.entity:AddNetwork()
+    -- DS 无 AddNetwork（DST 网络系统）
+    if inst.entity.AddNetwork then inst.entity:AddNetwork() end
 
     inst:AddTag("groundhole")
     inst._groundhole_innerradius = INNER_RADIUS
@@ -325,9 +326,10 @@ local function fn()
         CreateSurfaceAnim().entity:SetParent(inst.entity)
     end
 
-    inst.entity:SetPristine()
+    if inst.entity.SetPristine then inst.entity:SetPristine() end
 
-    if not TheWorld.ismastersim then
+    -- DS 单机无 ismastersim，始终继续执行
+    if rawget(_G, "TheWorld") and TheWorld.ismastersim == false then
         return inst
     end
 

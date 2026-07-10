@@ -202,11 +202,13 @@ end
 
 local function OnSave(inst, data)
     data.light_state = inst.light_state
+    data.islighton = inst._islighton
 end
 
 local function OnLoad(inst, data)
     if data == nil then return end
     inst.light_state = data.light_state
+    inst._islighton = data.islighton or false
     if inst.components.pickable:CanBePicked() then
         if inst.light_state == LIGHT_STATES.ON then
             ForceOn(inst)
@@ -299,15 +301,26 @@ local function commonfn(bank, build, light_params, is_withered)
     MakeSmallPropagator(inst)
 
     if not is_withered then
-        inst:AddComponent("halloweenmoonmutable")
-        inst.components.halloweenmoonmutable:SetPrefabMutated("lightflier_flower")
-        inst.components.halloweenmoonmutable:SetOnMutateFn(OnMoonMutate)
-        AddToRegrowthManager(inst)
+        -- DS 无 halloweenmoonmutable 组件，安全跳过
+        local ok, err = pcall(function()
+            inst:AddComponent("halloweenmoonmutable")
+            inst.components.halloweenmoonmutable:SetPrefabMutated("lightflier_flower")
+            inst.components.halloweenmoonmutable:SetOnMutateFn(OnMoonMutate)
+        end)
+        if not ok then print("[flower_cave] halloweenmoonmutable skipped:", err) end
+        if rawget(_G, "AddToRegrowthManager") then AddToRegrowthManager(inst) end
     end
 
     inst.CanTurnOn = CanTurnOn
     inst.SetLightState = SetLightState
     inst.TurnOn = TurnOn
+
+    -- DS 无 IsInLight 方法，用 LightWatcher 实现兼容
+    if not inst.IsInLight then
+        inst.IsInLight = function(self)
+            return self.LightWatcher and self.LightWatcher:IsInLight() or false
+        end
+    end
 
     inst:ListenForEvent("timerdone", ontimerdone)
     inst:ListenForEvent("enterlight", enterlight)
@@ -317,7 +330,7 @@ local function commonfn(bank, build, light_params, is_withered)
     inst.OnEntityWake = OnWake
     inst.debugstringfn = GetDebugString
 
-    MakeHauntableIgnite(inst)
+    if rawget(_G, "MakeHauntableIgnite") then MakeHauntableIgnite(inst) end
 
     return inst
 end

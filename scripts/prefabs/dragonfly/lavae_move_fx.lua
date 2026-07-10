@@ -14,7 +14,13 @@ local function PlayFX(proxy, variation, scale)
     inst.entity:AddTransform()
     inst.entity:AddAnimState()
 
-    inst.Transform:SetFromProxy(proxy.GUID)
+    -- DS 无 SetFromProxy，手动复制 proxy 位置
+    if inst.Transform.SetFromProxy then
+        inst.Transform:SetFromProxy(proxy.GUID)
+    elseif proxy and proxy.Transform then
+        local x, y, z = proxy.Transform:GetWorldPosition()
+        inst.Transform:SetPosition(x, y, z)
+    end
     inst.Transform:SetScale(scale, scale, scale)
 
     inst.AnimState:SetBank("lava_trail_fx")
