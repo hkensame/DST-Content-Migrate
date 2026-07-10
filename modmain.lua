@@ -46,6 +46,15 @@ do
     end
 end
 
+-- ==================== 梦魇疯猪 Daywalker 注册 ====================
+AddPrefabPostInit("daywalkerspawningground", function(inst)
+    inst:DoTaskInTime(0, function()
+        local theWorld = rawget(GLOBAL, "TheWorld")
+        if theWorld == nil then return end
+        theWorld:PushEvent("ms_registerdaywalkerspawningground", inst)
+    end)
+end)
+
 -- ==================== 暴动循环注册 ====================
 -- 仅挂载到 DST_CAVE 自定义层级，不影响 DS 原版洞穴
 -- 原版洞穴自己有 nightmareclock 且事件名不同（phasechange vs nightmarephasechanged）
@@ -317,6 +326,10 @@ PrefabFiles =
   "cave/flower_cave_withered",        -- 仅 3 种枯萎变种（普通荧光花由 DS 原版 cave/objects/flower_cave 提供）
   -- 远古守卫者 spawner（重生机制）
   "cave/minotaur_spawner",
+  -- 梦魇疯猪 Daywalker（洞穴版）
+  "daywalker/daywalkerspawningground",
+  "daywalker/daywalker_pillar",
+  "daywalker/shadow_leech",
 } 
 
 Assets = {
@@ -447,6 +460,19 @@ Assets = {
   Asset("ANIM", "anim/toadstool/toadstool_dark_build.zip"),
   Asset("ANIM", "anim/toadstool/toadstool_dark_upg_build.zip"),
   Asset("ANIM", "anim/toadstool/toadstool_upg_build.zip"),
+
+  -- 梦魇疯猪 Daywalker（洞穴版）
+  Asset("ANIM", "anim/daywalker_build.zip"),
+  Asset("ANIM", "anim/daywalker_buried.zip"),
+  Asset("ANIM", "anim/daywalker_defeat.zip"),
+  Asset("ANIM", "anim/daywalker_hole.zip"),
+  Asset("ANIM", "anim/daywalker_imprisoned.zip"),
+  Asset("ANIM", "anim/daywalker_phase1.zip"),
+  Asset("ANIM", "anim/daywalker_phase2.zip"),
+  Asset("ANIM", "anim/daywalker_phase3.zip"),
+  Asset("ANIM", "anim/daywalker_pillar.zip"),
+  Asset("ANIM", "anim/daywalker_swipe_fx.zip"),
+  Asset("ANIM", "anim/shadow_leech.zip"),
 
 
   -- ========== SOUND ==========
