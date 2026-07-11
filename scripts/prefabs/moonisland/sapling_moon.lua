@@ -18,19 +18,20 @@ end
 
 
 local function dig_up(inst, chopper)
-	if inst.components.pickable and inst.components.pickable:CanBePicked() then
-		inst.components.lootdropper:SpawnLootPrefab("twigs")
-	end
-	if inst.components.pickable and not inst.components.pickable.withered then
-		local bush = inst.components.lootdropper:SpawnLootPrefab("dug_sapling_moon")
-	else
-		inst.components.lootdropper:SpawnLootPrefab("twigs")
+	if inst.components.pickable ~= nil and inst.components.lootdropper ~= nil then
+		if inst.components.pickable:CanBePicked() then
+			inst.components.lootdropper:SpawnLootPrefab(inst.components.pickable.product)
+		end
+		local withered = inst.components.pickable:IsWithered()
+		inst.components.lootdropper:SpawnLootPrefab(
+			(withered and "twigs")
+			or "dug_sapling_moon"
+		)
 	end
 	inst:Remove()
 end
 
-local function onpickedfn(inst)
-	-- 播放采集动画提供视觉反馈
+local function onpickedfn(inst, picker)
 	inst.AnimState:PlayAnimation("picked", false)
 end
 
@@ -40,7 +41,7 @@ local function onregenfn(inst)
 end
 
 local function makeemptyfn(inst)
-	if inst.components.pickable and inst.components.pickable:IsWithered() then
+	if not POPULATING and inst.components.pickable:IsWithered() then
 		inst.AnimState:PlayAnimation("dead_to_empty")
 		inst.AnimState:PushAnimation("empty", false)
 	else
@@ -49,14 +50,10 @@ local function makeemptyfn(inst)
 	end
 end
 
-local function makebarrenfn(inst)
-	if inst.components.pickable and inst.components.pickable.withered then
-		if not inst.components.pickable.hasbeenpicked then
-			inst.AnimState:PlayAnimation("full_to_dead")
-		else
-			inst.AnimState:PlayAnimation("empty_to_dead")
-		end
-		inst.AnimState:PushAnimation("idle_dead")
+local function makebarrenfn(inst, wasempty)
+	if not POPULATING and inst.components.pickable:IsWithered() then
+		inst.AnimState:PlayAnimation(wasempty and "empty_to_dead" or "full_to_dead")
+		inst.AnimState:PushAnimation("idle_dead", false)
 	else
 		inst.AnimState:PlayAnimation("idle_dead")
 	end
@@ -97,7 +94,9 @@ local function fn(Sim)
 
 	minimap:SetIcon( "sapling_moon.tex" ) 
 
-	inst:AddTag("gustable")
+    inst:AddTag("plant")
+    inst:AddTag("renewable")
+    inst:AddTag("gustable")
 
     inst:AddComponent("pickable")
     inst.components.pickable.picksound = "dontstarve/wilson/harvest_sticks"
@@ -139,4 +138,4 @@ local function fn(Sim)
     return inst
 end
 
-return Prefab( "forest/objects/sapling_moon", fn, assets, prefabs) 
+return Prefab("sapling_moon", fn, assets, prefabs) 

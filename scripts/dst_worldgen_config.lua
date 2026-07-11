@@ -44,3 +44,6 @@ if GetModConfigData("dstcave") == true then
         }
     end)
 end
+
+-- astral marker 布景（谐振器搜索目标，始终注入）
+modimport "scripts/map/map_moon_altar_astral_marker.lua"

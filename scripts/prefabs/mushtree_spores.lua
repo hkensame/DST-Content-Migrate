@@ -174,6 +174,8 @@ local function makespore(data)
 
         inst:AddComponent("inventoryitem")
         inst.components.inventoryitem.canbepickedup = false
+        inst.components.inventoryitem.atlasname = "images/" .. inst.prefab .. ".xml"
+        inst.components.inventoryitem.imagename = inst.prefab
 
         inst:AddComponent("workable")
         inst.components.workable:SetWorkAction(ACTIONS.NET)

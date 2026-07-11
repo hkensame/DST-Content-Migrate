@@ -31,6 +31,7 @@ local StaticLayout = require("map/static_layout")
 	Layouts["MoonAltarRockGlass"] = StaticLayout.Get("map/static_layouts/moonaltarrockglass")
 	Layouts["MoonAltarRockIdol"] = StaticLayout.Get("map/static_layouts/moonaltarrockidol")
 	Layouts["MoonAltarRockSeed"] = StaticLayout.Get("map/static_layouts/moonaltarrockseed")
+	Layouts["MoonRockShell"] = StaticLayout.Get("map/static_layouts/rockmoonshell")
 
     Layouts["BathbombedHotspring"] = StaticLayout.Get("map/static_layouts/bathbombedhotspring")
     Layouts["MoonFissures"] = StaticLayout.Get("map/static_layouts/fissures_1",
@@ -158,6 +159,7 @@ AddRoom("MoonIsland_Mine1", {
 		countstaticlayouts =
 		{
             ["MoonFissures"] = 1,
+            ["MoonRockShell"] = 1, --月球陨石壳（世界唯一）
             
 		},
 		distributepercent = 0.12,
@@ -262,7 +264,7 @@ AddRoom("MoonIsland_Baths", {
 		countprefabs =
 		{
 			hotspring = 1 + math.random(1, 8), --function(area) return math.max(1, math.floor(area / 50)) end,
-			fruitdragon = 1 + math.random(1, 20), --function(area) return math.max(1, math.floor(area / 25)) end,
+			fruitdragon = 1 + math.random(1, 10), --function(area) return math.max(1, math.floor(area / 25)) end,
 		},
 		distributepercent = 0.30,
 		distributeprefabs =
@@ -303,9 +305,9 @@ AddRoom("MoonIsland_Meadows", {
 
 AddRoom("ForceDisconnectedRoom2", {
 					colour={r=.45,g=.75,b=.45,a=.50},
-					--type = "blank",
-					--tags = {"ForceDisconnected"},
-					value = GROUND.GRASS,
+					type = "blank",
+					tags = {"ForceDisconnected"},
+					value = GROUND.IMPASSABLE,
 					contents = {},
 			})
 
@@ -321,7 +323,7 @@ AddRoom("ForceDisconnectedRoom2", {
 			["MoonIsland_IslandShard"] = 2,
 			["MoonIsland_Beach"] = 2,
 			--内陆区 METEOR 地皮（对应DST的Forest/Mine/Baths/Meadows）
-			["MoonIsland_Forest"] = 5,
+			["MoonIsland_Forest"] = 3,
 			-- 使用独立Mine房间，每个房间只放1个祭坛碎片，避免重复
 			["MoonIsland_Mine1"] = 1, -- 仅裂隙
 			["MoonIsland_Mine2"] = 1, -- 玻璃祭坛碎片
@@ -380,10 +382,10 @@ AddTask("NoneTasks", {
 		locks={LOCKS.ISLAND7},
 		keys_given={KEYS.TIER2},
 		room_choices={ 
-			["DummyExitRoom"] = 3, 
+			["DummyExitRoom"] = 1, 
 		},  
-		room_bg=GROUND.IMPASSABLE,
-		colour={r=1,g=1,b=1,a=0.3}
+		room_bg=GROUND.METEOR,
+		colour={r=0.3,g=0.3,b=0.5,a=0.3}
 }) 
 
 --tasks在世界生成

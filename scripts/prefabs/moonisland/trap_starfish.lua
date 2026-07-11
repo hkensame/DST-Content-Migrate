@@ -33,9 +33,11 @@ local mine_test_fn = function(target, inst)
 end
 local mine_test_tags = { "monster", "character", "animal" }
 local mine_must_tags = { "_combat" }
-local mine_no_tags = { "notraptrigger", "flying", "ghost", "playerghost" }
+local mine_no_tags = { "notraptrigger", "flying", "ghost", "playerghost", "spawnprotection" }
 
 local function do_snap(inst)
+    inst.SoundEmitter:PlaySound("turnoftides/creatures/together/starfishtrap/trap")
+
     local x, y, z = inst.Transform:GetWorldPosition()
     local target_ents = TheSim:FindEntities(x, y, z, TUNING.STARFISH_TRAP_RADIUS or 1, mine_must_tags, mine_no_tags, mine_test_tags)
     for i, target in ipairs(target_ents) do
@@ -87,6 +89,7 @@ local function on_reset(inst)
 
     if inst.AnimState:IsCurrentAnimation("trap_idle") then
         inst.AnimState:PlayAnimation("reset")
+        inst.SoundEmitter:PlaySound("turnoftides/creatures/together/starfishtrap/idle")
         inst.AnimState:PushAnimation("idle", true)
     end
 end
@@ -156,6 +159,7 @@ local function trap_starfish()
     inst:AddTag("wet")
 
     inst:AddComponent("inspectable")
+    inst.components.inspectable.nameoverride = "TRAP_STARFISH"
     inst.components.inspectable.getstatus = get_status
 
     inst:AddComponent("lootdropper")
@@ -200,6 +204,7 @@ local function on_deploy(inst, position, deployer)
             new_trap_starfish.components.mine:StopTesting()
             on_sprung(new_trap_starfish)
         end
+        new_trap_starfish.SoundEmitter:PlaySound("dontstarve/common/plant")
         new_trap_starfish.Transform:SetPosition(position:Get())
         inst:Remove()
     end
@@ -218,6 +223,7 @@ local function dug_trap_starfish()
     inst.AnimState:PlayAnimation("inactive", true)
 
     inst:AddComponent("inspectable")
+    inst.components.inspectable.nameoverride = "TRAP_STARFISH"
 
     inst:AddComponent("inventoryitem")
     inst.components.inventoryitem.atlasname = "images/star_trap_atlas.xml"
@@ -236,5 +242,6 @@ end
 
 local p1 = Prefab("trap_starfish", trap_starfish, assets, prefabs)
 local p2 = Prefab("dug_trap_starfish", dug_trap_starfish, assets, prefabs)
+local placer = MakePlacer("dug_trap_starfish_placer", "star_trap", "star_trap", "trap_idle")
 
-return p1, p2
+return p1, p2, placer

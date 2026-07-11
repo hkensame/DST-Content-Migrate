@@ -1,8 +1,13 @@
 -- 光飞虫状态图
 -- 移植自 DST，适配 DS
--- 移除：OnElectrocute、go_home、startled（编队相关）
+-- 保留了 go_home（回家必须）、startled（被花弹出时动画）
 
 require("stategraphs/commonstates")
+
+local actionhandlers =
+{
+    ActionHandler(ACTIONS.GOHOME, "go_home"),
+}
 
 local events =
 {
@@ -12,6 +17,10 @@ local events =
     CommonHandlers.OnDeath(),
     CommonHandlers.OnSleepEx(),
     CommonHandlers.OnWakeEx(),
+
+    EventHandler("startled", function(inst)
+        inst.sg:GoToState("startled")
+    end),
 }
 
 local states =
@@ -44,6 +53,41 @@ local states =
         events =
         {
             EventHandler("animover", function(inst) inst.sg:GoToState("idle") end),
+        },
+    },
+
+    State{
+        name = "startled",
+        tags = { "busy" },
+        onenter = function(inst, playanim)
+            inst.Physics:Stop()
+            inst.AnimState:PlayAnimation("hit")
+        end,
+        events =
+        {
+            EventHandler("animover", function(inst) inst.sg:GoToState("idle") end),
+        },
+    },
+
+    State{
+        name = "go_home",
+        tags = { "busy" },
+        onenter = function(inst, playanim)
+            inst.Physics:Stop()
+            inst.AnimState:PlayAnimation("sleep_pre")
+        end,
+        timeline =
+        {
+            TimeEvent(20 * FRAMES, function(inst)
+                local ba = inst:GetBufferedAction()
+                if ba ~= nil and ba.target ~= nil and ba.target:IsValid()
+                    and not (ba.target:HasTag("fire") or ba.target:HasTag("burnt")) then
+                    inst:PerformBufferedAction()
+                else
+                    inst:ClearBufferedAction()
+                    inst.sg:GoToState("idle")
+                end
+            end),
         },
     },
 }
@@ -81,4 +125,4 @@ CommonStates.AddCombatStates(states, {},
 
 CommonStates.AddFrozenStates(states)
 
-return StateGraph("lightflier", states, events, "idle")
+return StateGraph("lightflier", states, events, "idle", actionhandlers)

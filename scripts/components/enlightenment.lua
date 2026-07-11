@@ -95,6 +95,10 @@ function Enlightenment:Enable(source, duration)
         self.linger_task:Cancel()
         self.linger_task = nil
         print("[ENLIGHTEN] Enable: cancelled linger_task")
+        -- 恢复 behaviour_level（Disable 期间设为 0 表示暂停生成）
+        if self.behaviour_level <= 0 then
+            self.behaviour_level = 1
+        end
     end
 
     if self.enabled then
@@ -130,6 +134,11 @@ function Enlightenment:Disable(source)
         print(string.format("[ENLIGHTEN] Disable: removed source '%s'", source))
     end
 
+    -- 已完全退出，忽略后续 Disable 调用（防止 _DoDisable 后循环创建 linger）
+    if not self.enabled then
+        return
+    end
+
     -- 检查是否还有激活源
     local now = GetTime()
     local has_source = false
@@ -159,7 +168,14 @@ function Enlightenment:Disable(source)
         return
     end
 
-    -- 无激活源 → 启动延续计时
+    -- 无激活源 → 立即停止月灵生成（防止 linger 期间继续召唤）
+    if #self.gestalts > 0 then
+        print("[ENLIGHTEN] Disable: immediately despawning " .. #self.gestalts .. " gestalts")
+        self:_DespawnAllGestalts()
+    end
+    self.behaviour_level = 0 -- 阻止 CheckThresholds 生成新月灵
+
+    -- 启动延续计时（给玩家短暂缓冲重新进入启蒙区域）
     if not self.linger_task then
         local linger = TUNING.ENLIGHTENMENT_LINGER_TIME or 5
         self.linger_task = self.inst:DoTaskInTime(linger, function()
@@ -224,6 +240,8 @@ end
 local _ct_diag_counter = 0
 function Enlightenment:CheckThresholds()
     if not self.enabled then return end
+    -- linger 期间不生成月灵（Disable 已设置 behaviour_level=0）
+    if self.behaviour_level <= 0 then return end
     local pct = self:GetPercent()
     _ct_diag_counter = _ct_diag_counter + 1
     -- 每 5 秒打印一次状态摘要

@@ -71,10 +71,11 @@ AddClassPostConstruct("widgets/sanitybadge", function(self)
     local function RestoreSanityIcon()
         if self.anim then
             self.anim:GetAnimState():ClearOverrideSymbol("brain")
-            self.anim:GetAnimState():SetMultColour(232/255, 123/255, 15/255, 1)
+            -- DS 的 sanitybadge 使用预着色的 "sanity" build，不要加 SetMultColour 乘算（否则颜色被锁定）
         end
         if self.circleframe then
-            self.circleframe:GetAnimState():ClearOverrideSymbol("icon")
+            -- 必须用 OverrideSymbol 重新指定 sanity 图标，而非 ClearOverrideSymbol（否则回退到 status_meter 默认图标）
+            self.circleframe:GetAnimState():OverrideSymbol("icon", "status_sanity", "icon")
         end
         if self.backing then
             self.backing:GetAnimState():ClearOverrideSymbol("bg")
@@ -120,13 +121,10 @@ AddClassPostConstruct("widgets/sanitybadge", function(self)
                 RestoreSanityIcon()
                 transition_task = nil
             end)
-            -- Restore warning behavior
-            local sanity = self.owner and self.owner.components.sanity
-            if sanity and sanity:IsCrazy() then
-                self.warning:GetAnimState():SetMultColour(1, 0, 0, 1)
-            else
-                self.warning:Hide()
-            end
+            -- 退出启蒙时强制隐藏 warning，让原版 sanity 系统重新接管
+            -- 重置颜色后隐藏，避免下次 StartWarning 时残留白色
+            self.warning:GetAnimState():SetMultColour(1, 0, 0, 1)
+            self.warning:Hide()
         end
 
         is_enlightened = new_state

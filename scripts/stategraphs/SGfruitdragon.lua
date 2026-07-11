@@ -14,10 +14,10 @@ local events = {
     EventHandler("doattack", function(inst, data)
         if inst.components.health and not inst.components.health:IsDead() and
             (not inst.sg:HasStateTag("busy") or inst.sg:HasStateTag("hit")) then
-            if inst._is_ripe and not inst.components.timer:TimerExists("fire_cd") then
-                inst.sg:GoToState("attack_fire")
+            if data.target and data.target:IsValid() and data.target:HasTag("fruitdragon") then
+                inst.sg:GoToState("challenge_attack_pre")
             else
-                inst.sg:GoToState("attack")
+                inst.sg:GoToState((inst._is_ripe and not inst.components.timer:TimerExists("fire_cd")) and "attack_fire" or "attack")
             end
         end
     end),
@@ -32,8 +32,12 @@ local events = {
 
     EventHandler("wake_up_to_challenge", function(inst)
         if not inst.sg:HasStateTag("busy") then
-            inst.sg:GoToState("wake_up_to_challenge")
+            inst.sg:GoToState("hit")
         end
+    end),
+
+    EventHandler("lostfruitdragonchallenge", function(inst)
+        inst.sg:GoToState("challenge_lose")
     end),
 }
 
@@ -139,7 +143,7 @@ local states = {
         end,
         events = {
             EventHandler("animover", function(inst)
-                MakeRipe(inst, true)
+                inst.MakeRipe(inst, true)
                 inst.sg:GoToState("idle")
             end),
         },
@@ -154,77 +158,77 @@ local states = {
         end,
         events = {
             EventHandler("animover", function(inst)
-                MakeUnripe(inst, true)
+                inst.MakeUnripe(inst, true)
                 inst.sg:GoToState("idle")
             end),
         },
     },
 
     State{
-        name = "wake_up_to_challenge",
-        tags = {"busy"},
-        onenter = function(inst)
-            inst.AnimState:PlayAnimation("idle_loop")
-        end,
-        timeline = {
-            TimeEvent(0, function(inst)
-                inst.sg:RemoveStateTag("busy")
-                inst.sg:GoToState("challenge_attack_pre")
-            end),
-        },
-    },
-
-    State{
         name = "challenge_attack_pre",
-        tags = {"busy", "noattack"},
+        tags = {"busy", "canrotate", "caninterrupt"},
         onenter = function(inst)
             inst.AnimState:PlayAnimation("challenge_pre")
-            inst.SoundEmitter:PlaySound(inst.sounds.challenge_pre)
+            inst.components.locomotor:StopMoving()
+            inst.components.combat:StartAttack()
         end,
         timeline = {
-            TimeEvent(18*FRAMES, function(inst)
-                inst.components.combat:StartAttack()
+            TimeEvent(5*FRAMES, function(inst)
+                inst.SoundEmitter:PlaySound(inst.sounds.challenge_pre)
             end),
         },
         events = {
             EventHandler("animover", function(inst)
-                inst.sg:GoToState("challenge_attack")
+                inst.sg:GoToState("challenge_attack", 1 + math.random(3))
             end),
         },
     },
 
     State{
         name = "challenge_attack",
-        tags = {"attack", "busy"},
-        onenter = function(inst)
+        tags = {"busy", "canrotate", "caninterrupt"},
+        onenter = function(inst, num_loops)
+            inst.sg.statemem.num_loops = (num_loops or 1) - 1
             inst.AnimState:PlayAnimation("challenge_loop")
-            inst.SoundEmitter:PlaySound(inst.sounds.challenge)
-            inst.sg.statemem.loops = 0
-            inst.sg.statemem.max_loops = 1 + math.random(3)
+            inst.components.locomotor:StopMoving()
         end,
         timeline = {
-            TimeEvent(9*FRAMES, function(inst) inst.components.combat:DoAttack() end),
-            TimeEvent(21*FRAMES, function(inst) inst.components.combat:DoAttack() end),
+            TimeEvent(5*FRAMES, function(inst)
+                inst.SoundEmitter:PlaySound(inst.sounds.challenge)
+                if inst.sg.statemem.num_loops <= 0 then
+                    -- DS combat 无伤害倍率参数，临时设0伤害模拟DST挑战机制
+                    local old_dmg = inst.components.combat.defaultdamage
+                    inst.components.combat:SetDefaultDamage(0)
+                    inst.components.combat:DoAttack()
+                    inst.components.combat:SetDefaultDamage(old_dmg)
+                end
+            end),
         },
-        onupdate = function(inst)
-            if inst.AnimState:AnimDone() then
-                inst.sg.statemem.loops = inst.sg.statemem.loops + 1
-                if inst.sg.statemem.loops >= inst.sg.statemem.max_loops then
+        events = {
+            EventHandler("animover", function(inst)
+                if not inst.components.combat:HasTarget() then
+                    inst.sg:GoToState("challenge_win")
+                elseif inst.sg.statemem.num_loops <= 0 then
                     inst.sg:GoToState("challenge_attack_pst")
                 else
-                    inst.AnimState:PlayAnimation("challenge_loop")
+                    inst.sg:GoToState("challenge_attack", inst.sg.statemem.num_loops)
                 end
-            end
-        end,
+            end),
+        },
     },
 
     State{
         name = "challenge_attack_pst",
-        tags = {"busy", "noattack"},
+        tags = {"busy", "canrotate", "caninterrupt"},
         onenter = function(inst)
             inst.AnimState:PlayAnimation("challenge_pst")
-            inst.SoundEmitter:PlaySound(inst.sounds.challenge_pst)
+            inst.components.locomotor:StopMoving()
         end,
+        timeline = {
+            TimeEvent(5*FRAMES, function(inst)
+                inst.SoundEmitter:PlaySound(inst.sounds.challenge_pst)
+            end),
+        },
         events = {
             EventHandler("animover", function(inst)
                 inst.sg:GoToState("idle")
@@ -234,11 +238,16 @@ local states = {
 
     State{
         name = "challenge_win",
-        tags = {"busy", "noattack"},
+        tags = {"busy"},
         onenter = function(inst)
             inst.AnimState:PlayAnimation("challenge_win")
-            inst.SoundEmitter:PlaySound(inst.sounds.challenge_win)
+            inst.components.locomotor:StopMoving()
         end,
+        timeline = {
+            TimeEvent(5*FRAMES, function(inst)
+                inst.SoundEmitter:PlaySound(inst.sounds.challenge_win)
+            end),
+        },
         events = {
             EventHandler("animover", function(inst) inst.sg:GoToState("idle") end),
         },
@@ -246,11 +255,16 @@ local states = {
 
     State{
         name = "challenge_lose",
-        tags = {"busy", "noattack"},
+        tags = {"busy", "canrotate"},
         onenter = function(inst)
-            inst.AnimState:PlayAnimation("challenge_lose")
-            inst.SoundEmitter:PlaySound(inst.sounds.challenge_lose)
+            inst.AnimState:PlayAnimation("hit")
+            inst.components.locomotor:StopMoving()
         end,
+        timeline = {
+            TimeEvent(5*FRAMES, function(inst)
+                inst.SoundEmitter:PlaySound(inst.sounds.challenge_lose)
+            end),
+        },
         events = {
             EventHandler("animover", function(inst) inst.sg:GoToState("idle") end),
         },

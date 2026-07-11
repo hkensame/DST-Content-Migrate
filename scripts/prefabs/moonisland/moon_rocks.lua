@@ -8,12 +8,20 @@ local rock_moon_glass_assets =
     Asset("MINIMAP_IMAGE", "rock_moonglass"),
 }
 
+local rock_moon_shell_assets =
+{
+    Asset("ANIM", "anim/moonisland/moonrock_shell.zip"),
+}
+
 local prefabs =
 {
     "rocks",
     "nitre",
     "flint",
     "goldnugget",
+    "moonrocknugget",
+    "moonrockseed",
+    "moonrockseed_icon",
 }    
 
 SetSharedLootTable( 'rock_moon_glass',
@@ -22,6 +30,31 @@ SetSharedLootTable( 'rock_moon_glass',
     {'moonglass',       1.00},
     {'moonglass',       0.25},
 })
+
+SetSharedLootTable( 'rock_moon_shell',
+{
+    {'rocks',           1.00},
+    {'flint',           1.00},
+    {'moonrocknugget',  1.00},
+    {'moonrocknugget',  1.00},
+    {'moonrocknugget',  1.00},
+    {'moonrocknugget',  0.3},
+    {'moonrockseed',    1.00},
+})
+
+local function OnRockMoonCapsuleWorkFinished(inst)
+    RemovePhysicsColliders(inst)
+
+    -- moonrockseed 已在 loot table 中，无需单独 spawn
+
+    inst.persists = false
+    inst:AddTag("NOCLICK")
+
+    inst.AnimState:PlayAnimation("break")
+    inst:DoTaskInTime(2, function(inst)
+        inst:Remove()
+    end)
+end
 
 local function baserock_fn(bank, build, anim, minimapicon, tag, multcolour)
     local inst = CreateEntity()
@@ -133,6 +166,19 @@ local function rock_moon_glass()
 end
 
 
+local function rock_moon_shell()
+    local inst = baserock_fn("moonrock_shell", "moonrock_shell", "full", "rock_moon_shell.tex", "meteor_protection")
+
+    inst.components.inspectable.nameoverride = "ROCK_MOON"
+    inst.components.lootdropper:SetChanceLootTable('rock_moon_shell')
+
+    inst.doNotRemoveOnWorkDone = true
+    inst:ListenForEvent("workfinished", OnRockMoonCapsuleWorkFinished)
+
+    return inst
+end
+
 return 
-    Prefab("moonglass_rock", rock_moon_glass, rock_moon_glass_assets, prefabs)
+    Prefab("moonglass_rock", rock_moon_glass, rock_moon_glass_assets, prefabs),
+    Prefab("rock_moon_shell", rock_moon_shell, rock_moon_shell_assets, prefabs)
 

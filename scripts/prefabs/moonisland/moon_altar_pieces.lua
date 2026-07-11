@@ -86,6 +86,22 @@ local function makepiece(name, socket_product)
             inst:AddComponent("repairer")
             inst.components.repairer.repairmaterial = "MOON_ALTAR_IDOL"
             inst.components.repairer.workrepairvalue = TUNING.MOON_ALTAR_COMPLETE_WORK / 3
+        elseif name == "ward" then
+            -- ward 碎片：嵌入天体圣殿；带 socket_product 时用于裂隙，否则直接修祭坛
+            if not socket_product then
+                inst:AddComponent("repairer")
+                inst.components.repairer.repairmaterial = "MOON_ALTAR_WARD"
+                inst.components.repairer.workrepairvalue = TUNING.MOON_ALTAR_ASTRAL_COMPLETE_WORK / 2
+            end
+            inst:AddTag("moon_altar_orb") -- 唯一性标记
+        elseif name == "icon" then
+            -- icon 碎片：嵌入天体圣殿；带 socket_product 时用于裂隙，否则直接修祭坛
+            if not socket_product then
+                inst:AddComponent("repairer")
+                inst.components.repairer.repairmaterial = "MOON_ALTAR_ICON"
+                inst.components.repairer.workrepairvalue = TUNING.MOON_ALTAR_ASTRAL_COMPLETE_WORK / 2
+            end
+            inst:AddTag("moon_altar_orb") -- 唯一性标记
         end
 --[[
 		inst:AddComponent("submersible")
@@ -222,5 +238,5 @@ return
 
     makepiece("crown", "moon_altar_cosmic"),
 
-    makepiece("ward"),
+    makepiece("ward", "moon_altar_astral"),
     makepiece("icon", "moon_altar_astral")

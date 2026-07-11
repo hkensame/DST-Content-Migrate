@@ -1,6 +1,7 @@
 -- 光飞虫 (lightflier)
 -- 移植自 DST，适配 DS 单人生存模式
--- 移除：formationfollower、homeseeker、childspawner、MakeFeedableSmallLivestock、MakeInventoryFloatable
+-- 移除：formationfollower、MakeFeedableSmallLivestock、MakeInventoryFloatable
+-- 保留：homeseeker（由 childspawner:TakeOwnership 自动添加，需 knownlocations）
 
 local brain = require("brains/lightflierbrain")
 
@@ -152,6 +153,11 @@ local function fn()
     inst:AddComponent("sleeper")
     inst.components.sleeper.watchlight = true
     inst.components.sleeper.sleeptestfn = SleepTest
+
+    -- knownlocations：配合 homeseeker 记忆家的位置（由 childspawner:TakeOwnership 设置）
+    inst:AddComponent("knownlocations")
+    -- [FIX] 显式添加 homeseeker，DST 的 TakeOwnership 虽会自动添加但 DS 不一定有
+    inst:AddComponent("homeseeker")
 
     -- inspectable
     inst:AddComponent("inspectable")

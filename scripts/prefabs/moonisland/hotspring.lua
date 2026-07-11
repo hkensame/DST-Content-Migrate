@@ -74,6 +74,7 @@ local function Refill(inst, snap)
 	end
     inst._glassed = false
     inst:RemoveTag("moonglass")
+    inst:RemoveTag("fruitdragon_ripe")  -- 重置时移除催熟标签
     --inst.components.watersource.available = true
     inst.components.bathbombable:Reset()
 
@@ -96,6 +97,7 @@ end
 local function RemoveGlass(inst)
     inst._glassed = false
     inst:RemoveTag("moonglass")
+    inst:RemoveTag("fruitdragon_ripe")  -- 移除催熟标签
     --inst.components.watersource.available = false
     inst.components.bathbombable:DisableBathBombing()
 	inst.AnimState:PlayAnimation("empty")
@@ -121,6 +123,7 @@ end
 local function TurnToGlassed(inst, is_loading)
     inst._glassed = true
     inst:AddTag("moonglass")
+    inst:RemoveTag("fruitdragon_ripe")  -- 玻璃化后移除催熟标签
     --inst.components.watersource.available = false
 	inst.components.bathbombable:DisableBathBombing()
 
@@ -166,6 +169,7 @@ local function OnBathBombed(inst)
     if (GetClock():IsNight() and GetClock():GetMoonPhase() == "full") then
         TurnToGlassed(inst)
     else
+		inst:AddTag("fruitdragon_ripe")  -- 浴盐球激活，允许蝾螈成熟
 		inst.Light:Enable(true)
 
 		if not POPULATING then
@@ -254,6 +258,7 @@ local function hotspring()
     inst:AddTag("watersource")
     inst:AddTag("antlion_sinkhole_blocker")
     inst:AddTag("birdblocker")
+    inst:AddTag("HASHEATER")
     inst:AddTag("bathbombable")
 
     inst.Light:Enable(false)

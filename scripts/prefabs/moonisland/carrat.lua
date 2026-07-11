@@ -15,6 +15,7 @@ local prefabs =
 {
     "carrat_planted",
     "carrot_seeds",
+    "plantmeat",
     "plantmeat_cooked",
 }
 
@@ -25,9 +26,24 @@ local planted_prefabs =
 
 SetSharedLootTable("carrat",
 {
-    {"plantmeat_cooked", 1.00},
+    {"plantmeat", 1.00},
     {"carrot_seeds",    0.33},
 })
+
+-- 音效表
+local carratsounds =
+{
+    idle = "turnoftides/creatures/together/carrat/idle",
+    hit = "turnoftides/creatures/together/carrat/hit",
+    sleep = "turnoftides/creatures/together/carrat/sleep",
+    death = "turnoftides/creatures/together/carrat/death",
+    emerge = "turnoftides/creatures/together/carrat/emerge",
+    submerge = "turnoftides/creatures/together/carrat/submerge",
+    eat = "turnoftides/creatures/together/carrat/eat",
+    stunned = "turnoftides/creatures/together/carrat/stunned",
+    reaction = "turnoftides/creatures/together/carrat/reaction",
+    step = "dontstarve/creatures/mandrake/footstep",
+}
 
 -- Common functions
 
@@ -67,13 +83,17 @@ local function go_to_submerged(inst)
     -- Remove creature tags
     inst:RemoveTag("animal")
     inst:RemoveTag("canbetrapped")
+    inst:RemoveTag("catfood")
+    inst:RemoveTag("cattoy")
     inst:RemoveTag("prey")
     inst:RemoveTag("smallcreature")
+    inst:RemoveTag("stunnedbybomb")
 
     -- Remove creature components
     inst:RemoveComponent("locomotor")
     inst:RemoveComponent("lootdropper")
     inst:RemoveComponent("combat")
+    inst:RemoveComponent("cookable")
     inst:RemoveComponent("sleeper")
     inst:RemoveComponent("freezable")
 
@@ -117,15 +137,18 @@ end
 -- Emerge state (active creature)
 
 local function on_cooked_fn(inst, cooker, chef)
-    -- cooked sound
+    inst.SoundEmitter:PlaySound(inst.sounds.hit)
 end
 
 local function go_to_emerged(inst)
     -- Add creature tags
     inst:AddTag("animal")
     inst:AddTag("canbetrapped")
+    inst:AddTag("catfood")
+    inst:AddTag("cattoy")
     inst:AddTag("prey")
     inst:AddTag("smallcreature")
+    inst:AddTag("stunnedbybomb")
 
     -- Remove burrowed components
     inst:RemoveComponent("pickable")
@@ -156,6 +179,11 @@ local function go_to_emerged(inst)
 
     -- Add freezable
     MakeTinyFreezableCharacter(inst, "carrat_body")
+
+    -- Add cookable
+    inst:AddComponent("cookable")
+    inst.components.cookable.product = "plantmeat_cooked"
+    inst.components.cookable:SetOnCookedFn(on_cooked_fn)
 
     -- Visual
     inst.AnimState:SetRayTestOnBB(false)
@@ -197,10 +225,15 @@ local function fn()
     inst.AnimState:SetBuild("carrat_build")
     inst.AnimState:PlayAnimation("planted")
 
+    inst.sounds = carratsounds
+
     inst:AddTag("animal")
     inst:AddTag("canbetrapped")
+    inst:AddTag("catfood")
+    inst:AddTag("cattoy")
     inst:AddTag("prey")
     inst:AddTag("smallcreature")
+    inst:AddTag("stunnedbybomb")
     inst:AddTag("lunar_aligned")
     inst:AddTag("show_spoilage")
     inst:AddTag("small_livestock")

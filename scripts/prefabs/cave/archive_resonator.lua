@@ -116,54 +116,15 @@ local function ChangeToItem(inst)
     return item
 end
 
+-- 只探测 moon_altar_icon / moon_altar_ward 的 astral marker
 local MOON_ALTAR_ASTRAL_MARKER_MUST_TAG =  {"moon_altar_astral_marker"}
 local MOON_ALTAR_ASTRAL_MARKER_NOT_TAG =  {"marker_found"}
-local MOON_RELIC_MUST_TAG =  {"moon_relic"}
-local CRAB_KING_MUST_TAG =  {"crabking"}
 local function scanfordevice(inst)
+    print("[Resonator] scanfordevice called, scanning for astral markers...")
 	local ent = FindEntity(inst, 9999, nil, MOON_ALTAR_ASTRAL_MARKER_MUST_TAG, MOON_ALTAR_ASTRAL_MARKER_NOT_TAG)
 
-    if not ent then
-
-        inst.registered_devices = {} -- clear, then populate via calling_all_devices
-        local theWorld = inst:GetTheWorld()
-        if theWorld then theWorld:PushEvent("calling_moon_relics", {caller = inst}) end
-
-        local ents = inst.registered_devices --TheSim:FindEntities(x, y, z, 9999, MOON_RELIC_MUST_TAG)
-
-        for i,thisent in ipairs(ents) do
-            -- find items in water
-            if thisent:HasTag("INLIMBO") and thisent.components.submersible and thisent.components.submersible:GetUnderwaterObject() then
-                ent = thisent
-                break
-            end
-            -- find the rocks
-            if thisent:HasTag("boulder") then
-                ent = thisent
-                break
-            end
-        end
-    end
-
-    if not ent then
-        local crown = false
-        inst.registered_devices = {} -- clear, then populate via calling_all_devices
-        local theWorld = inst:GetTheWorld()
-        if theWorld then theWorld:PushEvent("calling_moon_relics", {caller = inst}) end
-        local ents = inst.registered_devices
-        for i, thisent in ipairs(ents)do
-            if thisent.prefab == "moon_altar_crown" or thisent.prefab == "moon_altar_cosmic" then
-                crown = true
-                break
-            end
-        end
-
-        if not crown then
-            ent = FindEntity(inst, 9999, nil, CRAB_KING_MUST_TAG)
-        end
-    end
-
 	if ent then
+        print("[Resonator] Found marker: " .. tostring(ent.prefab) .. " product=" .. tostring(ent.product) .. " dist=" .. ent:GetDistanceSqToInst(inst))
 		if ent:GetDistanceSqToInst(inst) < 4*4 and ent:HasTag("moon_altar_astral_marker") then
             inst.SoundEmitter:KillSound("locating")
             inst.AnimState:PlayAnimation("drill")
@@ -180,6 +141,23 @@ local function scanfordevice(inst)
             inst.target = ent
             inst:ListenForEvent("animover", function()
                 if inst.AnimState:IsCurrentAnimation("drill") then
+                    -- 检查是否已存在同类型产物（防止重复，但允许 ward 和 icon 各存在一个）
+                    local existing_orb = TheSim:FindFirstEntityWithTag("moon_altar_orb")
+                    if existing_orb and existing_orb.prefab == inst.product then
+                        -- 已存在同类型，不生成新的
+                        print("[Resonator] Orbed item already exists: " .. tostring(inst.product) .. ", skipping spawn")
+                        inst.product = nil
+                        inst.components.finiteuses:Use(1)
+                        local item = ChangeToItem(inst)
+                        local pt = Vector3(inst.Transform:GetWorldPosition())
+                        pt.y = pt.y + 3
+                        inst.components.lootdropper:FlingItem(item,pt)
+                        inst.target:Remove()
+                        inst:Remove()
+                        return
+                    end
+
+                    print("[Resonator] Drilling complete, spawning: " .. tostring(inst.product))
                     local artifact = SpawnPrefab(inst.product)
                     inst.product = nil
                     artifact.Transform:SetPosition(inst.Transform:GetWorldPosition())
@@ -220,6 +198,11 @@ local function scanfordevice(inst)
             inst.Transform:SetRotation(angle+180)
             inst.AnimState:PlayAnimation("beam")
             inst.SoundEmitter:KillSound("locating")
+            -- DS: 用定时器代替 animover，beam 播完后自动拆解
+            inst:DoTaskInTime(2, function()
+                inst.OnDismantle(inst)
+                inst.components.finiteuses:Use(1)
+            end)
 		end
     else
         inst.task3 = inst:DoTaskInTime(4, function()
@@ -233,31 +216,24 @@ local function scanfordevice(inst)
     end
 
 
-    inst:ListenForEvent("animover", function()
-        if inst.AnimState:IsCurrentAnimation("beam") then
-            inst.OnDismantle(inst)
-             inst.components.finiteuses:Use(1)
-        end
-    end)
 end
 
 local function ondeploy(inst, pt, deployer)
     local at = SpawnPrefab("archive_resonator")
     if at ~= nil then
-        at.Physics:SetCollides(false)
-        at.Physics:Teleport(pt.x, 0, pt.z)
-        at.Physics:SetCollides(true)
+        -- DS: 不用 SetCollides，直接用 Transform 定位
+        at.Transform:SetPosition(pt.x, 0, pt.z)
         at.AnimState:PlayAnimation("place")
 
         at.SoundEmitter:PlaySound("grotto/common/archive_resonator/place")
         at.SoundEmitter:PlaySound("grotto/common/archive_resonator/idle_LP", "idle_loop")
 
-        at:ListenForEvent("animover", function()
-            if at.AnimState:IsCurrentAnimation("place") then
-                at.AnimState:PlayAnimation("locating", true)
-                at.SoundEmitter:PlaySound("grotto/common/archive_resonator/locating_LP", "locating")
-            end
+        -- DS: 用定时器代替 animover 事件驱动动画流程，更可靠
+        at:DoTaskInTime(1.5, function()
+            at.AnimState:PlayAnimation("locating", true)
+            at.SoundEmitter:PlaySound("grotto/common/archive_resonator/locating_LP", "locating")
         end)
+
         if at._lighttask then
             at._lighttask:Cancel()
             at._lighttask = nil
@@ -282,12 +258,10 @@ local function OnDismantle(inst)--, doer)
     inst.SoundEmitter:PlaySound("grotto/common/archive_resonator/pack")
     copyparams( inst._endlight, light_params.off)
     beginfade(inst)
-    inst:ListenForEvent("animover", function()
-    -- inst.SoundEmitter:PlaySound("grotto/common/archive_resonator/pack") Jason (doesn't work)
-        if inst.AnimState:IsCurrentAnimation("pack") then
-            ChangeToItem(inst)
-            inst:Remove()
-        end
+    -- DS: 用定时器代替 animover，更可靠
+    inst:DoTaskInTime(1.5, function()
+        ChangeToItem(inst)
+        inst:Remove()
     end)
 end
 
@@ -445,6 +419,7 @@ local function mainfn()
     inst.OnLoadPostPass = onloadpostpass_main
 
     inst:AddComponent("lootdropper")
+    inst.components.lootdropper:SetLoot({"archive_resonator_item"})
     inst.RegisterDevice = RegisterDevice
 
     return inst

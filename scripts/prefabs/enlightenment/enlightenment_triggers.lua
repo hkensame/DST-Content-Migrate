@@ -28,7 +28,6 @@ end
 
 local function ScanMoonTileDensity(inst)
     local radius = TUNING.ENLIGHTENMENT_TILE_SCAN_RADIUS or 20
-    local threshold = TUNING.ENLIGHTENMENT_TILE_THRESHOLD or 0.6
     local x, y, z = inst.Transform:GetWorldPosition()
     local map = GetWorld().Map
     if not map then return false end
@@ -50,11 +49,19 @@ local function ScanMoonTileDensity(inst)
 
     if total == 0 then return false end
     local ratio = moon_count / total
+
+    -- 滞后阈值：已激活时用较低阈值停用，防止月岛边缘抖动
+    local enlight = inst.components.enlightenment
+    local is_latched = enlight and enlight.sources["tile_density"] ~= nil
+    local threshold = is_latched
+        and (TUNING.ENLIGHTENMENT_TILE_DISABLE_THRESHOLD or 0.40)  -- 停用阈值
+        or (TUNING.ENLIGHTENMENT_TILE_ENABLE_THRESHOLD or 0.60)    -- 激活阈值
+
     -- 诊断：首次扫描或比率变化时打印
     if _scan_diag.last_ratio == nil or math.abs(ratio - _scan_diag.last_ratio) > 0.05 then
         _scan_diag.last_ratio = ratio
-        print(string.format("[ENLIGHTEN] TileScan: moon=%d/%d ratio=%.2f threshold=%.2f pass=%s",
-            moon_count, total, ratio, threshold, tostring(ratio >= threshold)))
+        print(string.format("[ENLIGHTEN] TileScan: moon=%d/%d ratio=%.2f thresh=%.2f pass=%s latched=%s",
+            moon_count, total, ratio, threshold, tostring(ratio >= threshold), tostring(is_latched)))
     end
     return ratio >= threshold
 end
@@ -108,7 +115,7 @@ local MOON_ALTAR_PREFABS = {
     moon_altar_astral = true,
 }
 
-local ALTAR_RANGE = 8
+local ALTAR_RANGE = 5
 
 local function IsNearMoonAltar(inst)
     local x, y, z = inst.Transform:GetWorldPosition()
@@ -186,10 +193,12 @@ local function HookSanityOverrides(sanity)
     -- [A] Override GetPercent: 启蒙期间报告 1.0（满理智）
     -- 注意：enlightenment:GetPercent() 直接读 sanity.current/sanity.max 不受影响
     -- 注意：DS 的 GetPercent(usepenalty) 有可选参数，需用 ... 透传
+    -- 注意：用 behaviour_level > 0 而非 IsEnabled()，因为 linger 期间
+    --       (behaviour_level=0, enabled=true) 应暴露真实理智让 spawner 积累压力
     local _GetPercent = sanity.GetPercent
     sanity.GetPercent = function(self, ...)
         local enlight = self.inst and self.inst.components.enlightenment
-        if enlight and enlight:IsEnabled() then
+        if enlight and enlight:IsEnabled() and enlight.behaviour_level > 0 then
             return 1.0
         end
         return _GetPercent(self, ...)
@@ -199,7 +208,7 @@ local function HookSanityOverrides(sanity)
     local _IsCrazy = sanity.IsCrazy
     sanity.IsCrazy = function(self, ...)
         local enlight = self.inst and self.inst.components.enlightenment
-        if enlight and enlight:IsEnabled() then
+        if enlight and enlight:IsEnabled() and enlight.behaviour_level > 0 then
             return false
         end
         return _IsCrazy(self, ...)
@@ -210,7 +219,7 @@ local function HookSanityOverrides(sanity)
     local _IsSane = sanity.IsSane
     sanity.IsSane = function(self, ...)
         local enlight = self.inst and self.inst.components.enlightenment
-        if enlight and enlight:IsEnabled() then
+        if enlight and enlight:IsEnabled() and enlight.behaviour_level > 0 then
             return true
         end
         return _IsSane(self, ...)
@@ -241,6 +250,16 @@ local function HookSanityOnUpdate(sanity)
         end
 
         if is_enlight then
+            -- [0] Force sane flag: DS sanity:DoDelta() reads self.current/self.max
+            -- directly (bypassing GetPercent override) and pushes goinsane when
+            -- sanity drops below BECOME_INSANE_THRESH. Prevent this by keeping
+            -- self.sane=true during enlightenment.
+            if not self.sane then
+                self.sane = true
+                self.inst:PushEvent("gosane")
+                print("[ENLIGHTEN] SanityOnUpdate: forced sane=true + gosane")
+            end
+
             -- During enlightenment: 
             -- 1. Reset fxtime to prevent accumulation (否则退出时跳变)
             self.fxtime = 0

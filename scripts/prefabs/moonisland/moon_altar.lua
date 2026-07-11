@@ -161,6 +161,14 @@ local function addprototyper(inst)
     inst.components.prototyper.onactivate = onactivate
 end
 
+local function addprototyper_partial(inst)
+	inst:AddComponent("prototyper")
+	inst.components.prototyper.onturnon = onturnon
+	inst.components.prototyper.onturnoff = onturnoff
+    inst.components.prototyper.trees = TUNING.PROTOTYPER_TREES.MOON_ALTAR
+    inst.components.prototyper.onactivate = onactivate
+end
+
 local function set_stage(inst, stage)
     if stage == 2 and inst.components.workable.maxwork == TUNING.MOON_ALTAR_ASTRAL_COMPLETE_WORK then
         if inst._stage == 1 then
@@ -216,6 +224,9 @@ local function set_stage(inst, stage)
             inst.AnimState:PlayAnimation("idle2")
         end
 
+        -- 普通祭坛 stage 2：提供 CELESTIAL = 1 科技
+        addprototyper_partial(inst)
+
         inst.components.lootdropper:SetLoot({ "moon_altar_glass", "moon_altar_seed" })
 	end
 
@@ -232,12 +243,15 @@ local function on_piece_slotted(inst, slotter, slotted_item)
     local next_stage = inst._stage + 1
 	set_stage(inst, next_stage)
     -- 设置下一阶段的 repairmaterial（DS 无 checkmaterialfn）
-    if next_stage == 2 then
-        -- 2级祭坛接受 idol
-        inst.components.repairable.repairmaterial = "MOON_ALTAR_IDOL"
-    elseif next_stage >= 3 then
-        inst:RemoveComponent("repairable")
+    if inst.prefab ~= "moon_altar_astral" then
+        -- 普通祭坛：stage 1→2 接受 idol，stage 2→3 完成
+        if next_stage == 2 then
+            inst.components.repairable.repairmaterial = "MOON_ALTAR_IDOL"
+        elseif next_stage >= 3 then
+            inst:RemoveComponent("repairable")
+        end
     end
+    -- astral 祭坛的 repairable 由 set_stage 在 stage 2 时移除
 end
 
 local function check_piece(inst, piece)
@@ -250,7 +264,9 @@ local function check_piece(inst, piece)
 end
 
 local function check_pieceastral(inst, piece)
-    if (inst._stage == 1 and piece.prefab == "moon_altar_ward") then
+    -- stage 1 接受 ward，stage 2 接受 icon
+    if (inst._stage == 1 and piece.prefab == "moon_altar_ward") or
+       (inst._stage == 2 and piece.prefab == "moon_altar_icon") then
         return true
     else
         return false, "WRONGPIECE"
@@ -271,8 +287,10 @@ end
 local function AddRepairableAstral(inst)
     if inst.components.repairable == nil then
         inst:AddComponent("repairable")
+        -- 使用 MOON_ALTAR 以便裂隙碎片（ward/icon）都可以嵌入
         inst.components.repairable.repairmaterial = "MOON_ALTAR"
         inst.components.repairable.onrepaired = on_piece_slotted
+        inst.components.repairable.checkmaterialfn = check_pieceastral
         inst.components.repairable.noannounce = true
     end
 end

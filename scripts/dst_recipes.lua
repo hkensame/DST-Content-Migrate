@@ -8,7 +8,7 @@ local moonglassaxe = Recipe(
         Ingredient("twigs", 2), 
         Ingredient("moonglass", 3, "images/dst_boss.xml"), 
     },
-    RECIPETABS.TOOLS, { SCIENCE = 0 }
+    RECIPETABS.DST_CELESTIAL, TECH.CELESTIAL_ONE
 )
 moonglassaxe.image = "moonglassaxe.tex"
 moonglassaxe.atlas = "images/dst_boss.xml"
@@ -19,7 +19,7 @@ local glasscutter = Recipe(
         Ingredient("boards", 1), 
         Ingredient("moonglass", 6, "images/dst_boss.xml"), 
     },
-    RECIPETABS.TOOLS, { SCIENCE = 0 }
+    RECIPETABS.DST_CELESTIAL, TECH.CELESTIAL_ONE
 )
 glasscutter.image = "glasscutter.tex"
 glasscutter.atlas = "images/dst_boss.xml"
@@ -241,7 +241,7 @@ local bathbomb = Recipe(
         Ingredient("moon_tree_blossom", 6, "images/dst_boss.xml"), 
         Ingredient("nitre", 1), 
     },
-    RECIPETABS.REFINE, { SCIENCE = 0 }
+    RECIPETABS.DST_CELESTIAL, TECH.CELESTIAL_ONE
 )
 bathbomb.image = "bathbomb.tex"
 bathbomb.atlas = "images/dst_boss.xml"

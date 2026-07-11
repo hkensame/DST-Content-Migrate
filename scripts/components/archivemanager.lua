@@ -22,14 +22,16 @@ local _power_enabled = false
 function self:SwitchPowerOn(setting)
     if _power_enabled ~= true and setting == true then
         _power_enabled = true
-        if WORLDSTATETAGS ~= nil and WORLDSTATETAGS.SetTagEnabled ~= nil then
-            WORLDSTATETAGS.SetTagEnabled("ARCHIVES_ENERGIZED", true)
+        local wst = rawget(GLOBAL, "WORLDSTATETAGS")
+        if wst ~= nil and wst.SetTagEnabled ~= nil then
+            wst.SetTagEnabled("ARCHIVES_ENERGIZED", true)
         end
         self.inst:PushEvent("arhivepoweron")
     elseif _power_enabled ~= false and setting == false then
         _power_enabled = false
-        if WORLDSTATETAGS ~= nil and WORLDSTATETAGS.SetTagEnabled ~= nil then
-            WORLDSTATETAGS.SetTagEnabled("ARCHIVES_ENERGIZED", false)
+        local wst = rawget(GLOBAL, "WORLDSTATETAGS")
+        if wst ~= nil and wst.SetTagEnabled ~= nil then
+            wst.SetTagEnabled("ARCHIVES_ENERGIZED", false)
         end
         self.inst:PushEvent("arhivepoweroff")
     end

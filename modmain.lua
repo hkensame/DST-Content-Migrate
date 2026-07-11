@@ -20,6 +20,26 @@ GLOBAL.TUNING.SANITYAURA_SUPERHUGE = GLOBAL.TUNING.SANITYAURA_SUPERHUGE or 100/(
 GLOBAL.TUNING.ARCHIVE_SECURITY = GLOBAL.TUNING.ARCHIVE_SECURITY or { REGEN_TIME = 120, RELEASE_TIME = 15, WALK_SPEED = 4 }
 GLOBAL.TUNING.MAX_SECURITY_PULSE_FOLLOWING = GLOBAL.TUNING.MAX_SECURITY_PULSE_FOLLOWING or 3
 
+-- ==================== 天体制作栏 ====================
+RECIPETABS.DST_CELESTIAL = {
+    str = "DST_CELESTIAL",
+    sort = 700,
+    priority = 1,
+    icon = "tab_celestial.tex",
+    icon_atlas = "images/tab_celestial.xml",
+}
+
+-- ==================== 天体科技树 ====================
+GLOBAL.TECH = GLOBAL.TECH or {}
+GLOBAL.TECH.CELESTIAL_ONE = { CELESTIAL = 1 }
+GLOBAL.TECH.CELESTIAL_THREE = { CELESTIAL = 3 }
+GLOBAL.TECH.CELESTIAL_NONE = { CELESTIAL = 0 }
+
+GLOBAL.TUNING = GLOBAL.TUNING or {}
+GLOBAL.TUNING.PROTOTYPER_TREES = GLOBAL.TUNING.PROTOTYPER_TREES or {}
+GLOBAL.TUNING.PROTOTYPER_TREES.MOON_ALTAR = { CELESTIAL = 1 }
+GLOBAL.TUNING.PROTOTYPER_TREES.MOON_ALTAR_FULL = { CELESTIAL = 3 }
+
 ----------------<安全蓝图：防止世界加载时蓝图崩溃>----------------
 -- 修复 blueprint.lua:113 attempt to index local 'inst' (a nil value)
 -- 对所有 _blueprint 结尾的预制体应用 pcall 安全包装，防止 nil inst 冒泡崩溃
@@ -194,6 +214,7 @@ PrefabFiles =
   "moonisland/moonbutterfly", --月娥
   "moonisland/moonbutterflywings", --月娥翅膀
   "moonisland/moon_rocks", --月光玻璃
+  "moonisland/moonrockseed", --月岩种子
   "moonisland/bathbomb",--浴球
   "moonisland/rock_avocado_bush", --石果树
   "moonisland/rock_avocado_fruit", --石果
@@ -349,6 +370,8 @@ Assets = {
   
   Asset("ANIM", "anim/alterguardian/alterguardian_spike.zip"),
   Asset("ANIM", "anim/alterguardian/alterguardian_laser_hit_sparks_fx.zip"),
+  Asset("ANIM", "anim/alterguardian/swap_altar_crownpiece.zip"), -- moon_altar_crown 碎片
+  Asset("ANIM", "anim/moonisland/moon_altar_pieces.zip"), -- 祭坛碎片共用 bank
   Asset("ANIM", "anim/atrium/mind_control_overlay.zip"), --暗影织影者
 
   Asset("ANIM", "anim/cave/archive_centipede.zip"),
@@ -446,6 +469,8 @@ Assets = {
   Asset("ANIM", "anim/moonisland/moonglasspool_tile.zip"),
   Asset("ANIM", "anim/moonisland/mooneyes.zip"),
   Asset("ANIM", "anim/moonisland/star_trap.zip"),
+  Asset("ANIM", "anim/moonisland/moonrock_shell.zip"), --月球陨石壳
+  Asset("ANIM", "anim/moonisland/moonrock_seed.zip"), --月岩种子动画
 
   Asset("ANIM", "anim/moonbase/dst_gems.zip"),
 
@@ -540,6 +565,9 @@ Assets = {
   Asset("SOUNDPACKAGE", "sound/hookline.fev"),
   Asset("SOUNDPACKAGE", "sound/hookline_2.fev"),
 
+  Asset("IMAGE", "images/tab_celestial.tex"),
+  Asset("ATLAS", "images/tab_celestial.xml"),
+
   -- ========== ATLAS ==========
   Asset("IMAGE", "images/banner_bg.tex"),
   Asset("ATLAS", "images/banner_bg.xml"),
@@ -575,6 +603,8 @@ Assets = {
   Asset("ATLAS", "images/dug_bananabush.xml"),
   Asset("IMAGE", "images/dug_monkeytails.tex"),
   Asset("ATLAS", "images/dug_monkeytails.xml"),
+  Asset("IMAGE", "images/moonrockseed.tex"),
+  Asset("ATLAS", "images/moonrockseed.xml"),
   Asset("IMAGE", "images/turf_monkey_ground.tex"),
   Asset("ATLAS", "images/turf_monkey_ground.xml"),
   Asset("IMAGE", "images/star_trap_atlas.tex"),
@@ -830,6 +860,57 @@ AddMinimapAtlas("images/sculpture_rooknose.xml")
 AddMinimapAtlas("images/hotspring.xml")
 AddMinimapAtlas("images/oceantree_pillar_small.xml")
 AddMinimapAtlas("images/oceanvine.xml")
+
+-- ==================== 天体制作栏标签注册 ====================
+STRINGS.TABS.DST_CELESTIAL = "天体"
+
+AddClassPostConstruct("widgets/crafttabs", function(self)
+    self.tabnames = self.tabnames or {}
+    table.insert(self.tabnames, RECIPETABS.DST_CELESTIAL)
+end)
+
+-- ==================== 天体配方禁止永久解锁 ====================
+-- 天体配方只能靠近祭坛制作，制作后不会永久解锁
+AddComponentPostInit("builder", function(self)
+    -- 延迟注入 CELESTIAL 科技（此时 techtree.lua 已加载）
+    local TechTree = package.loaded["techtree"]
+    if TechTree and TechTree.AVAILABLE_TECH then
+        local has_celestial = false
+        for _, v in ipairs(TechTree.AVAILABLE_TECH) do
+            if v == "CELESTIAL" then has_celestial = true break end
+        end
+        if not has_celestial then
+            table.insert(TechTree.AVAILABLE_TECH, "CELESTIAL")
+            if TechTree.AVAILABLE_TECH_BONUS then
+                TechTree.AVAILABLE_TECH_BONUS["CELESTIAL"] = "celestial_bonus"
+            end
+            if TechTree.AVAILABLE_TECH_TEMPBONUS then
+                TechTree.AVAILABLE_TECH_TEMPBONUS["CELESTIAL"] = "celestial_tempbonus"
+            end
+            if TechTree.AVAILABLE_TECH_BONUS_CLASSIFIED then
+                TechTree.AVAILABLE_TECH_BONUS_CLASSIFIED["CELESTIAL"] = "celestialbonus"
+            end
+            if TechTree.AVAILABLE_TECH_TEMPBONUS_CLASSIFIED then
+                TechTree.AVAILABLE_TECH_TEMPBONUS_CLASSIFIED["CELESTIAL"] = "celestialtempbonus"
+            end
+            if TechTree.AVAILABLE_TECH_LEVEL_CLASSIFIED then
+                TechTree.AVAILABLE_TECH_LEVEL_CLASSIFIED["CELESTIAL"] = "celestiallevel"
+            end
+            print("[DST Migrate] CELESTIAL tech injected into TechTree")
+        end
+    end
+
+    local old_UnlockRecipe = self.UnlockRecipe
+    function self:UnlockRecipe(recname, ...)
+        -- 运行时查找配方是否属于天体栏
+        for _, recipe in ipairs(Recipes) do
+            if recipe.name == recname and recipe.tab == RECIPETABS.DST_CELESTIAL then
+                return -- 天体配方不永久解锁
+            end
+        end
+        return old_UnlockRecipe(self, recname, ...)
+    end
+end)
 
 modimport("scripts/dst_foods.lua")
 modimport("scripts/dst_global.lua")

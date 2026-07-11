@@ -85,6 +85,23 @@ AddRoom("MonkeyIsland_Center", {
     },
 })
 
+-- 猴岛缓冲房间（MonkeyNoneTasks 的 ExitPiece 放置点，接收机械零件）
+AddRoom("MonkeyDummyExitRoom", {
+    colour={r=0.5,g=0.4,b=0.1,a=0.4},
+    tags = {"ExitPiece"},
+    value = GROUND.MONKEY_GROUND,
+    contents = {
+        distributepercent = 0.10,
+        distributeprefabs = {
+            cave_banana_tree = 0.2,
+            flint = 0.3,
+            rocks = 0.2,
+            twigs = 0.2,
+            grass = 0.15,
+        },
+    },
+})
+
 -- Task（ISLAND8 自锁，与月岛独立）
 AddTask("MonkeyIsland", {
     locks = {LOCKS.ISLAND8},
@@ -93,7 +110,7 @@ AddTask("MonkeyIsland", {
     make_loop = true,
     room_choices = {
         ["MonkeyIsland_Beach"] = 2,
-        ["MonkeyIsland_Jungle"] = 3,
+        ["MonkeyIsland_Jungle"] = 2,
         ["MonkeyIsland_Center"] = 1,
     },
     room_bg = GROUND.MONKEY_GROUND,
@@ -109,9 +126,9 @@ if not MonkeyNoneTasks_registered then
         locks={LOCKS.ISLAND8},
         keys_given={KEYS.TIER2},
         room_choices={ 
-            ["DummyExitRoom"] = 1, 
+            ["MonkeyDummyExitRoom"] = 1, 
         },  
-        room_bg=GROUND.IMPASSABLE,
+        room_bg=GROUND.MONKEY_GROUND,
         colour={r=1,g=1,b=1,a=0.3}
     }) 
 end
