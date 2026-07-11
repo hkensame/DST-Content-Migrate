@@ -138,4 +138,51 @@ local function fn(Sim)
     return inst
 end
 
-return Prefab("sapling_moon", fn, assets, prefabs) 
+----------------<可挖掘物品：dug_sapling_moon>----------------
+local function dug_fn()
+    local inst = CreateEntity()
+    inst.entity:AddTransform()
+    inst.entity:AddAnimState()
+    inst.entity:AddSoundEmitter()
+    MakeInventoryPhysics(inst)
+
+    inst.AnimState:SetBank("sapling_moon")
+    inst.AnimState:SetBuild("sapling_moon")
+    inst.AnimState:PlayAnimation("dropped")
+
+    inst:AddComponent("stackable")
+    inst.components.stackable.maxsize = TUNING.STACK_SIZE_LARGEITEM
+
+    inst:AddComponent("inspectable")
+    inst.components.inspectable.nameoverride = "dug_sapling"
+    inst:AddComponent("inventoryitem")
+    inst.components.inventoryitem.imagename = "dug_sapling_moon"
+    inst.components.inventoryitem.atlasname = "images/dst_boss.xml"
+
+    inst:AddComponent("fuel")
+    inst.components.fuel.fuelvalue = TUNING.LARGE_FUEL
+
+    MakeMediumBurnable(inst, TUNING.LARGE_BURNTIME)
+    MakeSmallPropagator(inst)
+
+    inst:AddComponent("deployable")
+    inst.components.deployable.ondeploy = function(pt, deployer)
+        local tree = SpawnPrefab("sapling_moon")
+        if tree then
+            tree.Transform:SetPosition(pt.x, pt.y, pt.z)
+            inst.components.stackable:Get():Remove()
+            tree.components.pickable:OnTransplant()
+        end
+    end
+    inst.components.deployable.min_spacing = 1
+
+    inst:AddComponent("edible")
+    inst.components.edible.foodtype = "WOOD"
+    inst.components.edible.woodiness = 10
+
+    return inst
+end
+
+return Prefab("sapling_moon", fn, assets, prefabs),
+    Prefab("dug_sapling_moon", dug_fn, assets),
+    MakePlacer("common/dug_sapling_moon_placer", "sapling_moon", "sapling_moon", "idle")

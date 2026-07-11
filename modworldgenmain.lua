@@ -58,7 +58,7 @@ EnsureLockKey("ISLAND7")
 EnsureLockKey("ISLAND8")
 -- 中庭自锁
 EnsureLockKey("ATRIUM")
-modimport "scripts/dst_tile.lua"
+
 local _G = GLOBAL
 local Layouts = require("map/layouts").Layouts
 local StaticLayout = require("map/static_layout")

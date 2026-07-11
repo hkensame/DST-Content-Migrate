@@ -215,6 +215,21 @@ local function ondropped(inst)
     inst.Light:Enable(false)
 end
 
+local function DoUpgrade(inst)
+    inst._upgraded = true
+    inst.components.prototyper.trees = TUNING.PROTOTYPER_TREES.MOON_ALTAR_FULL
+end
+
+local function OnSave(inst, data)
+    data._upgraded = inst._upgraded
+end
+
+local function OnLoad(inst, data)
+    if data ~= nil and data._upgraded then
+        inst:DoUpgrade()
+    end
+end
+
 local function fn()
     local inst = CreateEntity()
 
@@ -285,6 +300,10 @@ local function fn()
 
     inst.OnSpawned = OnSpawned
     inst.OnRemoveEntity = OnRemoveEntity
+
+    inst.DoUpgrade = DoUpgrade
+    inst.OnSave = OnSave
+    inst.OnLoad = OnLoad
 
     return inst
 end

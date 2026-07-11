@@ -312,4 +312,52 @@ local function rock_avocado_bush()
     return inst
 end
 
-return Prefab("rock_avocado_bush", rock_avocado_bush, assets, prefabs)
+----------------<可挖掘物品：dug_rock_avocado_bush>----------------
+local function dug_fn()
+    local inst = CreateEntity()
+    inst.entity:AddTransform()
+    inst.entity:AddAnimState()
+    inst.entity:AddSoundEmitter()
+    MakeInventoryPhysics(inst)
+
+    inst.AnimState:SetBank("rock_avocado")
+    inst.AnimState:SetBuild("rock_avocado_build")
+    inst.AnimState:PlayAnimation("dropped")
+
+    inst:AddComponent("stackable")
+    inst.components.stackable.maxsize = TUNING.STACK_SIZE_LARGEITEM
+
+    inst:AddComponent("inspectable")
+    inst.components.inspectable.nameoverride = "rock_avocado_bush"
+    inst:AddComponent("inventoryitem")
+    inst.components.inventoryitem.imagename = "dug_rock_avocado_bush"
+    inst.components.inventoryitem.atlasname = "images/dst_boss.xml"
+
+    inst:AddComponent("fuel")
+    inst.components.fuel.fuelvalue = TUNING.LARGE_FUEL
+
+    MakeMediumBurnable(inst, TUNING.LARGE_BURNTIME)
+    MakeSmallPropagator(inst)
+
+    inst:AddComponent("deployable")
+    inst.components.deployable.ondeploy = function(pt, deployer)
+        local tree = SpawnPrefab("rock_avocado_bush")
+        if tree then
+            inst.SoundEmitter:PlaySound("dontstarve/common/plant")
+            tree.Transform:SetPosition(pt.x, pt.y, pt.z)
+            inst.components.stackable:Get():Remove()
+            tree.components.pickable:OnTransplant()
+        end
+    end
+    inst.components.deployable.min_spacing = 2
+
+    inst:AddComponent("edible")
+    inst.components.edible.foodtype = "WOOD"
+    inst.components.edible.woodiness = 10
+
+    return inst
+end
+
+return Prefab("rock_avocado_bush", rock_avocado_bush, assets, prefabs),
+    Prefab("dug_rock_avocado_bush", dug_fn, assets),
+    MakePlacer("common/dug_rock_avocado_bush_placer", "rock_avocado", "rock_avocado_build", "dead1")

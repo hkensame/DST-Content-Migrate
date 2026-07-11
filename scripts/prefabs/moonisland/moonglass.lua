@@ -27,8 +27,8 @@ local function fn(Sim)
     MakeBlowInHurricane(inst, TUNING.WINDBLOWN_SCALE_MIN.HEAVY, TUNING.WINDBLOWN_SCALE_MAX.HEAVY)
     
     inst.AnimState:SetBank("moonglass")
-    inst.AnimState:SetBuild("moonglass")
-    inst.AnimState:PlayAnimation("f1")
+    inst.AnimState:SetBuild("moonglass01") -- SCML 内 build 名为 moonglass01
+    inst.AnimState:PlayAnimation("f"..math.random(3)) -- 随机 3 种碎片形状
     
     inst:AddTag("moonglass_piece")
 

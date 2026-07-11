@@ -116,12 +116,6 @@ local function on_starfish_dug_up(inst, digger)
     on_deactivate(inst)
 end
 
-local function calculate_mine_test_time()
-    local base = (TUNING.STARFISH_TRAP_TIMING and TUNING.STARFISH_TRAP_TIMING.BASE) or 0.5
-    local variance = (TUNING.STARFISH_TRAP_TIMING and TUNING.STARFISH_TRAP_TIMING.VARIANCE) or 0.5
-    return base + (math.random() * variance)
-end
-
 local function on_save(inst, data)
     if inst._reset_task ~= nil then
         local remaining_task_time = inst._reset_task_end_time - GetTime()
@@ -180,7 +174,20 @@ local function trap_starfish()
     inst.components.mine:SetOnResetFn(on_reset)
     inst.components.mine:SetOnSprungFn(on_sprung)
     inst.components.mine:SetOnDeactivateFn(on_deactivate)
-    --inst.components.mine:SetTestTimeFn(calculate_mine_test_time) -- DS mine 无此方法
+    -- DS mine 默认测试间隔 1~2 秒（mine.lua:79），太慢
+    -- 用自定义快速测试覆盖，每 0.3 秒检测一次
+    local _FastMineTest = function(mine_inst)
+        local mine = mine_inst.components.mine
+        if not mine or mine.issprung or mine.inactive then return end
+        local target = FindEntity(mine_inst, mine.radius, mine_test_fn, nil, mine_no_tags, mine_test_tags)
+        if target then
+            mine:Explode(target)
+        end
+    end
+    inst.components.mine.StartTesting = function(self)
+        self:StopTesting()
+        self.testtask = self.inst:DoPeriodicTask(0.3, _FastMineTest, 0)
+    end
     inst.components.mine:SetReusable(false)
     reset(inst)
 

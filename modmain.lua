@@ -2,23 +2,6 @@
 GLOBAL.setmetatable(env,{__index=function(t,k) return GLOBAL.rawget(GLOBAL,k) end})
 if GLOBAL.PLATFORM == "Android" then GLOBAL.SJ = true else GLOBAL.SJ = false end --手机判定
 
--- DST 移植地皮：GROUND 常量在 modworldgenmain.lua 用 AddTile() + GetModTileID() 动态分配
--- 不使用硬编码ID，避免与DLC地皮ID冲突
-
--- TUNING 安全兜底：防止 prefab 沙箱未读取到 dst_tuning.lua 中的常量
-GLOBAL.TUNING.ALTERGUARDIAN_PHASE2_SPIKE_RANGE  = GLOBAL.TUNING.ALTERGUARDIAN_PHASE2_SPIKE_RANGE  or 10
-GLOBAL.TUNING.ALTERGUARDIAN_PHASE3_ATTACK_RANGE = GLOBAL.TUNING.ALTERGUARDIAN_PHASE3_ATTACK_RANGE or 14
-GLOBAL.TUNING.GESTALTGUARD_DAMAGE               = GLOBAL.TUNING.GESTALTGUARD_DAMAGE               or 180
-GLOBAL.TUNING.ALTERGUARDIAN_PHASE2_TARGET_DIST  = GLOBAL.TUNING.ALTERGUARDIAN_PHASE2_TARGET_DIST  or 30
-GLOBAL.TUNING.ALTERGUARDIAN_PHASE3_TARGET_DIST  = GLOBAL.TUNING.ALTERGUARDIAN_PHASE3_TARGET_DIST  or 20
-GLOBAL.TUNING.ALTERGUARDIAN_PHASE2_MAXHEALTH    = GLOBAL.TUNING.ALTERGUARDIAN_PHASE2_MAXHEALTH    or 20000
-GLOBAL.TUNING.ALTERGUARDIAN_PHASE2_STARTHEALTH  = GLOBAL.TUNING.ALTERGUARDIAN_PHASE2_STARTHEALTH  or 13000
-GLOBAL.TUNING.ALTERGUARDIAN_PHASE3_MAXHEALTH    = GLOBAL.TUNING.ALTERGUARDIAN_PHASE3_MAXHEALTH    or 22500
-GLOBAL.TUNING.ALTERGUARDIAN_PHASE3_STARTHEALTH  = GLOBAL.TUNING.ALTERGUARDIAN_PHASE3_STARTHEALTH  or 14000
-GLOBAL.TUNING.SANITYAURA_SUPERHUGE = GLOBAL.TUNING.SANITYAURA_SUPERHUGE or 100/(GLOBAL.TUNING.SEG_TIME*.25)
--- 档案馆安全设施常量（archive_props.lua 引用）
-GLOBAL.TUNING.ARCHIVE_SECURITY = GLOBAL.TUNING.ARCHIVE_SECURITY or { REGEN_TIME = 120, RELEASE_TIME = 15, WALK_SPEED = 4 }
-GLOBAL.TUNING.MAX_SECURITY_PULSE_FOLLOWING = GLOBAL.TUNING.MAX_SECURITY_PULSE_FOLLOWING or 3
 
 -- ==================== 天体制作栏 ====================
 RECIPETABS.DST_CELESTIAL = {
@@ -39,32 +22,6 @@ GLOBAL.TUNING = GLOBAL.TUNING or {}
 GLOBAL.TUNING.PROTOTYPER_TREES = GLOBAL.TUNING.PROTOTYPER_TREES or {}
 GLOBAL.TUNING.PROTOTYPER_TREES.MOON_ALTAR = { CELESTIAL = 1 }
 GLOBAL.TUNING.PROTOTYPER_TREES.MOON_ALTAR_FULL = { CELESTIAL = 3 }
-
-----------------<安全蓝图：防止世界加载时蓝图崩溃>----------------
--- 修复 blueprint.lua:113 attempt to index local 'inst' (a nil value)
--- 对所有 _blueprint 结尾的预制体应用 pcall 安全包装，防止 nil inst 冒泡崩溃
-do
-    local wrapped_count = 0
-    for name, prefab in pairs(GLOBAL.Prefabs or {}) do
-        if name:match("_blueprint$") or name == "blueprint" then
-            local orig_fn = prefab.fn
-            prefab.fn = function(...)
-                local ok, result = pcall(orig_fn, ...)
-                if ok and result then
-                    return result
-                end
-                if not ok then
-                    print("[DST Boss] SafeBlueprint: " .. name .. " 构造出错 " .. tostring(result))
-                end
-                return nil
-            end
-            wrapped_count = wrapped_count + 1
-        end
-    end
-    if wrapped_count > 0 then
-        print("[DST Boss] SafeBlueprint: 已安全包装" .. wrapped_count .. " 个蓝图预制体")
-    end
-end
 
 -- ==================== 梦魇疯猪 Daywalker 注册 ====================
 AddPrefabPostInit("daywalkerspawningground", function(inst)
@@ -106,7 +63,6 @@ PrefabFiles =
 {
   "dst_fx",
   "dst_blueprint",
-  "moonisland/dug_plantables",
   "toadstool/red_mushroomhat",
   "toadstool/green_mushroomhat",
   "toadstool/blue_mushroomhat",
@@ -233,7 +189,6 @@ PrefabFiles =
   "moonisland/trap_starfish", --海星陷阱（包含 dug_trap_starfish）
   "moonisland/dead_sea_bones", --海骨
 --月岛生态（内陆区）
-  "moonisland/mooneye", --月眼（蓝色）
   "cave/moonglass_stalactites", --月玻璃钟乳石（3种）
   "moonisland/fruitdragon", --火龙果蜥蜴
 --月岛生态（草原/森林区动物）
@@ -359,7 +314,7 @@ PrefabFiles =
   "daywalker/hat_dreadstone",
   "daywalker/wall_dreadstone",
   "daywalker/support_pillar_dreadstone_scaffold",
-} 
+}
 
 Assets = {
   -- ========== ANIM ==========
@@ -467,7 +422,6 @@ Assets = {
   Asset("ANIM", "anim/moonisland/moonglass_bigwaterfall.zip"),
   Asset("ANIM", "anim/moonisland/moonglass_bigwaterfall_steam.zip"),
   Asset("ANIM", "anim/moonisland/moonglasspool_tile.zip"),
-  Asset("ANIM", "anim/moonisland/mooneyes.zip"),
   Asset("ANIM", "anim/moonisland/star_trap.zip"),
   Asset("ANIM", "anim/moonisland/moonrock_shell.zip"), --月球陨石壳
   Asset("ANIM", "anim/moonisland/moonrock_seed.zip"), --月岩种子动画
@@ -595,8 +549,6 @@ Assets = {
   Asset("ATLAS", "images/lightflier.xml"),
   Asset("IMAGE", "images/opalgem.tex"),
   Asset("ATLAS", "images/opalgem.xml"),
-  Asset("IMAGE", "images/mooneye_images.tex"),
-  Asset("ATLAS", "images/mooneye_images.xml"),
   Asset("IMAGE", "images/cutless.tex"),
   Asset("ATLAS", "images/cutless.xml"),
   Asset("IMAGE", "images/dug_bananabush.tex"),
@@ -869,48 +821,25 @@ AddClassPostConstruct("widgets/crafttabs", function(self)
     table.insert(self.tabnames, RECIPETABS.DST_CELESTIAL)
 end)
 
--- ==================== 天体配方禁止永久解锁 ====================
--- 天体配方只能靠近祭坛制作，制作后不会永久解锁
-AddComponentPostInit("builder", function(self)
-    -- 延迟注入 CELESTIAL 科技（此时 techtree.lua 已加载）
-    local TechTree = package.loaded["techtree"]
-    if TechTree and TechTree.AVAILABLE_TECH then
-        local has_celestial = false
-        for _, v in ipairs(TechTree.AVAILABLE_TECH) do
-            if v == "CELESTIAL" then has_celestial = true break end
-        end
-        if not has_celestial then
-            table.insert(TechTree.AVAILABLE_TECH, "CELESTIAL")
-            if TechTree.AVAILABLE_TECH_BONUS then
-                TechTree.AVAILABLE_TECH_BONUS["CELESTIAL"] = "celestial_bonus"
-            end
-            if TechTree.AVAILABLE_TECH_TEMPBONUS then
-                TechTree.AVAILABLE_TECH_TEMPBONUS["CELESTIAL"] = "celestial_tempbonus"
-            end
-            if TechTree.AVAILABLE_TECH_BONUS_CLASSIFIED then
-                TechTree.AVAILABLE_TECH_BONUS_CLASSIFIED["CELESTIAL"] = "celestialbonus"
-            end
-            if TechTree.AVAILABLE_TECH_TEMPBONUS_CLASSIFIED then
-                TechTree.AVAILABLE_TECH_TEMPBONUS_CLASSIFIED["CELESTIAL"] = "celestialtempbonus"
-            end
-            if TechTree.AVAILABLE_TECH_LEVEL_CLASSIFIED then
-                TechTree.AVAILABLE_TECH_LEVEL_CLASSIFIED["CELESTIAL"] = "celestiallevel"
-            end
-            print("[DST Migrate] CELESTIAL tech injected into TechTree")
-        end
-    end
+-- ==================== 科技树 + 蓝图统一管理 ====================
+-- 蓝图注册表：{ prefab名 = 配方名 }
+-- 有新蓝图掉落时在这里加一行
+local BLUEPRINT_RECIPES = {
+    armordreadstone_blueprint      = "armordreadstone",
+    dreadstonehat_blueprint        = "dreadstonehat",
+    wall_dreadstone_item_blueprint = "wall_dreadstone_item",
+}
 
-    local old_UnlockRecipe = self.UnlockRecipe
-    function self:UnlockRecipe(recname, ...)
-        -- 运行时查找配方是否属于天体栏
-        for _, recipe in ipairs(Recipes) do
-            if recipe.name == recname and recipe.tab == RECIPETABS.DST_CELESTIAL then
-                return -- 天体配方不永久解锁
-            end
-        end
-        return old_UnlockRecipe(self, recname, ...)
-    end
-end)
+-- 自定义科技树：{ 科技名 = { levels = { 等级名=值, ... } } }
+-- 未来扩展在此添加（如 SHADOW_FORGE、LUNAR_FORGE）
+local CUSTOM_TECHS = {
+    CELESTIAL = { levels = { ONE = 1, THREE = 3 } },
+}
+
+-- 启动统一管理系统
+GLOBAL.__tech_blueprints = BLUEPRINT_RECIPES
+GLOBAL.__custom_techs = CUSTOM_TECHS
+modimport("scripts/system/tech_manager")
 
 modimport("scripts/dst_foods.lua")
 modimport("scripts/dst_global.lua")
