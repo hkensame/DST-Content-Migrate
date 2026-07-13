@@ -99,10 +99,28 @@ end
 -- ==================== 暴动循环注册 ====================
 -- 仅挂载到 DST_CAVE 自定义层级，不影响 DS 原版洞穴
 -- 原版洞穴自己有 nightmareclock 且事件名不同（phasechange vs nightmarephasechanged）
-AddSimPostInit(function(inst)
-    if inst.meta and inst.meta.level_id == "DST_CAVE" then
-        if not inst.components.dst_nightmareclock then
-            inst:AddComponent("dst_nightmareclock")
+-- 注意：AddSimPostInit 回传的是 wilson（玩家），不是 TheWorld！
+AddSimPostInit(function()
+    local theWorld = rawget(GLOBAL, "TheWorld")
+    if theWorld and theWorld.meta and theWorld.meta.level_id == "DST_CAVE" then
+        if not theWorld.components.dst_nightmareclock then
+            theWorld:AddComponent("dst_nightmareclock")
+        end
+        -- DS 兼容：包装 GetNightmareClock() 全局函数
+        -- DS 原版已有此函数（simutil.lua），指向 components.nightmareclock
+        -- 需要包装它以优先返回 dst_nightmareclock
+        local orig_GetNightmareClock = GLOBAL.GetNightmareClock
+        GLOBAL.GetNightmareClock = function()
+            local w = rawget(GLOBAL, "TheWorld")
+            -- 优先检查 dst_nightmareclock（模组自定义暴动）
+            if w and w.components.dst_nightmareclock then
+                return w.components.dst_nightmareclock
+            end
+            -- 回退到原版行为
+            if orig_GetNightmareClock then
+                return orig_GetNightmareClock()
+            end
+            return nil
         end
     end
 end)
@@ -308,7 +326,7 @@ PrefabFiles =
   "cave/cavelightmoon", --月光洞穴灯（3种 prefab）
   "cave/molebat", --无眼蝠
   "cave/molebathill", --无眼蝠巢穴
-  "cave/cavelight", --洞穴灯（含 cavelight_atrium）
+  "cave/cavelight", --洞穴灯（含 cavelight_small/tiny/atrium）
   "cave/mushgnome", --月蘑菇地精
   "cave/mushgnome_spawner", --月蘑菇地精生成器
   "cave/grotto_pool_big", --大月玻璃水池
@@ -362,6 +380,8 @@ PrefabFiles =
   "cave/cave_fern_withered",
   "cave/pillar_cave_rock",      -- 洞穴岩石柱（装饰性障碍物）
   "cave/flower_cave_withered",        -- 仅 3 种枯萎变种（普通荧光花由 DS 原版 cave/objects/flower_cave 提供）
+  "cave/wormlight_plant",          -- 荧光果植物（可采集 wormlight_lesser）
+  "cave/wormlight_lesser",         -- 小荧光果（荧光果植物作物）
   -- 远古守卫者 spawner（重生机制）
   "cave/minotaur_spawner",
   -- 梦魇疯猪 Daywalker（洞穴版）
@@ -618,6 +638,8 @@ Assets = {
   Asset("ATLAS", "images/dug_bananabush.xml"),
   Asset("IMAGE", "images/dug_monkeytails.tex"),
   Asset("ATLAS", "images/dug_monkeytails.xml"),
+  Asset("IMAGE", "images/wormlight_lesser.tex"),
+  Asset("ATLAS", "images/wormlight_lesser.xml"),
   Asset("IMAGE", "images/moonrockseed.tex"),
   Asset("ATLAS", "images/moonrockseed.xml"),
   Asset("IMAGE", "images/turf_monkey_ground.tex"),
@@ -944,6 +966,8 @@ do
         "twiggytree",
         "ground_twigs",
         "moonrock_pieces",
+        "pillar_cave_flintless",
+        "wall_ruins_2",
     }
     for _, name in ipairs(dummy_prefabs) do
         if not GLOBAL.Prefabs[name] then
@@ -963,3 +987,4 @@ do
         end
     end
 end
+

@@ -49,10 +49,20 @@ local function normalfn()
     return common_fn(1)
 end
 
+local function smallfn()
+    return common_fn(.5)
+end
+
+local function tinyfn()
+    return common_fn(.2)
+end
+
 local function atriumfn()
     local inst = common_fn(.6)
     return inst
 end
 
 return Prefab("cavelight", normalfn, assets),
+       Prefab("cavelight_small", smallfn, assets),
+       Prefab("cavelight_tiny", tinyfn, assets),
        Prefab("cavelight_atrium", atriumfn, assets)

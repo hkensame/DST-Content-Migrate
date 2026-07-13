@@ -155,18 +155,7 @@ return {
         },
         {
           name = "",
-          type = "mothden_area_low",
-          shape = "rectangle",
-          x = 148,
-          y = 260,
-          width = 42,
-          height = 57,
-          visible = true,
-          properties = {}
-        },
-        {
-          name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 330,
           y = 164,
@@ -179,7 +168,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 346,
           y = 165,
@@ -192,7 +181,7 @@ return {
         },
         {
           name = "",
-          type = "wall_ruins_2",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 297,
           y = 163,
@@ -206,7 +195,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 377,
           y = 164,
@@ -219,7 +208,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 395,
           y = 165,
@@ -232,7 +221,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 361,
           y = 164,
@@ -245,7 +234,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 392,
           y = 377,
@@ -258,7 +247,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 392,
           y = 313,
@@ -271,7 +260,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 392,
           y = 342,
@@ -284,7 +273,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 392,
           y = 358,
@@ -297,7 +286,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 393,
           y = 327,
@@ -310,7 +299,7 @@ return {
         },
         {
           name = "",
-          type = "wall_ruins_2",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 393,
           y = 295,
@@ -324,7 +313,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 391,
           y = 391,
@@ -337,7 +326,7 @@ return {
         },
         {
           name = "",
-          type = "wall_ruins_2",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 298,
           y = 73,
@@ -351,7 +340,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 297,
           y = 87,
@@ -364,7 +353,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 297,
           y = 116,
@@ -377,7 +366,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 297,
           y = 132,
@@ -390,7 +379,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 297,
           y = 151,
@@ -403,7 +392,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 298,
           y = 101,
@@ -416,7 +405,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 312,
           y = 164,

@@ -78,7 +78,7 @@ return {
       objects = {
         {
           name = "",
-          type = "chessjunk1",
+          type = "chessjunk_spawner",
           shape = "rectangle",
           x = 96,
           y = 320,
@@ -89,7 +89,7 @@ return {
         },
         {
           name = "",
-          type = "knight_nightmare",
+          type = "cave/monsters/knight_nightmare_spawner",
           shape = "rectangle",
           x = 336,
           y = 272,
@@ -111,7 +111,7 @@ return {
         },
         {
           name = "",
-          type = "ancient_altar_broken",
+          type = "common/objects/ancient_altar_broken_spawner",
           shape = "rectangle",
           x = 256,
           y = 208,
@@ -122,7 +122,7 @@ return {
         },
         {
           name = "",
-          type = "bishop_nightmare",
+          type = "cave/monsters/bishop_nightmare_spawner",
           shape = "rectangle",
           x = 160,
           y = 272,

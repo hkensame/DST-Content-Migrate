@@ -78,7 +78,7 @@ return {
       objects = {
         {
           name = "",
-          type = "chessjunk1",
+          type = "chessjunk_spawner",
           shape = "rectangle",
           x = 171,
           y = 202,
@@ -89,7 +89,7 @@ return {
         },
         {
           name = "",
-          type = "chessjunk3",
+          type = "chessjunk_spawner",
           shape = "rectangle",
           x = 322,
           y = 354,
@@ -100,7 +100,7 @@ return {
         },
         {
           name = "",
-          type = "bishop_nightmare",
+          type = "cave/monsters/bishop_nightmare_spawner",
           shape = "rectangle",
           x = 271,
           y = 283,

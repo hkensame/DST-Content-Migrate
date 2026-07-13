@@ -596,7 +596,7 @@ AddTask("DST_AtriumMaze", {
     room_tags = {"Atrium", "Nightmare"},
     entrance_room = "DST_AtriumMazeEntrance",
     room_choices = {
-        ["DST_AtriumMazeRooms"] = 8,
+        ["DST_AtriumMazeRooms"] = 6,
         ["DST_AtriumEnd"] = 1,
     },
     room_bg = GROUND.TILES,
@@ -739,7 +739,7 @@ AddLevel(LEVELTYPE.CAVE, {
     location = "cave",
     version = 1,
     overrides = {
-        world_size = "large",
+        world_size = "huge",
         start_node = "DST_Entrance",
     },
     tasks = {

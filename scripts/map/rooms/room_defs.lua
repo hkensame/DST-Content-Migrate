@@ -1922,7 +1922,7 @@ AddRoom("DST_WetWilds", {
             cave_fern = 0.1,
             pillar_algae = .01,
             pond_cave = 0.1,
-            slurper_spawner = .05,
+            ["cave/monsters/slurper_spawner"] = .05,
             fissure_lower = 0.05,
         },
     }
@@ -1940,14 +1940,14 @@ AddRoom("DST_LichenMeadow", {
             lichen = 1.0,
             cave_fern = 1.0,
             pillar_algae = 0.1,
-            slurper_spawner = 0.35,
+            ["cave/monsters/slurper_spawner"] = 0.35,
             fissure_lower = 0.05,
 
             flower_cave = .05,
             flower_cave_double = .03,
             flower_cave_triple = .01,
 
-            worm_spawner = 0.07,
+            ["cave/monsters/worm_spawner"] = 0.07,
             wormlight_plant = 0.15,
         },
     }
@@ -1964,7 +1964,7 @@ AddRoom("DST_LichenLand", {
             lichen = 2.0,
             cave_fern = 0.5,
             pillar_algae = 0.5,
-            slurper_spawner = 0.05,
+            ["cave/monsters/slurper_spawner"] = 0.05,
             fissure_lower = 0.05,
         },
     }
@@ -1984,12 +1984,12 @@ AddRoom("DST_CaveJungle", {
             pillar_algae = 0.05,
 
             ["cave/cave_banana_tree"] = 0.5,
-            ["cave/objects/monkeybarrel"] = 0.1,
+            ["cave/objects/monkeybarrel_spawner"] = 0.1,
 
-            slurper_spawner = 0.06,
+            ["cave/monsters/slurper_spawner"] = 0.06,
             pond_cave = 0.07,
             fissure_lower = 0.04,
-            worm_spawner = 0.04,
+            ["cave/monsters/worm_spawner"] = 0.04,
             wormlight_plant = 0.08,
         },
     }
@@ -2009,12 +2009,12 @@ AddRoom("DST_MonkeyMeadow", {
             pillar_algae = 0.05,
 
             ["cave/cave_banana_tree"] = 0.1,
-            ["cave/objects/monkeybarrel"] = 0.06,
+            ["cave/objects/monkeybarrel_spawner"] = 0.06,
 
-            slurper_spawner = 0.06,
+            ["cave/monsters/slurper_spawner"] = 0.06,
             pond_cave = 0.07,
             fissure_lower = 0.04,
-            worm_spawner = 0.04,
+            ["cave/monsters/worm_spawner"] = 0.04,
             wormlight_plant = 0.08,
         },
     }
@@ -2037,13 +2037,13 @@ local bgwilds = {
             pillar_algae = 0.01,
 
             ["cave/cave_banana_tree"] = 0.01,
-            ["cave/objects/monkeybarrel"] = 0.01,
+            ["cave/objects/monkeybarrel_spawner"] = 0.01,
 
             flower_cave = 0.05,
             flower_cave_double = 0.03,
             flower_cave_triple = 0.01,
 
-            worm_spawner = 0.07,
+            ["cave/monsters/worm_spawner"] = 0.07,
             wormlight_plant = 0.15,
 
             fissure_lower = 0.04,
@@ -2072,9 +2072,9 @@ AddRoom("DST_Vacant", {
             lichen = .4,
             cave_fern = .6,
             pillar_algae = .01,
-            slurper_spawner = .15,
+            ["cave/monsters/slurper_spawner"] = .15,
             ["cave/cave_banana_tree"] = .1,
-            ["cave/objects/monkeybarrel"] = .1,
+            ["cave/objects/monkeybarrel_spawner"] = .1,
             dropperweb = .1,
             ruins_rubble_table = 0.1,
             ruins_rubble_chair = 0.1,
@@ -2100,11 +2100,11 @@ AddRoom("DST_RuinedCity", {
             pillar_algae = .05,
 
             ["cave/cave_banana_tree"] = 0.1,
-            ["cave/objects/monkeybarrel"] = 0.06,
-            slurper_spawner = 0.06,
+            ["cave/objects/monkeybarrel_spawner"] = 0.06,
+            ["cave/monsters/slurper_spawner"] = 0.06,
             pond_cave = 0.07,
             fissure_lower = 0.04,
-            worm_spawner = 0.04,
+            ["cave/monsters/worm_spawner"] = 0.04,
         },
     }
 })
@@ -2179,9 +2179,9 @@ AddRoom("DST_Barracks", {
 
             nightmarelight = 1,
 
-            rook_nightmare_spawner = .07,
-            bishop_nightmare_spawner = .07,
-            knight_nightmare_spawner = .07,
+            ["cave/monsters/rook_nightmare_spawner"] = .07,
+            ["cave/monsters/bishop_nightmare_spawner"] = .07,
+            ["cave/monsters/knight_nightmare_spawner"] = .07,
         },
     }
 })
@@ -2266,15 +2266,15 @@ local bgsacred = {
 
             pillar_ruins = 0.5,
 
-            ruins_statue_head_spawner = .1,
-            ruins_statue_head_nogem_spawner = .2,
+            ["cave/objects/ruins_statue_head_spawner"] = .1,
+            ["cave/objects/ruins_statue_head_nogem_spawner"] = .2,
 
-            ruins_statue_mage_spawner =.1,
-            ruins_statue_mage_nogem_spawner = .2,
+            ["cave/objects/ruins_statue_mage_spawner"] =.1,
+            ["cave/objects/ruins_statue_mage_nogem_spawner"] = .2,
 
-            rook_nightmare_spawner = .07,
-            bishop_nightmare_spawner = .07,
-            knight_nightmare_spawner = .07,
+            ["cave/monsters/rook_nightmare_spawner"] = .07,
+            ["cave/monsters/bishop_nightmare_spawner"] = .07,
+            ["cave/monsters/knight_nightmare_spawner"] = .07,
         },
     }
 }
@@ -2319,9 +2319,9 @@ AddRoom("DST_Labyrinth", {
 
             chessjunk_spawner = 0.03,
 
-            rook_nightmare_spawner = 0.01,
-            bishop_nightmare_spawner = 0.01,
-            knight_nightmare_spawner = 0.01,
+            ["cave/monsters/rook_nightmare_spawner"] = 0.01,
+            ["cave/monsters/bishop_nightmare_spawner"] = 0.01,
+            ["cave/monsters/knight_nightmare_spawner"] = 0.01,
 
             thulecite_pieces = 0.05,
         },

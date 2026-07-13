@@ -86,12 +86,16 @@ end)
 
 -- 将 archivemanager 组件添加到 DST_CAVE 洞穴世界
 -- DS 的世界实体 prefab 名是 "cave" 或 "forest"，不是 "world"
+-- 注意：AddPrefabPostInit 触发时 inst.meta 尚未被设置（gamelogic.lua 中 ground.meta=savedata.meta 在之后），
+-- 必须延迟到下一帧才能正确读取 meta.level_id
 AddPrefabPostInit("cave", function(inst)
-    if inst.meta and inst.meta.level_id == "DST_CAVE" then
-        if not inst.components.archivemanager then
-            inst:AddComponent("archivemanager")
+    inst:DoTaskInTime(0, function()
+        if inst.meta and inst.meta.level_id == "DST_CAVE" then
+            if not inst.components.archivemanager then
+                inst:AddComponent("archivemanager")
+            end
         end
-    end
+    end)
 end)
 
 -- 注入 GetTheWorld（供 prefab runtime 函数调用 TheWorld.components）

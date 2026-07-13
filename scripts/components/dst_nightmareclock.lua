@@ -71,6 +71,7 @@ self.inst = inst
 --Private
 local _world = GetTheWorld()
 local _phasedirty = true
+local _oldphase = 1  -- 用于 DS 兼容的 phasechange 事件
 
 --Phase state（纯 Lua 变量，替代 DST 的 net_*）
 local _segs = {}
@@ -204,8 +205,14 @@ function self:OnUpdate(dt)
     -- 相位变更时推送事件 + 更新音效
     if _phasedirty then
         _world:PushEvent("nightmarephasechanged", PHASE_NAMES[_phase])
+        -- DS 兼容：同时推送 phasechange 事件
+        -- DS 用 "nightmare" 对应模组的 "wild"，需要映射
+        local ds_newphase = PHASE_NAMES[_phase] == "wild" and "nightmare" or PHASE_NAMES[_phase]
+        local ds_oldphase = PHASE_NAMES[_oldphase] == "wild" and "nightmare" or PHASE_NAMES[_oldphase]
+        _world:PushEvent("phasechange", { oldphase = ds_oldphase, newphase = ds_newphase })
         OnPhaseChanged()
         _phasedirty = false
+        _oldphase = _phase
     end
 
     -- 每帧推送进度事件供其他组件监听
@@ -264,6 +271,43 @@ function self:OnLoad(data)
     _totaltimeinphase = data.totaltimeinphase or _segs[_phase] * TUNING.SEG_TIME
     _remainingtimeinphase = math.min(data.remainingtimeinphase or _totaltimeinphase, _totaltimeinphase)
     _lockedphase = data.lockedphase ~= nil and PHASES[data.lockedphase] or nil
+end
+
+--------------------------------------------------------------------------
+--[[ DS 兼容公开方法 ]]
+-- DS nightmare_timepiece、nightmarelight、fissure 等 prefab
+-- 通过 GetNightmareClock() 获取组件后调用这些方法
+--------------------------------------------------------------------------
+
+function self:GetPhase()
+    -- DS 兼容：将 "wild" 映射为 "nightmare"（DS 原版阶段名）
+    local phase = PHASE_NAMES[_phase]
+    return phase == "wild" and "nightmare" or phase
+end
+
+function self:IsCalm()
+    return _phase == PHASES.calm
+end
+
+function self:IsWarn()
+    return _phase == PHASES.warn
+end
+
+function self:IsNightmare()
+    -- DS 原版暴动阶段名是 "nightmare"，模组是 "wild"
+    return _phase == PHASES.wild
+end
+
+function self:IsDawn()
+    return _phase == PHASES.dawn
+end
+
+function self:GetNormEraTime()
+    return _totaltimeinphase > 0 and (1 - _remainingtimeinphase / _totaltimeinphase) or 1
+end
+
+function self:GetTimeLeftInEra()
+    return _remainingtimeinphase
 end
 
 --------------------------------------------------------------------------

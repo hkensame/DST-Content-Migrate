@@ -86,7 +86,7 @@ return {
       objects = {
         {
           name = "",
-          type = "common/objects/ancient_altar_broken",
+          type = "common/objects/ancient_altar_broken_spawner",
           shape = "rectangle",
           x = 320,
           y = 128,
@@ -119,7 +119,7 @@ return {
         },
         {
           name = "",
-          type = "chessjunk",
+          type = "chessjunk_spawner",
           shape = "rectangle",
           x = 480,
           y = 416,
@@ -130,7 +130,7 @@ return {
         },
         {
           name = "",
-          type = "chessjunk",
+          type = "chessjunk_spawner",
           shape = "rectangle",
           x = 128,
           y = 352,
@@ -251,7 +251,7 @@ return {
         },
         {
           name = "",
-          type = "chessjunk",
+          type = "chessjunk_spawner",
           shape = "rectangle",
           x = 366,
           y = 187,

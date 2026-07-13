@@ -17,7 +17,6 @@ local function burnt_fn()
 
 	inst.AnimState:SetBuild("marsh_bush")
 	inst.AnimState:SetBank("marsh_bush")
-	inst.AnimState:PlayAnimation("idle", true)
 
 	inst:AddTag("thorny")
 

@@ -40,7 +40,7 @@ local function MakeChessJunkSpawner()
         -- 立即生成一个随机 chessjunk
         local x, y, z = inst.Transform:GetWorldPosition()
         local style = math.random(3)
-        local target = SpawnPrefab("chessjunk" .. style)
+        local target = SpawnPrefab("common/objects/chessjunk" .. style)
         if target then
             target.Transform:SetPosition(x, y, z)
             inst.components.objectspawner:TakeOwnership(target)
@@ -51,7 +51,7 @@ local function MakeChessJunkSpawner()
             if #inst.components.objectspawner.objects <= 0 then
                 local px, py, pz = inst.Transform:GetWorldPosition()
                 local style = math.random(3)
-                local obj = SpawnPrefab("chessjunk" .. style)
+                local obj = SpawnPrefab("common/objects/chessjunk" .. style)
                 if obj then
                     obj.Transform:SetPosition(px, py, pz)
                     inst.components.objectspawner:TakeOwnership(obj)
@@ -73,25 +73,38 @@ local function MakeChessJunkSpawner()
         return inst
     end
 
-    return Prefab("chessjunk_spawner", worldgenfn, chessjunk_assets, { "chessjunk1", "chessjunk2", "chessjunk3" }),
-           Prefab("chessjunk_ruinsrespawner_inst", instfn, nil, { "chessjunk1", "chessjunk2", "chessjunk3" })
+    return Prefab("chessjunk_spawner", worldgenfn, chessjunk_assets, { "common/objects/chessjunk1", "common/objects/chessjunk2", "common/objects/chessjunk3" }),
+           Prefab("chessjunk_ruinsrespawner_inst", instfn, nil, { "common/objects/chessjunk1", "common/objects/chessjunk2", "common/objects/chessjunk3" })
 end
 
 -- ==================== 标准 1:1 映射（使用 cave/ruinsrespawner）====================
 -- 每个 prefab 同时注册 WorldGen（_spawner）和 Inst（_ruinsrespawner_inst）
 
 return MakeChessJunkSpawner(),
-    RuinsRespawner.WorldGen("rook_nightmare"),
-    RuinsRespawner.Inst("rook_nightmare"),
-    RuinsRespawner.WorldGen("bishop_nightmare"),
-    RuinsRespawner.Inst("bishop_nightmare"),
-    RuinsRespawner.WorldGen("knight_nightmare"),
-    RuinsRespawner.Inst("knight_nightmare"),
-    RuinsRespawner.WorldGen("ruins_statue_head"),
-    RuinsRespawner.Inst("ruins_statue_head"),
-    RuinsRespawner.WorldGen("ruins_statue_head_nogem"),
-    RuinsRespawner.Inst("ruins_statue_head_nogem"),
-    RuinsRespawner.WorldGen("ruins_statue_mage"),
-    RuinsRespawner.Inst("ruins_statue_mage"),
-    RuinsRespawner.WorldGen("ruins_statue_mage_nogem"),
-    RuinsRespawner.Inst("ruins_statue_mage_nogem")
+    RuinsRespawner.WorldGen("cave/monsters/rook_nightmare"),
+    RuinsRespawner.Inst("cave/monsters/rook_nightmare"),
+    RuinsRespawner.WorldGen("cave/monsters/bishop_nightmare"),
+    RuinsRespawner.Inst("cave/monsters/bishop_nightmare"),
+    RuinsRespawner.WorldGen("cave/monsters/knight_nightmare"),
+    RuinsRespawner.Inst("cave/monsters/knight_nightmare"),
+    RuinsRespawner.WorldGen("cave/objects/ruins_statue_head"),
+    RuinsRespawner.Inst("cave/objects/ruins_statue_head"),
+    RuinsRespawner.WorldGen("cave/objects/ruins_statue_head_nogem"),
+    RuinsRespawner.Inst("cave/objects/ruins_statue_head_nogem"),
+    RuinsRespawner.WorldGen("cave/objects/ruins_statue_mage"),
+    RuinsRespawner.Inst("cave/objects/ruins_statue_mage"),
+    RuinsRespawner.WorldGen("cave/objects/ruins_statue_mage_nogem"),
+    RuinsRespawner.Inst("cave/objects/ruins_statue_mage_nogem"),
+    -- 洞穴生物：蠕虫、粘液虫
+    RuinsRespawner.WorldGen("cave/monsters/worm"),
+    RuinsRespawner.Inst("cave/monsters/worm"),
+    RuinsRespawner.WorldGen("cave/monsters/slurper"),
+    RuinsRespawner.Inst("cave/monsters/slurper"),
+    -- 猴岛：猴尾桶
+    RuinsRespawner.WorldGen("cave/objects/monkeybarrel"),
+    RuinsRespawner.Inst("cave/objects/monkeybarrel"),
+    -- 远古祭坛（带 prefab swap 监听）
+    RuinsRespawner.WorldGen("common/objects/ancient_altar", nil, { listenforprefabsawp = true }),
+    RuinsRespawner.Inst("common/objects/ancient_altar", nil, { listenforprefabsawp = true }),
+    RuinsRespawner.WorldGen("common/objects/ancient_altar_broken", nil, { listenforprefabsawp = true }),
+    RuinsRespawner.Inst("common/objects/ancient_altar_broken", nil, { listenforprefabsawp = true })

@@ -116,7 +116,7 @@ return {
         },
         {
           name = "",
-          type = "chessjunk",
+          type = "chessjunk_spawner",
           shape = "rectangle",
           x = 559,
           y = 191,
@@ -127,7 +127,7 @@ return {
         },
         {
           name = "",
-          type = "common/objects/ancient_altar",
+          type = "common/objects/ancient_altar_spawner",
           shape = "rectangle",
           x = 384,
           y = 385,
@@ -138,7 +138,7 @@ return {
         },
         {
           name = "",
-          type = "chessjunk",
+          type = "chessjunk_spawner",
           shape = "rectangle",
           x = 183,
           y = 577,
@@ -162,7 +162,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "common/wall_ruins",
           shape = "rectangle",
           x = 64,
           y = 240,
@@ -201,7 +201,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "common/wall_ruins",
           shape = "rectangle",
           x = 256,
           y = 64,
@@ -402,7 +402,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "common/wall_ruins",
           shape = "rectangle",
           x = 704,
           y = 608,
@@ -454,7 +454,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "common/wall_ruins",
           shape = "rectangle",
           x = 704,
           y = 368,
@@ -493,7 +493,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "common/wall_ruins",
           shape = "rectangle",
           x = 464,
           y = 64,
@@ -545,7 +545,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "common/wall_ruins",
           shape = "rectangle",
           x = 368,
           y = 704,
