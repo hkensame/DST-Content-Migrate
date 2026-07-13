@@ -43,11 +43,7 @@ local function SetVentPhysics(inst)
         inst.Physics:SetMass(0)
         inst.Physics:SetCapsule(0.5, 1)
         inst.Physics:SetCollisionGroup(COLLISION.OBSTACLES)
-        inst.Physics:SetCollisionMask(
-            COLLISION.ITEMS,
-            COLLISION.CHARACTERS,
-            COLLISION.GIANTS
-        )
+        -- SetCollisionMask is DST-only, removed for DS
     end
 end
 
@@ -112,7 +108,9 @@ local function fn()
     inst.AnimState:SetBank("mite_cave")
     inst.AnimState:SetBuild("mite_cave")
     inst.AnimState:PlayAnimation("idle")
-    inst.AnimState:HideSymbol("red_vent")
+    if inst.AnimState.HideSymbol then
+        inst.AnimState:HideSymbol("red_vent")
+    end
     if inst.AnimState.SetSymbolLightOverride then
         inst.AnimState:SetSymbolLightOverride("red_vent", 1)
     end
@@ -122,8 +120,12 @@ local function fn()
     inst.override_combat_fx_size = "small"
 
     local color = 0.5 + math.random() * 0.5
-    inst.AnimState:SetSymbolMultColour("mite_vent", color, color, color, 1)
-    inst.AnimState:SetSymbolMultColour("rubble", color, color, color, 1)
+    if inst.AnimState.SetSymbolMultColour then
+        inst.AnimState:SetSymbolMultColour("mite_vent", color, color, color, 1)
+        inst.AnimState:SetSymbolMultColour("rubble", color, color, color, 1)
+    else
+        inst.AnimState:SetMultColour(color, color, color, 1)
+    end
 
     inst:AddComponent("inspectable")
     inst.components.inspectable.getstatus = GetStatus
@@ -164,9 +166,9 @@ local function fn()
     inst:AddComponent("knownlocations")
 
     inst:AddComponent("eater")
-    inst.components.eater:SetDiet(DIET, DIET)
+    inst.components.eater:SetCarnivore()
     inst.components.eater:SetCanEatHorrible()
-    inst.components.eater:SetStrongStomach(true)
+    inst.components.eater.strongstomach = true
     inst.components.eater:SetCanEatRawMeat(true)
 
     inst:AddComponent("timer")

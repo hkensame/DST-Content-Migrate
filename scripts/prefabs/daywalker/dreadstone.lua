@@ -6,6 +6,9 @@ local function fn()
 	inst.entity:AddAnimState()
 
 	MakeInventoryPhysics(inst)
+	if rawget(_G, 'MakeInventoryFloatable') then
+		MakeInventoryFloatable(inst, "idle", "idle")
+	end
 
 	inst.AnimState:SetBank("dreadstone")
 	inst.AnimState:SetBuild("dreadstone")
@@ -18,6 +21,8 @@ local function fn()
 	inst.components.stackable.maxsize = TUNING.STACK_SIZE_SMALLITEM
 	inst:AddComponent("inspectable")
 	inst:AddComponent("inventoryitem")
+	inst.components.inventoryitem.atlasname = "images/dreadstone.xml"
+	inst.components.inventoryitem.imagename = "dreadstone"
 	inst:AddComponent("repairer")
 	inst.components.repairer.repairmaterial = "dreadstone"
 	inst.components.repairer.healthrepairvalue = TUNING.REPAIR_DREADSTONE_HEALTH

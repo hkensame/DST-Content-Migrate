@@ -3,9 +3,14 @@
 -- 月蛾生成器：在光飞虫花附近生成月蛾，逻辑参考官方 butterflyspawner
 --------------------------------------------------------------------------
 
+local function GetTheWorld()
+    return rawget(_G, "TheWorld")
+end
+
 return Class(function(self, inst)
 
-assert(TheWorld.ismastersim, "MoonButterflySpawner should not exist on client")
+local theWorld = GetTheWorld()
+assert(theWorld and theWorld.ismastersim, "MoonButterflySpawner should not exist on client")
 
 --------------------------------------------------------------------------
 --[[ Member variables ]]
@@ -17,7 +22,7 @@ self.inst = inst
 --Private
 local _activeplayers = {}
 local _scheduledtasks = {}
-local _worldstate = TheWorld.state
+local _worldstate = theWorld and theWorld.state
 local _updating = false
 local _moonbutterflies = {}
 local _maxmoonbutterflies = 10 -- 月蛾最大数量
@@ -140,15 +145,17 @@ end
 --------------------------------------------------------------------------
 
 --Initialize variables
-for i, v in ipairs(AllPlayers) do
-    table.insert(_activeplayers, v)
+-- DS 单机：只有一个玩家，用 GetPlayer() 替代 AllPlayers
+local player = GetPlayer()
+if player ~= nil then
+    table.insert(_activeplayers, player)
 end
 
 --Register events
 inst:WatchWorldState("isday", ToggleUpdate)
 inst:WatchWorldState("iswinter", ToggleUpdate)
-inst:ListenForEvent("ms_playerjoined", OnPlayerJoined, TheWorld)
-inst:ListenForEvent("ms_playerleft", OnPlayerLeft, TheWorld)
+inst:ListenForEvent("ms_playerjoined", OnPlayerJoined, theWorld)
+inst:ListenForEvent("ms_playerleft", OnPlayerLeft, theWorld)
 
 --------------------------------------------------------------------------
 --[[ Post initialization ]]

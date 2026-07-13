@@ -429,17 +429,6 @@ return {
         },
         {
           name = "",
-          type = "archive_cookpot_area",
-          shape = "rectangle",
-          x = 150,
-          y = 249,
-          width = 33,
-          height = 29,
-          visible = true,
-          properties = {}
-        },
-        {
-          name = "",
           type = "archive_sound_area",
           shape = "rectangle",
           x = 138,

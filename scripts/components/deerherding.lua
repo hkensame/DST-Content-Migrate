@@ -1,5 +1,8 @@
 
 -- DS 无 FindPlayersInRange，单机兼容实现
+local function GetTheWorld()
+    return rawget(_G, "TheWorld")
+end
 local function FindPlayersInRange(x, y, z, range, isalive)
     local player = GetPlayer()
     if player == nil then return {} end
@@ -324,7 +327,8 @@ end
 
 function DeerHerding:LoadPostPass(newents, data)
 	if self.herdspawner == nil then
-		self.herdspawner = TheWorld.components.deerherdspawner
+		local theWorld = GetTheWorld()
+		self.herdspawner = theWorld and theWorld.components.deerherdspawner
 	end
 end
 

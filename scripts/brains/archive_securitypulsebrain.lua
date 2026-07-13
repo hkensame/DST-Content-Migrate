@@ -25,7 +25,9 @@ local function testbetweenpoints(pt1,pt2)
     local x = x1 + xdiff
     local z = z1 + zdiff
 
-    return TheWorld.Map:IsVisualGroundAtPoint(x,0,z)
+    local world = rawget(_G, "TheWorld")
+    if world == nil then return false end
+    return world.Map:IsVisualGroundAtPoint(x,0,z)
 end
 
 local WAYPOINT_MUST_TAGS = {"archive_waypoint"}

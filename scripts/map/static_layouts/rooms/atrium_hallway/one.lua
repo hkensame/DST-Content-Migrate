@@ -385,41 +385,7 @@ return {
           height = 0,
           visible = true,
           properties = {}
-        },
-        {
-          name = "",
-          type = "archive_moon_statue",
-          shape = "rectangle",
-          x = 136,
-          y = 152,
-          width = 0,
-          height = 0,
-          visible = true,
-          properties = {}
-        },
-        {
-          name = "",
-          type = "archive_moon_statue",
-          shape = "rectangle",
-          x = 88,
-          y = 88,
-          width = 0,
-          height = 0,
-          visible = true,
-          properties = {}
-        },
-        {
-          name = "",
-          type = "archive_moon_statue",
-          shape = "rectangle",
-          x = 56,
-          y = 120,
-          width = 0,
-          height = 0,
-          visible = true,
-          properties = {}
-        },
-      }
+        },      }
     }
   }
 }

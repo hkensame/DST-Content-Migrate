@@ -3,7 +3,8 @@
 -- 改动：
 --   🔴 移除 AddNetwork / SetPristine / ismastersim
 --   🟡 TheNet:IsDedicated() → 始终执行（DS 无专用服务器）
---   🔴 注释 SetDeploySmartRadius / ms_registergrottopool
+--   🔴 注释 SetDeploySmartRadius
+--   🟡 碰撞缩小到 2.0（DS 不支持环形碰撞网格），瀑布音效改为直接播放
 --   ⚪ scrapbook_* 字段无害保留
 
 local assets =
@@ -135,12 +136,13 @@ local function poolfn()
     inst.entity:AddAnimState()
     inst.entity:AddMiniMapEntity()
     inst.entity:AddLight()
+    inst.entity:AddSoundEmitter()
     -- 🔴 DS 不需要 AddNetwork
 
     -- 🟡 DS 无 TheNet:IsDedicated()，始终执行
     inst:DoTaskInTime(0, makebigmist)
 
-    MakeObstaclePhysics(inst, TUNING.GROTTO_POOL_BIG_RADIUS)
+    MakeObstaclePhysics(inst, 4) -- 🟡 缩小到 2.0，让月玻璃在碰撞外可到达
 
     inst.AnimState:SetBuild("moonglasspool_tile")
     inst.AnimState:SetBank("moonglasspool_tile")
@@ -171,8 +173,10 @@ local function poolfn()
     -- 🔴 注释 SetDeploySmartRadius（DS 无此方法）
     --inst:SetDeploySmartRadius(5)
 
-    -- 🔴 注释 register_pool（DS 无瀑布音效系统）
-    --inst:DoTaskInTime(0, register_pool)
+    -- 🟡 瀑布音效：替代 DST register_pool 系统
+    inst:DoTaskInTime(0, function()
+        inst.SoundEmitter:PlaySound("grotto/common/waterfall_LP", "waterfall_loop")
+    end)
 
     -- 🔴 DS 不需要 SetPristine / ismastersim 守卫
 

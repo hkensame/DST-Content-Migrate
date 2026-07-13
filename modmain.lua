@@ -1,7 +1,16 @@
 
-GLOBAL.setmetatable(env,{__index=function(t,k) return GLOBAL.rawget(GLOBAL,k) end})
+GLOBAL.setmetatable(env,{
+    __index=function(t,k) return GLOBAL.rawget(GLOBAL,k) end,
+    __newindex=function(t,k,v) GLOBAL.rawset(GLOBAL,k,v) rawset(t,k,v) end
+})
 if GLOBAL.PLATFORM == "Android" then GLOBAL.SJ = true else GLOBAL.SJ = false end --手机判定
 
+
+-- ==================== DS 兼容：DST 特有方法补丁 ====================
+-- DS 没有 SetPhysicsRadiusOverride，补充为空操作
+if rawget(GLOBAL, "EntityScript") and not GLOBAL.EntityScript.SetPhysicsRadiusOverride then
+    GLOBAL.EntityScript.SetPhysicsRadiusOverride = function() end
+end
 
 -- ==================== 天体制作栏 ====================
 RECIPETABS.DST_CELESTIAL = {
@@ -32,13 +41,68 @@ AddPrefabPostInit("daywalkerspawningground", function(inst)
     end)
 end)
 
+-- ==================== DST_CAVE 犀牛宝箱替换 ====================
+-- minotaurchest 没有 Physics 组件，FindEntities 无法空间查找
+-- 改用 PostInit 在 chest 创建时直接替换 cave_regenerator → atrium_key
+-- 标记由 minotaur_spawner.lua 的死亡事件设置
+AddPrefabPostInit("minotaurchest", function(inst)
+    local dead_pos = rawget(GLOBAL, "_DST_CAVE_MINOTAUR_DEAD")
+    if dead_pos then
+        local x, y, z = inst.Transform:GetWorldPosition()
+        local dx = x - dead_pos.x
+        local dz = z - dead_pos.z
+        if dx*dx + dz*dz < 400 then  -- 20 单位内
+            rawset(GLOBAL, "_DST_CAVE_MINOTAUR_DEAD", nil)
+            inst:DoTaskInTime(0, function()
+                if inst.components and inst.components.container then
+                    for i = 1, inst.components.container:GetNumSlots() do
+                        local item = inst.components.container:GetItemInSlot(i)
+                        if item and item.prefab == "cave_regenerator" then
+                            item:Remove()
+                        end
+                    end
+                    local key = SpawnPrefab("atrium_key")
+                    if key then
+                        inst.components.container:GiveItem(key)
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+-- ==================== GetTheWorld 实体注入 ====================
+-- DS 的 PrefabFiles 脚本中 GLOBAL/TheWorld 不可用（strict.lua 保护）
+-- 通过 AddPrefabPostInit 立即注入 inst.GetTheWorld 惰性闭包
+-- 使用 rawget(GLOBAL, "TheWorld") 绕过 strict.lua 的 __index 拦截
+local _inject_getworld_prefabs = {
+    -- tree_rocks.lua
+    "tree_rock1", "tree_rock2",
+    "tree_rock1_short", "tree_rock1_normal",
+    "tree_rock2_short", "tree_rock2_normal",
+    -- archive_chandelier.lua
+    "archive_chandelier", "vault_chandelier", "vault_crawler_chandelier",
+    -- archive_lockbox.lua
+    "archive_lockbox", "archive_lockbox_dispencer",
+    -- archive_orchestrina_main.lua
+    "archive_orchestrina_main", "archive_orchestrina_small",
+    -- archive_props.lua
+    "archive_security_desk", "archive_switch", "archive_switch_base",
+    "archive_security_waypoint", "archive_portal",
+}
+for _, prefab_name in ipairs(_inject_getworld_prefabs) do
+    AddPrefabPostInit(prefab_name, function(inst)
+        inst.GetTheWorld = function() return rawget(GLOBAL, "TheWorld") end
+    end)
+end
+
 -- ==================== 暴动循环注册 ====================
 -- 仅挂载到 DST_CAVE 自定义层级，不影响 DS 原版洞穴
 -- 原版洞穴自己有 nightmareclock 且事件名不同（phasechange vs nightmarephasechanged）
 AddSimPostInit(function(inst)
     if inst.meta and inst.meta.level_id == "DST_CAVE" then
-        if not inst.components.nightmareclock then
-            inst:AddComponent("nightmareclock")
+        if not inst.components.dst_nightmareclock then
+            inst:AddComponent("dst_nightmareclock")
         end
     end
 end)
@@ -59,6 +123,9 @@ GLOBAL.LoadPrefabFile = function(filename)
     return ret
 end
 
+-- TUNING 常量必须在 PrefabFiles 之前加载，否则 prefab fn() 执行时 TUNING 尚未定义
+modimport("scripts/dst_tuning.lua")
+
 PrefabFiles = 
 {
   "dst_fx",
@@ -70,8 +137,6 @@ PrefabFiles =
   "turf_meteor",
   "mushtree_spores", -- 孢子（红/绿/蓝月），蘑菇帽产出  
   "rock_break_fx", --特效
-  "cave_hole",
-  "sacred_chest",
   -- "fx", -- 已移除，改用 dst_fx.lua
 --天体英雄
   "alterguardian/alterguardian_phase1",
@@ -149,8 +214,6 @@ PrefabFiles =
   "shadowchess/shadowchesspieces",
   "shadowchess/shadowheart",
   "shadowchess/chesspieces_shadow", --三基佬雕像
-  "shadowchess/bishop_nightmare_spawner",
-  "shadowchess/rook_nightmare_spawner",
 --食物buff
   "foodbuffs",
   "dst_foods",
@@ -223,7 +286,6 @@ PrefabFiles =
   "atrium/mindcontroller",
 --猴岛内容
   "monkey/monkey",
-  "monkey/monkeybarrel",
   "monkey/monkeyhut",
   "monkey/monkeypillar",
   "monkey/monkeytail",
@@ -232,7 +294,6 @@ PrefabFiles =
   "monkey/bananabush",
   "monkey/cutless",
   "monkey/monkey_smallhat",
-  "monkey/cave_banana_tree",
   -- 猴岛挖起植物
   "monkey/dug_monkeytail",
   "monkey/dug_bananabush",
@@ -291,6 +352,7 @@ PrefabFiles =
   -- vent 区内容
   "cave/tree_rocks",       -- tree_rock1~2 系列（7个变种），multi prefab
   "cave/tree_rock_seed",
+  "cave/tree_rock_sapling",
   "cave/tree_rock_chop",    -- 巨石枝砍伐特效
   "cave/tree_rock_fall",    -- 巨石枝倒塌特效
   "cave/cave_vents",        -- cave_vent_rock
@@ -314,6 +376,8 @@ PrefabFiles =
   "daywalker/hat_dreadstone",
   "daywalker/wall_dreadstone",
   "daywalker/support_pillar_dreadstone_scaffold",
+  -- 遗迹 respawner（ruins _spawner 系列，DS 简化版）
+  "ruins_spawners",
 }
 
 Assets = {
@@ -395,7 +459,6 @@ Assets = {
   Asset("ANIM", "anim/leaves_canopy.zip"), --水中木叶片
  
   Asset("ANIM", "anim/monkey/bananabush.zip"),
-  Asset("ANIM", "anim/monkey/cave_banana_tree.zip"),
   Asset("ANIM", "anim/monkey/cutless.zip"),
   Asset("ANIM", "anim/monkey/hat_monkey_small.zip"),
   Asset("ANIM", "anim/monkey/kiki_basic.zip"),
@@ -668,14 +731,6 @@ Assets = {
   Asset("ATLAS", "images/klaus_sack.xml"),
   Asset("IMAGE", "images/bananabush.tex"),
   Asset("ATLAS", "images/bananabush.xml"),
-  Asset("IMAGE", "images/cave_banana_tree.tex"),
-  Asset("ATLAS", "images/cave_banana_tree.xml"),
-  Asset("IMAGE", "images/cave_banana_tree_burnt.tex"),
-  Asset("ATLAS", "images/cave_banana_tree_burnt.xml"),
-  Asset("IMAGE", "images/cave_banana_tree_stump.tex"),
-  Asset("ATLAS", "images/cave_banana_tree_stump.xml"),
-  Asset("IMAGE", "images/monkeybarrel.tex"),
-  Asset("ATLAS", "images/monkeybarrel.xml"),
   Asset("IMAGE", "images/monkeyhut.tex"),
   Asset("ATLAS", "images/monkeyhut.xml"),
   Asset("IMAGE", "images/monkeytail.tex"),
@@ -772,10 +827,6 @@ AddMinimapAtlas("images/atrium_statue.xml")
 AddMinimapAtlas("images/tentacle_pillar.xml")
 -- 猴岛
 AddMinimapAtlas("images/bananabush.xml")
-AddMinimapAtlas("images/cave_banana_tree.xml")
-AddMinimapAtlas("images/cave_banana_tree_burnt.xml")
-AddMinimapAtlas("images/cave_banana_tree_stump.xml")
-AddMinimapAtlas("images/monkeybarrel.xml")
 AddMinimapAtlas("images/monkeyhut.xml")
 AddMinimapAtlas("images/monkeytail.xml")
 -- 洞穴入口
@@ -839,14 +890,14 @@ local CUSTOM_TECHS = {
 -- 启动统一管理系统
 GLOBAL.__tech_blueprints = BLUEPRINT_RECIPES
 GLOBAL.__custom_techs = CUSTOM_TECHS
-modimport("scripts/system/tech_manager")
+modimport("scripts/system/tech_manager.lua")
 
 modimport("scripts/dst_foods.lua")
 modimport("scripts/dst_global.lua")
 modimport("scripts/dst_recipes.lua")
 modimport("scripts/dst_sg.lua")
 modimport("scripts/dst_strings.lua")
-modimport("scripts/dst_tuning.lua")
+-- dst_tuning.lua 已移至 PrefabFiles 之前加载
 
 -- 启蒙系统组件无需显式注册：DS 的 entityscript.lua 在 inst:AddComponent("enlightenment") 时
 -- 会自动 require("components/enlightenment") 延迟加载，只要文件在 scripts/components/ 下即可。
@@ -867,6 +918,20 @@ modimport("scripts/dst_component_api.lua")   -- 所有组件 API 扩展
 modimport("scripts/dst_entity_patches.lua")  -- 实体级补丁（金丝雀/稻草人/鹿等）
 modimport("scripts/archive_hooks.lua")   -- 档案馆 prefab 运行时 Hook 注入
 modimport("scripts/dst_dlc_patch.lua")       -- DLC 兼容补丁
+
+-- ==================== 层级化 Spawner 管理系统 ====================
+-- 注册阶段：在 modmain 加载时注册所有 zone 和 spawner
+-- 运行阶段：通过 AddSimPostInit 安装到 TheWorld
+require "world_spawner"
+modimport("scripts/cave_spawners.lua")
+
+-- 世界创建后安装 WorldSpawner 实例
+AddSimPostInit(function()
+    local theWorld = rawget(GLOBAL, "TheWorld")
+    if theWorld then
+        require("world_spawner").Init(theWorld, { debug = true })
+    end
+end)
 
 -- ==================== 缺失 DST prefab 虚拟实体 ====================
 -- 世界存档中引用了 DST 独有 prefab（如 oasis_cactus, twiggytree 等），

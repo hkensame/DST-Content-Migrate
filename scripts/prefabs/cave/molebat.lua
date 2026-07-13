@@ -302,8 +302,8 @@ local function fn()
     inst.components.lootdropper.numrandomloot = 1
 
     inst:AddComponent("eater")
-    inst.components.eater:SetDiet({ FOODGROUP.OMNI }, { FOODGROUP.OMNI })
-    inst.components.eater:SetStrongStomach(true)
+    inst.components.eater:SetOmnivore()
+    inst.components.eater.strongstomach = true
 
     inst:AddComponent("entitytracker")      -- track allies and burrow
 

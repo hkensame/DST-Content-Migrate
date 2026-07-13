@@ -201,12 +201,14 @@ local function OnDestabilizingPulse(inst)
         return
     end
 
-    for i, player in ipairs(AllPlayers) do
+    -- DS 单机：只有一个玩家，用 GetPlayer() 替代 AllPlayers
+    local player = GetPlayer()
+    if player ~= nil then
         --改，先凑合用if player.components.areaaware:CurrentlyInTag("Nightmare") then
         if GetClosestInstWithTag("Nightmare", inst, 20) then
             if not IsObjectInAtriumArena(inst, player) then
                 player:ShakeCamera(CAMERASHAKE.SIDE, 1, .02, .25)
-                if (inst.talkertick % 2) == (i % 2) then
+                if (inst.talkertick % 2) == 0 then
                     inst:DoTaskInTime(1, DoPlayerWarning, player)
                 end
             else
@@ -306,7 +308,9 @@ local function OnDestabilizeExplode(inst)
 
     GetWorld():PushEvent("resetruins")
 
-    for _, player in ipairs(AllPlayers) do
+    -- DS 单机：只有一个玩家
+    local player = GetPlayer()
+    if player ~= nil then
         player.components.talker:Say(GetString(player.prefab, "ANNOUNCE_RUINS_RESET"))
         player:ShakeCamera(CAMERASHAKE.SIDE, 2, .06, .25)
     end

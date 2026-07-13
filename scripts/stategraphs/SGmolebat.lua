@@ -2,31 +2,48 @@ require("stategraphs/commonstates")
 
 local actionhandlers =
 {
-    ActionHandler(ACTIONS.BREAK, "break_molehill"),
     ActionHandler(ACTIONS.EAT, "eat_start"),
-    ActionHandler(ACTIONS.MAKEMOLEHILL, "make_molehill"),
     ActionHandler(ACTIONS.TRAVEL, "startnap"),
 }
+
+if ACTIONS.BREAK then
+    table.insert(actionhandlers, ActionHandler(ACTIONS.BREAK, "break_molehill"))
+end
+if ACTIONS.MAKEMOLEHILL then
+    table.insert(actionhandlers, ActionHandler(ACTIONS.MAKEMOLEHILL, "make_molehill"))
+end
 
 local events =
 {
     CommonHandlers.OnLocomote(false, true),
     CommonHandlers.OnSleep(),
     CommonHandlers.OnFreeze(),
-	CommonHandlers.OnElectrocute(),
     CommonHandlers.OnAttack(),
     CommonHandlers.OnAttacked(),
     CommonHandlers.OnDeath(),
-
-    EventHandler("summon", function(inst)
-		if inst.components.health and not (inst.components.health:IsDead() or inst.sg:HasStateTag("electrocute")) then
-            inst.sg:GoToState("summon_ally")
-        end
-    end),
-
-	-- Corpse handlers
-	CommonHandlers.OnCorpseChomped(),
 }
+
+if CommonHandlers.OnElectrocute then
+    table.insert(events, CommonHandlers.OnElectrocute())
+end
+
+do
+    local extra_events = {
+        EventHandler("summon", function(inst)
+            if inst.components.health and not (inst.components.health:IsDead() or inst.sg:HasStateTag("electrocute")) then
+                inst.sg:GoToState("summon_ally")
+            end
+        end),
+
+        -- Corpse handlers
+    }
+    if CommonHandlers.OnCorpseChomped then
+        table.insert(extra_events, CommonHandlers.OnCorpseChomped())
+    end
+    for _, v in ipairs(extra_events) do
+        table.insert(events, v)
+    end
+end
 
 local function return_to_idle(inst)
     inst.sg:GoToState("idle")
@@ -379,9 +396,13 @@ nil,
 })
 
 CommonStates.AddFrozenStates(states)
-CommonStates.AddElectrocuteStates(states)
+if CommonStates.AddElectrocuteStates then CommonStates.AddElectrocuteStates(states) end
 
-CommonStates.AddInitState(states, "idle")
-CommonStates.AddCorpseStates(states)
+if CommonStates.AddInitState then
+    CommonStates.AddInitState(states, "idle")
+else
+    table.insert(states, State{name = "init", onenter = function(inst) inst.sg:GoToState("idle") end})
+end
+if CommonStates.AddCorpseStates then CommonStates.AddCorpseStates(states) end
 
 return StateGraph("molebat", states, events, "init", actionhandlers)

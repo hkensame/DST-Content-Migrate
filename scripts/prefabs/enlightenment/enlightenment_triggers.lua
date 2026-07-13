@@ -389,8 +389,14 @@ local function EnlightenmentUpdate(inst)
             enlight:Disable("moon_altar")
         end
 
-        print(string.format("[ENLIGHTEN] tick: tile=%s altar=%s enabled=%s gestalts=%d",
-            tostring(tile_pass), tostring(altar_pass), tostring(enlight:IsEnabled()), #enlight.gestalts))
+        -- 只在状态变化时打印 tick 日志
+        local _tile_prev, _altar_prev = rawget(inst, "_enlighten_tile_prev"), rawget(inst, "_enlighten_altar_prev")
+        if tile_pass ~= _tile_prev or altar_pass ~= _altar_prev then
+            print(string.format("[ENLIGHTEN] tick: tile=%s altar=%s enabled=%s gestalts=%d",
+                tostring(tile_pass), tostring(altar_pass), tostring(enlight:IsEnabled()), #enlight.gestalts))
+            rawset(inst, "_enlighten_tile_prev", tile_pass)
+            rawset(inst, "_enlighten_altar_prev", altar_pass)
+        end
 
         enlight:CheckThresholds()
     end)

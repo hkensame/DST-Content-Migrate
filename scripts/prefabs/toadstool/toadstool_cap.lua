@@ -324,6 +324,10 @@ local function fn()
     GetWorld():PushEvent("ms_registertoadstoolspawner", inst)
     inst:ListenForEvent("ms_spawntoadstool", ontriggerspawn)
 
+    -- DS mod: 初始所有 cap 都长成大蘑菇，3 个都可砍
+    inst._dark = false
+    setstate(inst, 2)
+
     return inst
 end
 

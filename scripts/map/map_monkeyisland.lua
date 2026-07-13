@@ -19,12 +19,13 @@ AddRoom("MonkeyIsland_Beach", {
     contents = {
         countprefabs =
         {
-            monkeybarrel = 1 + math.random(2),
+            ["cave/objects/monkeybarrel"] = 1 + math.random(2),
         },
+
         distributepercent = 0.20,
         distributeprefabs =
         {
-            cave_banana_tree = 0.3,
+            ["cave/cave_banana_tree"] = 0.3,
             flint = 0.4,
             reeds = 0.5,
             grass = 0.5,
@@ -46,9 +47,9 @@ AddRoom("MonkeyIsland_Jungle", {
         distributeprefabs =
         {
             bananabush = 0.8,
-            cave_banana_tree = 0.2,
+            ["cave/cave_banana_tree"] = 0.2,
             monkeytail = 0.5,
-            monkeybarrel = 0.3,
+            ["cave/objects/monkeybarrel"] = 0.3,
             monkeypillar = 0.1,
             grass = 0.5,
             sapling = 0.3,
@@ -68,14 +69,14 @@ AddRoom("MonkeyIsland_Center", {
         countprefabs =
         {
             monkeyhut = 2 + math.random(3),
-            monkeybarrel = 1 + math.random(2),
+            ["cave/objects/monkeybarrel"] = 1 + math.random(2),
         },
         distributepercent = 0.30,
         distributeprefabs =
         {
             bananabush = 1.0,
             monkeytail = 0.6,
-            cave_banana_tree = 0.3,
+            ["cave/cave_banana_tree"] = 0.3,
             monkeypillar = 0.2,
             grass = 0.4,
             sapling = 0.2,
@@ -93,7 +94,7 @@ AddRoom("MonkeyDummyExitRoom", {
     contents = {
         distributepercent = 0.10,
         distributeprefabs = {
-            cave_banana_tree = 0.2,
+            ["cave/cave_banana_tree"] = 0.2,
             flint = 0.3,
             rocks = 0.2,
             twigs = 0.2,

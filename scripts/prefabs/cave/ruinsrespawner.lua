@@ -1,6 +1,12 @@
 local function onnewobjectfn(inst, obj)
     inst:ListenForEvent("onremove", function(obj)
-        table.removearrayvalue(inst.components.objectspawner.objects, obj)
+        local objects = inst.components.objectspawner.objects
+        for i = #objects, 1, -1 do
+            if objects[i] == obj then
+                table.remove(objects, i)
+                break
+            end
+        end
     end, obj)
 
     if inst.listenforprefabsawp then
@@ -67,7 +73,7 @@ local function MakeFn(obj, onrespawnfn, data)
 		inst:ListenForEvent("resetruins", function()
 			inst.resetruins = true
 			inst:DoTaskInTime(math.random()*0.75, function() tryspawn(inst) end)
-		end)
+		end, GetWorld())
 
 		inst.OnSave = onsave
 		inst.OnLoad = onload

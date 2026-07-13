@@ -143,7 +143,7 @@ local states = {
         end,
         events = {
             EventHandler("animover", function(inst)
-                inst.MakeRipe(inst, true)
+                if inst.MakeRipe then inst.MakeRipe(inst, true) end
                 inst.sg:GoToState("idle")
             end),
         },
@@ -158,7 +158,7 @@ local states = {
         end,
         events = {
             EventHandler("animover", function(inst)
-                inst.MakeUnripe(inst, true)
+                if inst.MakeUnripe then inst.MakeUnripe(inst, true) end
                 inst.sg:GoToState("idle")
             end),
         },

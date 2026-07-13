@@ -1,5 +1,6 @@
 -- DS 移植版：移除 AddNetwork/SetPristine/ismastersim/scrapbook/雪覆盖等 DST 特有内容
 -- tree_rocks.lua — 巨石枝系列（7个 prefab 变种）
+-- TUNING.TREE_ROCK / TREE_ROCK_REGROWTH / TREE_ROCK_REGROWTH_TIME_MULT 定义于 dst_tuning.lua
 
 local assets =
 {
@@ -11,6 +12,42 @@ local assets =
     Asset("SCRIPT", "scripts/prefabs/cave/tree_rock_data.lua"),
     Asset("SOUND", "sound/rifts6.fsb"),
 }
+
+-- DS 移植：内联 DST util.lua 中缺失的工具函数
+local function FunctionOrValue(func_or_val, ...)
+    if type(func_or_val) == "function" then
+        return func_or_val(...)
+    else
+        return func_or_val
+    end
+end
+
+local function MergeMapsAdditively(...)
+    local ret = {}
+    for _, map in ipairs({...}) do
+        for k, v in pairs(map) do
+            ret[k] = v + (ret[k] or 0)
+        end
+    end
+    return ret
+end
+
+local function weighted_random_choices(choices, num_choices)
+    local picks = {}
+    for _ = 1, num_choices do
+        local pick
+        local total = 0
+        for _, weight in pairs(choices) do total = total + weight end
+        local threshold = math.random() * total
+        for choice, weight in pairs(choices) do
+            threshold = threshold - weight
+            pick = choice
+            if threshold <= 0 then break end
+        end
+        table.insert(picks, pick)
+    end
+    return picks
+end
 
 local prefabs =
 {
@@ -70,8 +107,10 @@ local EXTRA_LOOT_MODIFIERS = TREE_ROCK_DATA.EXTRA_LOOT_MODIFIERS
 local CheckModifyLootArea = TREE_ROCK_DATA.CheckModifyLootArea
 TREE_ROCK_DATA = nil
 
+-- DS 移植：ConvertTopologyIdToData 是 DST componentutil.lua 函数，DS 不可用
+local _ConvertTopologyIdToData = rawget(_G, "ConvertTopologyIdToData")
 local function GetLootKey(id)
-    local gen_data = ConvertTopologyIdToData(id)
+    local gen_data = _ConvertTopologyIdToData and _ConvertTopologyIdToData(id) or {}
     local loot_key
 
     if gen_data.layout_id and STATIC_LAYOUTS_TO_LOOT_KEY[gen_data.layout_id] then
@@ -162,22 +201,29 @@ local builds =
     }
 }
 
+-- DS 移植：DST 全局函数 ShakeAllCameras 不可用，使用 DS 单机版本地 ShakeCamera 模式
+local function ShakeCamera(shakeType, duration, speed, maxShake, inst, maxDist)
+    local player = GetPlayer()
+    if player == nil then return end
+    player.components.playercontroller:ShakeCamera(inst, shakeType, duration, speed, maxShake, maxDist)
+end
+
 local function DropRockCamShake(inst)
-    ShakeAllCameras(CAMERASHAKE.FULL, .20, .05,
+    ShakeCamera(ShakeTypes.FULL, .20, .05,
         inst.components.growable ~= nil and
         inst.components.growable.stage > 2 and 1.0 or .5,
         inst, 20)
 end
 
 local function BounceRockCamShake(inst)
-    ShakeAllCameras(CAMERASHAKE.FULL, .05, .025,
+    ShakeCamera(ShakeTypes.FULL, .05, .025,
         inst.components.growable ~= nil and
         inst.components.growable.stage > 2 and 1.0 or .5,
         inst, 20)
 end
 
 local function BreakRockCamShake(inst)
-    ShakeAllCameras(CAMERASHAKE.FULL, .30, .1,
+    ShakeCamera(ShakeTypes.FULL, .30, .1,
         inst.components.growable ~= nil and
         inst.components.growable.stage > 2 and 1.0 or .5,
         inst, 20)
@@ -382,18 +428,28 @@ local function MakeRock(inst, no_change_physics)
         inst.components.growable:StopGrowing()
     end
 
-    inst.components.lootdropper:SetChanceLootTable("tree_rock1_mine")
+    if inst.components.lootdropper then
+        inst.components.lootdropper:SetChanceLootTable("tree_rock1_mine")
+    end
 
-    local workable = inst:AddComponent("workable")
-    workable:SetWorkAction(ACTIONS.MINE)
-    workable:SetOnWorkCallback(OnMine)
-    workable:SetWorkLeft(TUNING.TREE_ROCK.MINE)
-    workable.savestate = true
+    inst:AddComponent("workable")
+    local workable = inst.components.workable
+    if workable then
+        workable:SetWorkAction(ACTIONS.MINE)
+        workable:SetOnWorkCallback(OnMine)
+        workable:SetWorkLeft(TUNING.TREE_ROCK.MINE)
+        workable.savestate = true
+    end
 end
 
 local AOE_RANGE_PADDING = 3
 local AOE_TARGET_MUST_HAVE_TAGS = { "_combat" }
 local AOE_TARGET_CANT_TAGS = { "INLIMBO", "flight", "invisible", "notarget", "noattack" }
+
+-- DS 移植：DST 全局函数 IsEntityDead 不可用，内联 DS 兼容版本
+local function IsEntityDead(inst)
+    return inst.components.health ~= nil and inst.components.health:IsDead()
+end
 
 local function GetAffectedEntities(inst)
     local x, y, z = inst.Transform:GetWorldPosition()
@@ -426,7 +482,7 @@ local function OnRockFall(inst)
         local build_data = GetBuild(inst)
         local damage = build_data.drop_damage
         for i, v in ipairs(GetAffectedEntities(inst)) do
-            v.components.combat:GetAttacked(inst, PlayerDamageMod(v, damage, TUNING.TREE_ROCK.PLAYERDAMAGEPERCENT))
+            v.components.combat:GetAttacked(inst, v:HasTag("player") and damage * TUNING.TREE_ROCK.PLAYERDAMAGEPERCENT or damage)
             v:PushEvent("knockback", { knocker = inst, radius = 2, strengthmult = 1, forcelanded = true })
         end
     end
@@ -487,7 +543,9 @@ local function OnAnimOver(inst)
             inst:DoTaskInTime(FALL_DELAY, OnRockFall)
         end
         inst.AnimState:PushAnimation(inst.anims[GetAnimationKey(inst, "fall_pst")])
-        PushRockAnimation(inst, inst.components.workable.workleft)
+        if inst.components.workable then
+            PushRockAnimation(inst, inst.components.workable.workleft)
+        end
     end
     inst:RemoveEventCallback("animover", OnAnimOver)
 end
@@ -495,10 +553,14 @@ end
 local function OnBurnt(inst, immediate)
     inst:AddTag("burnt")
     if immediate then
-        local _workleft = inst.components.workable.workleft
+        local _workleft = inst.components.workable and inst.components.workable.workleft
         MakeRock(inst)
-        inst.components.workable.workleft = _workleft
-        PlayRockAnimation(inst, inst.components.workable.workleft)
+        if inst.components.workable and _workleft then
+            inst.components.workable.workleft = _workleft
+        end
+        if inst.components.workable then
+            PlayRockAnimation(inst, inst.components.workable.workleft)
+        end
     else
         inst.SoundEmitter:PlaySound("rifts6/rock_tree/fall_pre")
         inst.AnimState:PlayAnimation(inst.anims.fall_pre_burnt)
@@ -574,10 +636,14 @@ local function OnLoad(inst, data)
     if data.burnt and not inst:HasTag("burnt") then
         OnBurnt(inst, true)
     elseif data.boulder then
-        local _workleft = inst.components.workable.workleft
+        local _workleft = inst.components.workable and inst.components.workable.workleft
         MakeRock(inst)
-        inst.components.workable.workleft = _workleft
-        PlayRockAnimation(inst, inst.components.workable.workleft)
+        if inst.components.workable and _workleft then
+            inst.components.workable.workleft = _workleft
+        end
+        if inst.components.workable then
+            PlayRockAnimation(inst, inst.components.workable.workleft)
+        end
     elseif data.vine_loot then
         SetupVineLoot(inst, data.vine_loot)
     end
@@ -588,7 +654,20 @@ local function GetStatus(inst)
 end
 
 local function handler_growfromseed(inst)
-    inst.components.growable:SetStage(1)
+    if inst.components.growable then
+        -- DS growable 没有 SetStage，注入兼容实现
+        if not inst.components.growable.SetStage then
+            inst.components.growable.SetStage = function(self, stg)
+                if stg > #self.stages then stg = #self.stages end
+                self.stage = stg
+                local stagedata = self.stages[stg]
+                if stagedata ~= nil and stagedata.fn ~= nil then
+                    stagedata.fn(self.inst, stg, stagedata)
+                end
+            end
+        end
+        inst.components.growable:SetStage(1)
+    end
     inst.AnimState:PlayAnimation("grow_seed_to_short")
     inst.SoundEmitter:PlaySound("dontstarve/forest/treeGrow")
     PushSway(inst)
@@ -621,36 +700,64 @@ local function MakeRockTree(name, build, stage)
         inst:AddTag("nodangermusic")
 
         -- === Master Simulation ===
-        local lootdropper = inst:AddComponent("lootdropper")
-        lootdropper:SetChanceLootTable('tree_rock1_chop')
+        inst:AddComponent("lootdropper")
+        if inst.components.lootdropper then
+            inst.components.lootdropper:SetChanceLootTable('tree_rock1_chop')
+        end
 
-        local workable = inst:AddComponent("workable")
-        workable:SetWorkAction(ACTIONS.CHOP)
-        workable:SetWorkLeft(TUNING.TREE_ROCK.CHOP)
-        workable:SetOnWorkCallback(OnChop)
-        workable:SetOnFinishCallback(OnChopDown)
+        inst:AddComponent("workable")
+        local workable = inst.components.workable
+        if workable then
+            workable:SetWorkAction(ACTIONS.CHOP)
+            workable:SetWorkLeft(TUNING.TREE_ROCK.CHOP)
+            workable:SetOnWorkCallback(OnChop)
+            workable:SetOnFinishCallback(OnChopDown)
+        end
 
-        local growable = inst:AddComponent("growable")
-        growable.stages = GetGrowthStages(inst)
-        growable:SetStage(stage or math.random(1, 2))
-        growable.loopstages = false
-        growable.springgrowth = true
-        growable.magicgrowable = true
-        growable:StartGrowing()
+        inst:AddComponent("growable")
+        local growable = inst.components.growable
+        if growable then
+            growable.stages = GetGrowthStages(inst)
+            -- DS growable 没有 SetStage，注入 DST 兼容实现
+            if not growable.SetStage then
+                growable.SetStage = function(self, stg)
+                    if stg > #self.stages then stg = #self.stages end
+                    self.stage = stg
+                    local stagedata = self.stages[stg]
+                    if stagedata ~= nil and stagedata.fn ~= nil then
+                        stagedata.fn(self.inst, stg, stagedata)
+                    end
+                end
+            end
+            growable:SetStage(stage or math.random(1, 2))
+            growable.loopstages = false
+            growable.springgrowth = true
+            growable.magicgrowable = true
+            growable:StartGrowing()
+        end
 
         inst:AddComponent("plantregrowth")
+        if inst.components.plantregrowth then
             inst.components.plantregrowth:SetRegrowthRate(GetBuild(inst).regrowth_tuning.OFFSPRING_TIME)
             inst.components.plantregrowth:SetProduct(GetBuild(inst).regrowth_product)
             inst.components.plantregrowth:SetSearchTag("rock_tree")
             inst.components.plantregrowth:SetSkipCanPlantCheck(true)
+        end
 
         local colour = 0.5 + math.random() * 0.5
-        inst.AnimState:SetSymbolMultColour("tree_rock_main", colour, colour, colour, 1)
-        inst.AnimState:SetSymbolMultColour("tree_broken_rock", colour, colour, colour, 1)
-        inst.AnimState:SetSymbolMultColour("tree_smallrocks", colour, colour, colour, 1)
+        if inst.AnimState.SetSymbolMultColour then
+            inst.AnimState:SetSymbolMultColour("tree_rock_main", colour, colour, colour, 1)
+            inst.AnimState:SetSymbolMultColour("tree_broken_rock", colour, colour, colour, 1)
+            inst.AnimState:SetSymbolMultColour("tree_smallrocks", colour, colour, colour, 1)
+        else
+            inst.AnimState:SetMultColour(colour, colour, colour, 1)
+        end
 
-        local inspectable = inst:AddComponent("inspectable")
-        inspectable.getstatus = GetStatus
+        inst:AddComponent("inspectable")
+        local inspectable = inst.components.inspectable
+        if inspectable then
+            inspectable.getstatus = GetStatus
+        end
 
         inst.growfromseed = handler_growfromseed
 
@@ -658,8 +765,10 @@ local function MakeRockTree(name, build, stage)
         inst.OnLoad = OnLoad
 
         MakeMediumBurnable(inst, TUNING.TREE_ROCK.BURN_TIME)
-        inst.components.burnable:SetFXLevel(5)
-        inst.components.burnable:SetOnBurntFn(OnBurnt)
+        if inst.components.burnable then
+            inst.components.burnable:SetFXLevel(5)
+            inst.components.burnable:SetOnBurntFn(OnBurnt)
+        end
         MakeSmallPropagator(inst)
 
         inst:DoTaskInTime(0, SetupVineLoot)

@@ -18,30 +18,30 @@ local archive_areas = {
             return {"archive_ambient_sfx"}
         end
     end,
-    archive_cookpot_area = function(area, data)
-        if math.random() < 0.3 then
-            if data then
-                return {{
-                    prefab = "archive_cookpot",
-                    x = data.x,
-                    y = data.y,
-                    properties = {data = {additems = {"refined_dust"}}},
-                }}
-            else
-                return {"archive_cookpot"}
-            end
-        end
-    end,
-    mothden_area_low = function()
-        if math.random() < 0.3 then
-            return { "dustmothden" }
-        end
-    end,
-    mothden_area_high = function()
-        if math.random() < 0.7 then
-            return { "dustmothden" }
-        end
-    end,
+    -- archive_cookpot_area = function(area, data)
+    --     if math.random() < 0.3 then
+    --         if data then
+    --             return {{
+    --                 prefab = "archive_cookpot",
+    --                 x = data.x,
+    --                 y = data.y,
+    --                 properties = {data = {additems = {"refined_dust"}}},
+    --             }}
+    --         else
+    --             return {"archive_cookpot"}
+    --         end
+    --     end
+    -- end,
+    -- mothden_area_low = function()
+    --     if math.random() < 0.3 then
+    --         return { "dustmothden" }
+    --     end
+    -- end,
+    -- mothden_area_high = function()
+    --     if math.random() < 0.7 then
+    --         return { "dustmothden" }
+    --     end
+    -- end,
 }
 
 local function GetLayoutsForType(name, areas)

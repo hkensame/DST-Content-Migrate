@@ -1,22 +1,33 @@
 local assets = { Asset("ANIM", "anim/armor_dreadstone.zip") }
 
-local function OnBlocked(owner)
+local DREADSTONE_SHADOW_TAG = "shadow_aligned"	-- 暗影阵营标签，用户可自行修改
+
+local function OnBlocked(inst, owner, data)
 	owner.SoundEmitter:PlaySound("dontstarve/wilson/hit_dreadstone")
+	if data and data.attacker and data.attacker:HasTag(DREADSTONE_SHADOW_TAG) then
+		-- 暗影阵营减伤：受伤 -10%（回血 10%）
+		if owner.components.health and not owner.components.health:IsDead() then
+			owner.components.health:DoDelta(data.damage * 0.1)
+		end
+		-- 暗影阵营减伤：耐久消耗 -10%（修回 10%）
+		if inst._last_dur_loss ~= nil then
+			inst.components.armor:Repair(inst._last_dur_loss * 0.1)
+		end
+	end
 end
 
-local function GetSetBonusEquip(inst, owner)
-	local hat = owner.components.inventory ~= nil and owner.components.inventory:GetEquippedItem(EQUIPSLOTS.HEAD) or nil
-	return hat ~= nil and hat.prefab == "dreadstonehat" and hat or nil
+local function HasSetBonus(owner)
+	return owner:HasTag("dreadstone_helm")
 end
 
 local function DoRegen(inst, owner)
 	-- DS: 低理智（<15%）时自动修复，类似 DST 的 IsInsanityMode
 	if owner.components.sanity ~= nil and owner.components.sanity:GetPercent() < 0.15 then
-		local setbonus = GetSetBonusEquip(inst, owner) ~= nil and TUNING.ARMOR_DREADSTONE_REGEN_SETBONUS or 1
+		local setbonus = HasSetBonus(owner) and TUNING.ARMOR_DREADSTONE_REGEN_SETBONUS or 1
 		local rate = 1 / Lerp(1 / TUNING.ARMOR_DREADSTONE_REGEN_MAXRATE, 1 / TUNING.ARMOR_DREADSTONE_REGEN_MINRATE, owner.components.sanity:GetPercent())
 		inst.components.armor:Repair(inst.components.armor.maxcondition * rate * setbonus)
 	end
-	if not inst.components.armor:IsDamaged() then
+	if inst.components.armor.condition >= inst.components.armor.maxcondition then
 		inst.regentask:Cancel()
 		inst.regentask = nil
 	end
@@ -37,9 +48,15 @@ end
 
 local function onequip(inst, owner)
 	owner.AnimState:OverrideSymbol("swap_body", "armor_dreadstone", "swap_body")
-	inst:ListenForEvent("blocked", OnBlocked, owner)
+	owner:AddTag("dreadstone_armor")
 
-	if owner.components.sanity ~= nil and inst.components.armor:IsDamaged() then
+	-- 套装检测 + 暗影减伤（用闭包捕获 inst）
+	if inst._blocked_fn == nil then
+		inst._blocked_fn = function(owner_, data) OnBlocked(inst, owner_, data) end
+	end
+	inst:ListenForEvent("blocked", inst._blocked_fn, owner)
+
+	if owner.components.sanity ~= nil and inst.components.armor.condition < inst.components.armor.maxcondition then
 		StartRegen(inst, owner)
 	else
 		StopRegen(inst)
@@ -48,11 +65,15 @@ end
 
 local function onunequip(inst, owner)
 	owner.AnimState:ClearOverrideSymbol("swap_body")
-	inst:RemoveEventCallback("blocked", OnBlocked, owner)
+	owner:RemoveTag("dreadstone_armor")
+	if inst._blocked_fn ~= nil then
+		inst:RemoveEventCallback("blocked", inst._blocked_fn, owner)
+	end
 	StopRegen(inst)
 end
 
 local function OnTakeDamage(inst, amount)
+	inst._last_dur_loss = amount	-- 记录耐久消耗，供 OnBlocked 暗影减伤使用
 	if inst.regentask == nil and inst.components.equippable:IsEquipped() then
 		local owner = inst.components.inventoryitem.owner
 		if owner ~= nil and owner.components.sanity ~= nil then
@@ -63,11 +84,24 @@ end
 
 local function CalcDapperness(inst, owner)
 	local lowsanity = owner.components.sanity ~= nil and owner.components.sanity:GetPercent() < 0.15
-	local other = GetSetBonusEquip(inst, owner)
-	if other ~= nil then
-		return (lowsanity and (inst.regentask ~= nil or other.regentask ~= nil) and TUNING.CRAZINESS_MED or 0) * 0.5
+	if not lowsanity then return 0 end
+
+	local my_regen = inst.regentask ~= nil
+	if HasSetBonus(owner) then
+		-- 套装：任意一件在修就扣理智，消耗减半
+		local other_regen = false
+		if owner.components.inventory then
+			local slot = inst.components.equippable.equipslot == EQUIPSLOTS.HEAD and EQUIPSLOTS.BODY or EQUIPSLOTS.HEAD
+			local other = owner.components.inventory:GetEquippedItem(slot)
+			if other then other_regen = other.regentask ~= nil end
+		end
+		if my_regen or other_regen then
+			return TUNING.CRAZINESS_MED * 0.5
+		end
+		return 0
 	end
-	return lowsanity and inst.regentask ~= nil and TUNING.CRAZINESS_MED or 0
+
+	return my_regen and TUNING.CRAZINESS_MED or 0
 end
 
 local function fn()
@@ -76,6 +110,9 @@ local function fn()
 	inst.entity:AddAnimState()
 
 	MakeInventoryPhysics(inst)
+	if rawget(_G, 'MakeInventoryFloatable') then
+		MakeInventoryFloatable(inst, "anim", "anim")
+	end
 
 	inst.AnimState:SetBank("armor_dreadstone")
 	inst.AnimState:SetBuild("armor_dreadstone")
@@ -89,6 +126,8 @@ local function fn()
 
 	inst:AddComponent("inspectable")
 	inst:AddComponent("inventoryitem")
+	inst.components.inventoryitem.atlasname = "images/armordreadstone.xml"
+	inst.components.inventoryitem.imagename = "armordreadstone"
 
 	inst:AddComponent("armor")
 	inst.components.armor:InitCondition(TUNING.ARMORDREADSTONE, TUNING.ARMORDREADSTONE_ABSORPTION)

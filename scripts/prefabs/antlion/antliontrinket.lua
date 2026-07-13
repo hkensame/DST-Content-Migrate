@@ -20,7 +20,9 @@ local function fn()
 
     inst:AddTag("molebait")
 
-	MakeInventoryFloatable(inst, "1", "1")
+	if rawget(_G, 'MakeInventoryFloatable') then
+		MakeInventoryFloatable(inst, "1", "1")
+	end
 
     inst:AddComponent("inspectable")
     inst:AddComponent("inventoryitem")

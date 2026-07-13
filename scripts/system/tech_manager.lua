@@ -2,6 +2,15 @@
 -- 从 GLOBAL.__tech_blueprints 和 GLOBAL.__custom_techs 读取配置
 -- 由 modmain.lua 在 modimport 前设置这两个全局变量
 
+-- DS 兼容性：table.count 是 DST 专有扩展
+if not table.count then
+    table.count = function(t)
+        local n = 0
+        for _ in pairs(t) do n = n + 1 end
+        return n
+    end
+end
+
 local BLUEPRINT_ASSETS = {
     Asset("ANIM", "anim/blueprint.zip"),
 }
@@ -11,7 +20,8 @@ local function MakeBlueprint(recipe_name)
         local inst = CreateEntity()
         inst.entity:AddTransform()
         inst.entity:AddAnimState()
-        inst.entity:AddNetwork()
+        -- DS 没有 Network 组件，跳过 AddNetwork
+        -- inst.entity:AddNetwork()
 
         MakeInventoryPhysics(inst)
 
@@ -20,11 +30,10 @@ local function MakeBlueprint(recipe_name)
         inst.AnimState:PlayAnimation("idle")
         inst:AddTag("_named")
 
-        inst.entity:SetPristine()
-
-        if not TheWorld.ismastersim then
-            return inst
-        end
+        -- DS 没有 TheWorld.ismastersim，默认视为主机
+        -- if not TheWorld.ismastersim then
+        --     return inst
+        -- end
 
         inst:RemoveTag("_named")
 
@@ -141,7 +150,7 @@ AddComponentPostInit("builder", function(self)
         end
 
         -- 检查自定义科技树（有 level 定义且 > 0 的）
-        if custom_techs then
+        if custom_techs and recipe.level then
             for tech_name, _ in pairs(custom_techs) do
                 local recipe_level = recipe.level[tech_name]
                 if recipe_level and recipe_level > 0 then
@@ -153,47 +162,24 @@ AddComponentPostInit("builder", function(self)
             end
         end
 
-        -- nounlock=true 的配方（蓝图门控）：必须已解锁才可见
-        if recipe.nounlock then
+        -- nounlock=true 的配方（蓝图门控）：仅限天体栏配方
+        if recipe.nounlock and recipe.tab == RECIPETABS.DST_CELESTIAL then
             return _.freebuildmode or table.contains(_.recipes, recname)
         end
 
         return old_KnowsRecipe(_, recname)
     end
 
-    -- 4. EvaluateTechTrees hook — 确保自定义科技始终存在于 accessible_tech_trees
-    --                    同时扫描背包中的 prototyper 物品（如 moonrockseed）
-    local old_EvaluateTechTrees = self.EvaluateTechTrees
-    self.EvaluateTechTrees = function()
-        old_EvaluateTechTrees(self)
-
-        if not custom_techs then return end
-
-        -- 扫描背包中带 prototyper 标签的物品（moonrockseed 等）
-        if self.inst.components.inventory then
-            local items = self.inst.components.inventory:FindItems(function(item)
-                return item:HasTag("prototyper") and item.components.prototyper
-            end)
-            for _, item in ipairs(items) do
-                local trees = item.components.prototyper:GetTechTrees()
-                for tech_name, level in pairs(trees) do
-                    if level > 0 and custom_techs[tech_name] then
-                        self.accessible_tech_trees[tech_name] = math.max(
-                            self.accessible_tech_trees[tech_name] or 0, level)
-                    end
-                end
+    -- 4. UnlockRecipe 覆写 — 天体配方不永久解锁（从旧版 modmain.lua 恢复）
+    local old_UnlockRecipe = self.UnlockRecipe
+    function self:UnlockRecipe(recname, ...)
+        for _, recipe in ipairs(Recipes) do
+            if recipe.name == recname and recipe.tab == RECIPETABS.DST_CELESTIAL then
+                print("[TechManager][UnlockRecipe] BLOCKED: " .. recname .. " (CELESTIAL tab)")
+                return
             end
         end
-
-        for tech_name, _ in pairs(custom_techs) do
-            local bonus_field = string.lower(tech_name) .. "_bonus"
-            if self.current_prototyper == nil then
-                self.accessible_tech_trees[tech_name] = self[bonus_field] or 0
-            end
-            if self.accessible_tech_trees[tech_name] == nil then
-                self.accessible_tech_trees[tech_name] = self[bonus_field] or 0
-            end
-        end
+        return old_UnlockRecipe(self, recname, ...)
     end
 
     -- 5. 初始补齐

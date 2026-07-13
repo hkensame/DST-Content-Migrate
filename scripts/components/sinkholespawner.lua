@@ -73,12 +73,12 @@ function SinkholeSpawner:StopSinkholes()
 end
 
 function SinkholeSpawner:UpdateTarget(targetinfo)
-    for i1, v1 in ipairs(AllPlayers) do
-        if v1.userid == targetinfo.client.userid then
-            targetinfo.player = v1
-            targetinfo.pos = v1:GetPosition()
-            return
-        end
+    -- DS 单机：只有一个玩家，直接用 GetPlayer()
+    local player = GetPlayer()
+    if player ~= nil and player.userid == targetinfo.client.userid then
+        targetinfo.player = player
+        targetinfo.pos = player:GetPosition()
+        return
     end
     targetinfo.player = nil
     --V2C: TheShard:IsMigrating(userid) only works on master shard

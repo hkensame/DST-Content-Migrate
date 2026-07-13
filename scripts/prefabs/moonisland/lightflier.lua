@@ -156,8 +156,10 @@ local function fn()
 
     -- knownlocations：配合 homeseeker 记忆家的位置（由 childspawner:TakeOwnership 设置）
     inst:AddComponent("knownlocations")
-    -- [FIX] 显式添加 homeseeker，DST 的 TakeOwnership 虽会自动添加但 DS 不一定有
-    inst:AddComponent("homeseeker")
+    -- [FIX] TakeOwnership 可能已自动添加 homeseeker，需先检查
+    if inst.components.homeseeker == nil then
+        inst:AddComponent("homeseeker")
+    end
 
     -- inspectable
     inst:AddComponent("inspectable")

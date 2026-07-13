@@ -87,17 +87,17 @@ return {
           visible = true,
           properties = {}
         },
-        {
-          name = "",
-          type = "archive_lockbox_dispencer",
-          shape = "rectangle",
-          x = 415,
-          y = 256,
-          width = 0,
-          height = 0,
-          visible = true,
-          properties = {}
-        },
+        -- {
+        --   name = "",
+        --   type = "archive_lockbox_dispencer",
+        --   shape = "rectangle",
+        --   x = 415,
+        --   y = 256,
+        --   width = 0,
+        --   height = 0,
+        --   visible = true,
+        --   properties = {}
+        -- },
         {
           name = "",
           type = "archive_moon_statue",

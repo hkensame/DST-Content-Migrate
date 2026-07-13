@@ -1,12 +1,19 @@
 --------------------------------------------------------------------------
--- DS 移植版 nightmareclock.lua
+-- DS 移植版 dst_nightmareclock.lua
 -- 从 DST 源码 scripts/components/nightmareclock.lua 移植
+-- 改名原因：DS 原版已有自己的 nightmareclock 组件（gamelogic.lua:542），
+--    API 不同（phasechange 事件、GetPhase/IsCalm 等方法），
+--    如果用相同文件名会遮蔽原版，导致 DS 洞穴原版预制体崩溃
 -- 改动：
 --   移除网络层（net_smallbyte/tinybyte/float → 纯 Lua 变量）
 --   移除 areaaware 区域感知（DS 纯单机，无需分服同步）
 --   移除 _ismastersim 判断（DS 永远是 master）
 --   保留：4 阶段轮转、事件推送、锁定机制、Save/Load、音效
 --------------------------------------------------------------------------
+
+local function GetTheWorld()
+    return rawget(_G, "TheWorld")
+end
 
 return Class(function(self, inst)
 
@@ -62,7 +69,7 @@ local SOUNDS =
 self.inst = inst
 
 --Private
-local _world = TheWorld
+local _world = GetTheWorld()
 local _phasedirty = true
 
 --Phase state（纯 Lua 变量，替代 DST 的 net_*）
@@ -181,6 +188,7 @@ function self:OnUpdate(dt)
         if _lockedphase == nil then
             while _remainingtimeinphase <= 0 do
                 _phase = (_phase % #PHASE_NAMES) + 1
+                _phasedirty = true
                 local resulttime = _segs[_phase] * TUNING.SEG_TIME + math.random() * TUNING.NIGHTMARE_SEG_VARIATION * TUNING.SEG_TIME
                 _totaltimeinphase = resulttime
                 _remainingtimeinphase = _totaltimeinphase

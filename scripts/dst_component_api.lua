@@ -101,6 +101,16 @@ AddComponentPostInit("pickable", function(self)
   function self:ChangeProduct(newProduct)
     self.product = newProduct
   end
+
+  -- DST 兼容: remove_when_picked 支持（DS 原生 Pick 方法没有此检查）
+  local _Pick = self.Pick
+  function self:Pick(picker)
+    local result = _Pick(self, picker)
+    if self.remove_when_picked and self.inst and self.inst:IsValid() then
+      self.inst:Remove()
+    end
+    return result
+  end
 end)
 
 AddComponentPostInit("workable", function(self)

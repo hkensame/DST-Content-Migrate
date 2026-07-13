@@ -83,6 +83,14 @@ local function GoHomeAction(inst)
         or nil
 end
 
+-- DS compatibility: GetEdibleTags is DST-only; fall back to nil (no tag filter)
+local function GetEdibleTags(eater)
+    if eater.GetEdibleTags then
+        return eater:GetEdibleTags()
+    end
+    return nil
+end
+
 local SEE_FOOD_DIST         = 25
 local NO_TAGS = { "FX", "NOCLICK", "DECOR", "INLIMBO", "outofreach" }
 local function EatFoodAction(inst)
@@ -91,6 +99,7 @@ local function EatFoodAction(inst)
     end
 
     local ix, iy, iz = inst.Transform:GetWorldPosition()
+    local edible_tags = GetEdibleTags(inst.components.eater)
     local target = FindEntity(
         inst,
         SEE_FOOD_DIST,
@@ -102,7 +111,7 @@ local function EatFoodAction(inst)
         end,
         nil,
         NO_TAGS,
-        inst.components.eater:GetEdibleTags()
+        edible_tags
     )
     return target ~= nil and BufferedAction(inst, target, ACTIONS.EAT) or nil
 end

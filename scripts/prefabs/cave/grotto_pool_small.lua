@@ -97,12 +97,13 @@ local function poolfn()
     inst.entity:AddAnimState()
     inst.entity:AddMiniMapEntity()
     inst.entity:AddLight()
+    inst.entity:AddSoundEmitter()
     -- 🔴 DS 不需要 AddNetwork
 
     -- 🟡 DS 无 TheNet:IsDedicated()，始终执行
     inst:DoTaskInTime(0, makesmallmist)
 
-    MakeObstaclePhysics(inst, TUNING.GROTTO_POOL_SMALL_RADIUS)
+    MakeObstaclePhysics(inst, 1.4) -- 🟡 缩小到 1.2，让小瀑布在交互范围内
 
     inst.AnimState:SetBuild("moonglasspool_tile")
     inst.AnimState:SetBank("moonglasspool_tile")
@@ -124,6 +125,11 @@ local function poolfn()
     inst:AddTag("watersource")
 
     inst.no_wet_prefix = true
+
+    -- 🟡 瀑布音效
+    inst:DoTaskInTime(0, function()
+        inst.SoundEmitter:PlaySound("grotto/common/waterfall_LP", "waterfall_loop")
+    end)
 
     -- 🔴 注释 SetDeploySmartRadius（DS 无此方法）
     --inst:SetDeploySmartRadius(2.5)

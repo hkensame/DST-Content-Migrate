@@ -1,3 +1,10 @@
+local function removearrayvalue(tbl, val)
+    for i, v in ipairs(tbl) do
+        if v == val then table.remove(tbl, i) return true end
+    end
+    return false
+end
+
 local COLLAPSIBLE_WORK_ACTIONS = { CHOP = true, DIG = true, HAMMER = true, MINE = true }
 local COLLAPSIBLE_TAGS = { "NPC_workable", "structure", "plant", "tree" }
 for k, v in pairs(COLLAPSIBLE_WORK_ACTIONS) do table.insert(COLLAPSIBLE_TAGS, k.."_workable") end
@@ -9,6 +16,10 @@ local DESTROY_AREA_RADIUS = TUNING.DAYWALKER_ARENA_CLEAR_RADIUS
 local NO_PLAYER_RADIUS = TUNING.DAYWALKER_SPAWN_NO_PLAYER_RADIUS
 local ARENA_RADIUS = TUNING.DAYWALKER_ARENA_RADIUS
 local ARENA_PILLARS = TUNING.DAYWALKER_ARENA_PILLARS
+
+local function GetTheWorld()
+    return rawget(_G, "TheWorld")
+end
 
 return Class(function(self, inst)
     self.inst = inst
@@ -22,7 +33,7 @@ return Class(function(self, inst)
     end)
 
     function self:UnregisterDayWalkerSpawningPoint(spawnpoint)
-        table.removearrayvalue(self.spawnpoints, spawnpoint)
+        removearrayvalue(self.spawnpoints, spawnpoint)
     end
 
     function self:RegisterDayWalkerSpawningPoint(spawnpoint)
@@ -47,7 +58,8 @@ return Class(function(self, inst)
     function self:IsValidSpawningPoint(x, y, z)
         for dx = -1, 1 do
             for dz = -1, 1 do
-                if not TheWorld.Map:IsAboveGroundAtPoint(x + dx * TILE_SCALE, 0, z + dz * TILE_SCALE, false) then
+                local theWorld = GetTheWorld()
+                if not theWorld or not theWorld.Map:IsAboveGroundAtPoint(x + dx * TILE_SCALE, 0, z + dz * TILE_SCALE, false) then
                     return false
                 end
             end
@@ -135,7 +147,8 @@ return Class(function(self, inst)
         self.spawnpoints = shuffleArray(self.spawnpoints)
         local x, y, z = self:FindBestSpawningPoint()
         if x ~= nil then
-            x, y, z = TheWorld.Map:GetTileCenterPoint(x, y, z)
+            local theWorld = GetTheWorld()
+            x, y, z = theWorld and theWorld.Map:GetTileCenterPoint(x, y, z) or x, y, z
             return self:SpawnDayWalkerArena(x, y, z)
         end
         return nil

@@ -1339,3 +1339,31 @@ DS eater 组件可用 API（来自引擎源码 eater.lua）：
   - 动画名称（anim）为推测值，如运行时动画异常需调整 bank_build_map
 
 ================================================================================
+
+## 迷宫生成限制调整
+  - 档案馆迷宫（archive_hallway）：注释掉 archive_areas 中的
+    archive_cookpot_area / mothden_area_low / mothden_area_high 回调，
+    阻止随机生成 archive_cookpot 和 dustmothden（creature_area、archive_sound_area 保留）
+    文件：scripts/map/map_dst_maze_layouts.lua
+  - 中庭迷宫（atrium_hallway / two / three）：移除全部 15 个静态布局文件中
+    共 35 个 archive_moon_statue 条目
+    文件：scripts/map/static_layouts/rooms/atrium_hallway*/
+
+================================================================================
+
+## DST-only API 兼容性修复
+  - tentacle_pillar.lua：注释 SetPlayerAliveMode（playerprox.AliveModes DST-only）、
+    nil guard SetEnabled（teleporter DST-only）、
+    TheCamera:Shake 替代 ShakeAllCameras、
+    rawget 保护 AddHauntableCustomReaction、
+    nil guard AtriumTentacle_OnLoad 的 position[1]
+  - dst_tuning.lua：顶部集中定义 DST-only 全局 fallback：
+    TILE_SCALE=4、CAMERASHAKE={FULL,SIDE,VERTICAL}、
+    MINIMAP_DECORATION_PRIORITY=50、TileGroupManager 兼容实现
+  - ruins_spawners.lua：修复 objectspawner.onnewobjectfn 参数误用
+    （spawner.inst → spawner）、GetWorld() → rawget TheWorld、
+    内联 removearrayvalue 替代 table.removearrayvalue
+  - atrium_gate_activatedfx.lua / cave_hole.lua / daywalkerspawner.lua：
+    同样内联 removearrayvalue 替代 table.removearrayvalue
+
+================================================================================

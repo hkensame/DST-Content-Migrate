@@ -273,7 +273,7 @@ local function Scorch_OnUpdateFade(inst)
     if inst._fade:value() > 1 then
         inst._fade:set_local(inst._fade:value() - 1)
         Scorch_OnFadeDirty(inst)
-    elseif TheWorld.ismastersim then
+    elseif (rawget(_G, "TheWorld") or {}).ismastersim then
         inst:Remove()
     elseif inst._fade:value() > 0 then
         inst._fade:set_local(0)

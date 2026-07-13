@@ -89,30 +89,6 @@ return {
         },
         {
           name = "",
-          type = "archive_cookpot",
-          shape = "rectangle",
-          x = 160,
-          y = 384,
-          width = 0,
-          height = 0,
-          visible = true,
-          properties = {
-            ["scenario"] = "archive_cookpot"
-          }
-        },
-        {
-          name = "",
-          type = "dustmothden",
-          shape = "rectangle",
-          x = 352,
-          y = 384,
-          width = 0,
-          height = 0,
-          visible = true,
-          properties = {}
-        },
-        {
-          name = "",
           type = "archive_pillar",
           shape = "rectangle",
           x = 160,

@@ -979,13 +979,16 @@ local function fn()
 
 	inst.DynamicShadow:SetSize(3.5, 1.5)
 
-	local talker = inst:AddComponent("talker")
-	talker.fontsize = 40
-	talker.font = TALKINGFONT
-	talker.colour = Vector3(238 / 255, 69 / 255, 105 / 255)
-	talker.offset = Vector3(0, -400, 0)
-	talker.symbol = "ww_hunch"
-	talker.name_colour = Vector3(159/256, 72/256, 93/256)
+	inst:AddComponent("talker")
+	local talker = inst.components.talker
+	if talker then
+		talker.fontsize = 40
+		talker.font = TALKINGFONT
+		talker.colour = Vector3(238 / 255, 69 / 255, 105 / 255)
+		talker.offset = Vector3(0, -400, 0)
+		talker.symbol = "ww_hunch"
+		talker.name_colour = Vector3(159/256, 72/256, 93/256)
+	end
 
 	inst._enablechains = false
 	inst._facingmodel = 4

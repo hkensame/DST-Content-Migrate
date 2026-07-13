@@ -14,9 +14,15 @@ local InternalTimes = {}
 
 local BASE_RADIUS = 8
 
+-- 安全获取 TheWorld，绕过 DS strict.lua 的 __index 拦截
+local function GetTheWorld()
+    return rawget(_G, "TheWorld")
+end
+
 local TimeMultipliers = {
     ["mushtree_moon"] = function()
-        return (TUNING.MOONMUSHTREE_REGROWTH_TIME_MULT or 1) * ((TheWorld.state.iswinter and 0) or 1)
+        local theWorld = GetTheWorld()
+        return (TUNING.MOONMUSHTREE_REGROWTH_TIME_MULT or 1) * ((theWorld and theWorld.state.iswinter and 0) or 1)
     end,
     ["tree_rock1"] = function()
         return TUNING.TREE_ROCK_REGROWTH_TIME_MULT or 1
@@ -47,7 +53,9 @@ local function RegisterUpdate(self)
 
     if UpdateBuckets == nil then
         assert(UpdateTask == nil)
-        UpdateTask = TheWorld:DoPeriodicTask(UPDATE_PERIOD, DoUpdate)
+        local theWorld = GetTheWorld()
+        if theWorld == nil then return end
+        UpdateTask = theWorld:DoPeriodicTask(UPDATE_PERIOD, DoUpdate)
         self._bucket = { self }
         UpdateBuckets = { self._bucket }
         CurrentBucket = 1
@@ -146,7 +154,8 @@ end
 
 local SPAWN_BLOCKER_TAGS = { "structure", "wall" }
 local function GetSpawnPoint(from_pt, radius, prefab, skip_plant_check)
-    local map = TheWorld.Map
+    local theWorld = GetTheWorld()
+    local map = theWorld and theWorld.Map
     if map == nil then
         return
     end

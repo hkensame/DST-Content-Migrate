@@ -6,9 +6,15 @@ local easing = require("easing")
 --------------------------------------------------------------------------
 --[[ Deerherdspawner class definition ]]
 --------------------------------------------------------------------------
+
+local function GetTheWorld()
+    return rawget(_G, "TheWorld")
+end
+
 return Class(function(self, inst)
 
-assert(TheWorld.ismastersim, "DeerHerdspawner should not exist on client")
+local theWorld = GetTheWorld()
+assert(theWorld and theWorld.ismastersim, "DeerHerdspawner should not exist on client")
 
 --------------------------------------------------------------------------
 --[[ Private constants ]]
@@ -94,7 +100,7 @@ local function FindExistingHerd()
 
     local spawnpt = nil
     if existingherd then
-        spawnpt = TheWorld.components.deerherding.herdlocation
+        spawnpt = GetTheWorld().components.deerherding.herdlocation
 
         local notnearplayers = function(pt) 
             local x, y, z = pt:Get()
@@ -160,16 +166,18 @@ local function SummonHerd()
     end
 
     -- retry later
-    if spawnpt == nil and TheWorld.state.isautumn and TheWorld.state.remainingdaysinseason * 2 > TheWorld.state.autumnlength then
+    local tw = GetTheWorld()
+    if spawnpt == nil and tw and tw.state.isautumn and tw.state.remainingdaysinseason * 2 > tw.state.autumnlength then
         _timetospawn = (1 + math.random()) * TUNING.TOTAL_DAY_TIME
     end
 end
 
 local function QueueSummonHerd()
-    if TheWorld.state.isautumn and TheWorld.state.cycles - _prevherdsummonday > TheWorld.state.autumnlength then
-        _prevherdsummonday = TheWorld.state.cycles
+    local tw = GetTheWorld()
+    if tw and tw.state.isautumn and tw.state.cycles - _prevherdsummonday > tw.state.autumnlength then
+        _prevherdsummonday = tw.state.cycles
 
-        local spawndelay = TheWorld.state.autumnlength * TUNING.TOTAL_DAY_TIME * (TheWorld.state.cycles <= 0 and 0.5 or 0.2)
+        local spawndelay = tw.state.autumnlength * TUNING.TOTAL_DAY_TIME * (tw.state.cycles <= 0 and 0.5 or 0.2)
         local spawnrandom = .33 * spawndelay
 
         _timetospawn = GetRandomWithVariance(spawndelay, spawnrandom)
@@ -179,9 +187,10 @@ local function QueueSummonHerd()
 end
 
 local function QueueHerdMigration()
-    if TheWorld.state.iswinter and next(_activedeer) ~= nil then
-        local spawndelay = 0.75 * TheWorld.state.autumnlength * TUNING.TOTAL_DAY_TIME
-        local spawnrandom = 0.1 * TheWorld.state.autumnlength * TUNING.TOTAL_DAY_TIME
+    local tw = GetTheWorld()
+    if tw and tw.state.iswinter and next(_activedeer) ~= nil then
+        local spawndelay = 0.75 * tw.state.autumnlength * TUNING.TOTAL_DAY_TIME
+        local spawnrandom = 0.1 * tw.state.autumnlength * TUNING.TOTAL_DAY_TIME
 
         _timetomigrate = GetRandomWithVariance(spawndelay, spawnrandom)
         self.inst:StartUpdatingComponent(self)
@@ -317,7 +326,7 @@ end
 -- TheWorld.components.deerherdspawner:DebugSummonHerd()
 function self:DebugSummonHerd(time)
     _timetospawn = time or 1
-    _prevherdsummonday = TheWorld.state.cycles
+    _prevherdsummonday = GetTheWorld() and GetTheWorld().state.cycles or 0
     self.inst:StartUpdatingComponent(self)
 end
 
@@ -329,8 +338,9 @@ self:WatchWorldState("isautumn", QueueSummonHerd)
 self:WatchWorldState("iswinter", QueueHerdMigration)
 
 function self:OnPostInit()
-    if _prevherdsummonday < 0 and TheWorld.state.cycles == 0 and TheWorld.state.iswinter then
-        _prevherdsummonday = TheWorld.state.cycles
+    local tw = GetTheWorld()
+    if _prevherdsummonday < 0 and tw and tw.state.cycles == 0 and tw.state.iswinter then
+        _prevherdsummonday = tw.state.cycles
         SummonHerd()
         QueueHerdMigration()
     else

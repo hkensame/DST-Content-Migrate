@@ -97,7 +97,7 @@ return {
         },
         {
           name = "",
-          type = "cave/objects/ruins_statue_mage",
+          type = "ruins_statue_mage_spawner",
           shape = "rectangle",
           x = 512,
           y = 128,
@@ -108,7 +108,7 @@ return {
         },
         {
           name = "",
-          type = "cave/objects/ruins_statue_head",
+          type = "ruins_statue_head_spawner",
           shape = "rectangle",
           x = 128,
           y = 128,

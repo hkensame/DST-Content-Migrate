@@ -773,30 +773,24 @@ local function OnGemGiven(inst, giver, item)
 
     inst.components.trader:Disable()
     inst.components.pickable:SetUp("opalpreciousgem", 1000000)
-    inst.components.pickable:Pause()
     inst.components.pickable.caninteractwith = true
     inst.gem = true
+    checkforgems(inst)  -- 始终检查，无论动画状态
 
-    if not inst.entity:IsAwake() then
-        inst.AnimState:PlayAnimation("idle_full",false)
-        checkforgems(inst)
-    else
-        if not inst.AnimState:IsCurrentAnimation("idle_full") then
-            if not inst.AnimState:IsCurrentAnimation("activate") then
-                inst:DoTaskInTime(11/30, function()
-                    local pos = Vector3(inst.Transform:GetWorldPosition())
-                    if rawget(_G, 'ShakeAllCameras') then
-                        ShakeAllCameras(CAMERASHAKE.SIDE, 2, .02, .05, pos, 50)
-                    end
-                end)
-                inst.AnimState:PlayAnimation("activate",false)
-                inst.SoundEmitter:PlaySound("grotto/common/archive_switch/on")
-            end
-        end
+    if not inst.AnimState:IsCurrentAnimation("idle_full") and not inst.AnimState:IsCurrentAnimation("activate") then
+        inst.AnimState:PlayAnimation("activate",false)
+        inst.SoundEmitter:PlaySound("grotto/common/archive_switch/on")
     end
 end
 
-local function OnGemTaken(inst)
+local function OnGemTaken(inst, picker, loot)
+    if loot == nil and picker ~= nil and picker.components.inventory then
+        -- Pickable:Pick 未能生成宝石，手动补偿
+        loot = SpawnPrefab("opalpreciousgem")
+        if loot then
+            picker.components.inventory:GiveItem(loot)
+        end
+    end
     inst.components.trader:Enable()
     inst.components.pickable.caninteractwith = false
     inst.gem = false

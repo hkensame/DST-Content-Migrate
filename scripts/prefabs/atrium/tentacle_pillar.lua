@@ -1,4 +1,10 @@
-﻿local assets =
+﻿local function GetTheWorld()
+    return rawget(_G, "TheWorld")
+end
+
+local TheCamera = rawget(_G, "TheCamera")
+
+local assets =
 {
     Asset("ANIM", "anim/tentacle_pillar.zip"),
     Asset("SOUND", "sound/tentacle.fsb"),
@@ -77,7 +83,7 @@ local function SpawnArms(inst, attacker)
     end
 
     -- Walk the circle trying to find a valid spawn point
-    local map = TheWorld.Map
+    local map = GetTheWorld() and GetTheWorld().Map
     for r = 1, rings do
         local theta = GetRandomWithVariance(0, PI / 2)
         local theta_decrement = (TWOPI / steps)
@@ -124,7 +130,9 @@ local function OnHit(inst, attacker, damage)
         inst.AnimState:PushAnimation("idle", true)
 
         if attacker:HasTag("player") then
-            attacker:ShakeCamera(CAMERASHAKE.SIDE, .5, .05, .2)
+            if TheCamera then
+                TheCamera:Shake("SIDE", 0.5, 0.05, .2)
+            end
         end
         SpawnArms(inst, attacker)
     end
@@ -147,7 +155,9 @@ local function OnEmerge(inst)
 
         inst.SoundEmitter:PlaySound("dontstarve/tentacle/tentapiller_emerge")
 
-        ShakeAllCameras(CAMERASHAKE.FULL, 5, .05, .2, inst, 40)
+        if TheCamera then
+            TheCamera:Shake("FULL", 5, .05, .2)
+        end
 
         inst:ListenForEvent("animover", OnEmergeOver)
     end
@@ -231,7 +241,9 @@ local function OnDeath(inst)
         inst.SoundEmitter:PlaySound("dontstarve/tentacle/tentapiller_die")
         inst.SoundEmitter:PlaySound("dontstarve/tentacle/tentapiller_die_VO")
 
-        ShakeAllCameras(CAMERASHAKE.FULL, 5, .05, .2, inst, 40)
+        if TheCamera then
+            TheCamera:Shake("FULL", 5, .05, .2)
+        end
 
         inst:ListenForEvent("animover", SwapToHole)
         inst:ListenForEvent("entitysleep", SwapToHole)
@@ -304,7 +316,9 @@ local function OnActivateByOvertake(inst, source, doer)
 end
 
 local function CreateHiddenGlobalIcon(inst)
-    inst.MiniMapEntity:SetPriority(MINIMAP_DECORATION_PRIORITY)
+    if inst.MiniMapEntity and inst.MiniMapEntity.SetPriority then
+        inst.MiniMapEntity:SetPriority(MINIMAP_DECORATION_PRIORITY)
+    end
 end
 
 local function fn()
@@ -340,7 +354,7 @@ local function fn()
     inst:AddComponent("playerprox")
     inst.components.playerprox:SetDist(10, 30)
     inst.components.playerprox:SetOnPlayerFar(OnFar)
-    inst.components.playerprox:SetPlayerAliveMode(inst.components.playerprox.AliveModes.AliveOnly)
+    -- inst.components.playerprox:SetPlayerAliveMode(inst.components.playerprox.AliveModes.AliveOnly) -- DST-only API
 
     -------------------
     inst:AddComponent("lootdropper")
@@ -355,7 +369,9 @@ local function fn()
 
     --------------------
     inst:AddComponent("teleporter")
-    inst.components.teleporter:SetEnabled(false)
+    if inst.components.teleporter.SetEnabled then
+        inst.components.teleporter:SetEnabled(false)
+    end
 
     inst.components.teleporter.travelcameratime = 999
     inst.components.teleporter.travelarrivetime = 999
@@ -363,8 +379,9 @@ local function fn()
 
     --------------------
 
-    if AddHauntableCustomReaction then
-        AddHauntableCustomReaction(inst, CustomOnHaunt)
+    local _AddHauntableCustomReaction = rawget(_G, "AddHauntableCustomReaction")
+    if _AddHauntableCustomReaction then
+        _AddHauntableCustomReaction(inst, CustomOnHaunt)
     end
 
     inst.Overtake = Overtake
@@ -434,8 +451,9 @@ local function PlaceLayout(layout, prefabs, position)
                 if layout.ground[rw][clmn] ~= 0 then
                     local x, y = rcx + column, rcy + row
 
-                    if TileGroupManager:IsLandTile(TheWorld.Map:GetTile(x, y)) then
-                        TheWorld.Map:SetTile(x, y, layout.ground_types[layout.ground[rw][clmn]])
+                    local theWorld = GetTheWorld()
+                    if theWorld and TileGroupManager:IsLandTile(theWorld.Map:GetTile(x, y)) then
+                        theWorld.Map:SetTile(x, y, layout.ground_types[layout.ground[rw][clmn]])
                     end
                 end
             end
@@ -444,7 +462,8 @@ local function PlaceLayout(layout, prefabs, position)
         size = size / 2.0
     end
 
-    local width, height = TheWorld.Map:GetSize()
+    local theWorld = GetTheWorld()
+    local width, height = theWorld and theWorld.Map:GetSize() or 0, 0
 
     if rcx ~= nil then
         rcx = rcx + size + 0.5
@@ -456,14 +475,15 @@ local function PlaceLayout(layout, prefabs, position)
 
             local points_x = rcx + x * layout.scale
             local points_y = rcy + y * layout.scale
-
+            
             x = (points_x - width/2.0)  * TILE_SCALE
             y = (points_y - height/2.0) * TILE_SCALE
 
             x = math.floor(x*100) / 100.0
             y = math.floor(y*100) / 100.0
 
-            if TheWorld.Map:IsLandTileAtPoint(x, 0, y) then
+            local theWorld = GetTheWorld()
+            if theWorld and theWorld.Map:IsLandTileAtPoint(x, 0, y) then
                 local ent = SpawnPrefab(prefabs[idx].prefab)
 
                 if ent ~= nil then
@@ -484,7 +504,10 @@ local function AtriumTentacle_OnLoad(inst, data)
     local layout  = obj_layout.LayoutForDefinition("TentaclePillarToAtriumOuter")
     local prefabs = obj_layout.ConvertLayoutToEntitylist(layout)
 
-    local position = { TheWorld.Map:GetTileCoordsAtPoint(inst.Transform:GetWorldPosition()) }
+    local theWorld = GetTheWorld()
+    if not theWorld then return end
+    local position = { theWorld.Map:GetTileCoordsAtPoint(inst.Transform:GetWorldPosition()) }
+    if not position[1] then return end
 
     PlaceLayout(layout, prefabs, position)
 end

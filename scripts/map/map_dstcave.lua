@@ -239,8 +239,8 @@ AddTask("DST_ArchiveArea", {
         ["DST_ArchiveKeyroom"] = 1,
         ["DST_ArchiveSupplyRoom"] = 2,
         ["DST_ArchiveDistillery"] = 1,
-        ["DST_ArchiveDistillery2"] = 1,
-        ["DST_ArchiveDistillery3"] = 1,
+        -- ["DST_ArchiveDistillery2"] = 1,
+        -- ["DST_ArchiveDistillery3"] = 1,
     },
     room_bg = GROUND.ARCHIVE,
     maze_tiles = {rooms = {"archive_hallway","archive_hallway_two"}, bosses = {"archive_hallway"}, bridge_ground = GROUND.ARCHIVE},
@@ -537,11 +537,11 @@ AddTask("DST_Military", {
     room_tags = {"Nightmare"},
     entrance_room = "DST_MilitaryEntrance",
     room_choices = {
-        ["DST_MilitaryMaze"] = 4,
+        ["DST_BGMilitary"] = 4,
         ["DST_Barracks"] = 1,
     },
     room_bg = GROUND.TILES,
-    background_room="DST_MilitaryMaze",
+    background_room="DST_BGMilitary",
     colour={r=0.6,g=0.2,b=0.2,a=0.9},
 })
 
@@ -581,8 +581,7 @@ AddTask("DST_SacredAltar",{
     keys_given= {KEYS.RUINS},
     room_tags = {"Nightmare"},
     room_choices = {
-        ["DST_Altar"] = 1,
-        ["DST_PitRoom"] = 2,
+        ["DST_PitRoom"] = 3,
     },
     room_bg = GROUND.TILES,
     entrance_room="DST_BridgeEntrance",
@@ -678,11 +677,11 @@ AddTask("DST_MilitaryPits", {
     room_tags = {"Nightmare"},
     entrance_room = "DST_MilitaryEntrance",
     room_choices = {
-        ["DST_MilitaryMaze"] = 3,
+        ["DST_BGMilitary"] = 3,
         ["DST_Barracks"] = 3,
     },
     room_bg = GROUND.TILES,
-    background_room="DST_MilitaryMaze",
+    background_room="DST_BGMilitary",
     colour={r=0.6,g=0.2,b=0.2,a=0.9},
 })
 

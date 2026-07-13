@@ -1,3 +1,10 @@
+local function removearrayvalue(tbl, val)
+    for i, v in ipairs(tbl) do
+        if v == val then table.remove(tbl, i) return true end
+    end
+    return false
+end
+
 local assets =
 {
     Asset("ANIM", "anim/atrium/atrium_gate_overload_fx.zip"),
@@ -47,7 +54,7 @@ end
 local function OnRemoveEntity(inst)
     local parent = inst.entity:GetParent()
     if parent ~= nil and parent.highlightchildren ~= nil then
-        table.removearrayvalue(parent.highlightchildren, inst)
+        removearrayvalue(parent.highlightchildren, inst)
     end
 end
 

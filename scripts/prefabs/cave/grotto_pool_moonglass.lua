@@ -4,7 +4,7 @@
 --   🔴 移除 AddNetwork / SetPristine / ismastersim
 --   🔴 注释 SetDeploySmartRadius（DS 无此方法）
 --   🔴 注释 halloween_moonpuff（缺少 fx_moon_tea.zip 动画资源）
---   ⚪ WatchWorldState / SetPhysicsRadiusOverride / SetPrefabNameOverride 保留（DS 可用）
+--   🟡 WatchWorldState 替换为 10天定时器自恢复（DS 兼容）
 
 local assets =
 {
@@ -23,7 +23,26 @@ SetSharedLootTable("moonglass_prop",
     {'moonglass', 0.5},
 })
 
+local function start_regrow_timer(inst)
+    if inst._regrow_task ~= nil then
+        inst._regrow_task:Cancel()
+    end
+    inst._regrow_task = inst:DoTaskInTime(10 * TUNING.TOTAL_DAY_TIME, function()
+        inst._regrow_task = nil
+        if TUNING.GROTTO_MOONGLASS_REGROW_CHANCE > math.random() then
+            set_full(inst)
+        else
+            start_regrow_timer(inst) -- 没恢复就等下一个10天
+        end
+    end)
+end
+
 local function set_full(inst)
+    if inst._regrow_task ~= nil then
+        inst._regrow_task:Cancel()
+        inst._regrow_task = nil
+    end
+
     inst:SetPhysicsRadiusOverride(2)
     inst:RemoveTag("NOCLICK")
 
@@ -38,14 +57,6 @@ local function set_full(inst)
     end
 end
 
-local function OnCaveFullMoon(inst, fullmoon)
-    -- Assume we only ran this function if we're mined out.
-    if TUNING.GROTTO_MOONGLASS_REGROW_CHANCE > math.random() then
-        set_full(inst)
-        inst:StopWatchingWorldState("iscavefullmoon", OnCaveFullMoon)
-    end
-end
-
 local function set_mined(inst)
     inst:SetPhysicsRadiusOverride(nil)
     inst:AddTag("NOCLICK")
@@ -54,7 +65,8 @@ local function set_mined(inst)
         inst.AnimState:PlayAnimation(inst._anim.."_mined", true)
     end
 
-    inst:WatchWorldState("iscavefullmoon", OnCaveFullMoon)
+    -- 🟡 用10天定时器替代 WatchWorldState
+    start_regrow_timer(inst)
 end
 
 local function on_mined(inst, worker, workleft)

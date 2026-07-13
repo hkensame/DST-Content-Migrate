@@ -1,3 +1,12 @@
+-- DS 移植：内联 DST util.lua 中缺失的 FunctionOrValue
+local function FunctionOrValue(func_or_val, ...)
+    if type(func_or_val) == "function" then
+        return func_or_val(...)
+    else
+        return func_or_val
+    end
+end
+
 local CHECK_INTERVAL = 5
 
 FindClosest = Class(BehaviourNode, function(self, inst, see_dist, safe_dist, tags, exclude_tags, one_of_tags)

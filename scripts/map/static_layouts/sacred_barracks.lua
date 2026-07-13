@@ -482,7 +482,7 @@ return {
         },
         {
           name = "",
-          type = "cave/objects/ruins_statue_head",
+          type = "ruins_statue_head_spawner",
           shape = "rectangle",
           x = 128,
           y = 130,
@@ -493,7 +493,7 @@ return {
         },
         {
           name = "",
-          type = "cave/objects/ruins_statue_head",
+          type = "ruins_statue_head_spawner",
           shape = "rectangle",
           x = 511,
           y = 128,
@@ -504,7 +504,7 @@ return {
         },
         {
           name = "",
-          type = "cave/objects/ruins_statue_head_nogem",
+          type = "ruins_statue_head_nogem_spawner",
           shape = "rectangle",
           x = 510,
           y = 510,
@@ -515,7 +515,7 @@ return {
         },
         {
           name = "",
-          type = "cave/objects/ruins_statue_head",
+          type = "ruins_statue_head_spawner",
           shape = "rectangle",
           x = 129,
           y = 510,
@@ -526,7 +526,7 @@ return {
         },
         {
           name = "",
-          type = "cave/objects/ruins_statue_mage",
+          type = "ruins_statue_mage_spawner",
           shape = "rectangle",
           x = 321,
           y = 320,

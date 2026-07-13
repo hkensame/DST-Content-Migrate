@@ -157,6 +157,26 @@ local function Recharge(inst)
     end
 end
 
+local function OnChildKilled(inst, child)
+    -- 光飞虫死亡或被捕 → 恢复采摘
+    -- [FIX] 同步从 childspawner 跟踪中移除（DS 原生无此机制）
+    if inst.components.childspawner.childrenoutside[child] ~= nil then
+        inst.components.childspawner.childrenoutside[child] = nil
+        local count = 0
+        for _ in pairs(inst.components.childspawner.childrenoutside) do count = count + 1 end
+        inst.components.childspawner.numchildrenoutside = count
+    end
+    inst.components.pickable:Resume()
+end
+
+local function OnGoHome(inst, child)
+    -- 光飞虫回家 → 恢复满状态
+    if not inst.components.pickable:CanBePicked() then
+        inst.components.pickable:Regen()
+    end
+    ForceOn(inst)
+end
+
 ---------------------------------------------------------------------------
 -- childspawner 回调
 ---------------------------------------------------------------------------
@@ -169,22 +189,14 @@ local function SpawnLightflierFromStalk(inst)
     inst.components.childspawner.childreninside = math.max(inst.components.childspawner.childreninside - 1, 0)
 
     -- [FIX] 直接在此监听死亡/移除，因 SetSpawnedFn 对手动 SpawnPrefab + TakeOwnership 路径不会触发
-    local function OnChildDeath() OnChildKilled(inst, lightflier) end
+
+    local function OnChildDeath()
+        if inst:IsValid() then
+            OnChildKilled(inst, lightflier)
+        end
+    end
     lightflier:ListenForEvent("death", OnChildDeath)
     lightflier:ListenForEvent("onremove", OnChildDeath)
-end
-
-local function OnChildKilled(inst, child)
-    -- 光飞虫死亡或被捕 → 恢复采摘
-    inst.components.pickable:Resume()
-end
-
-local function OnGoHome(inst, child)
-    -- 光飞虫回家 → 恢复满状态
-    if not inst.components.pickable:CanBePicked() then
-        inst.components.pickable:Regen()
-    end
-    ForceOn(inst)
 end
 
 ---------------------------------------------------------------------------
@@ -199,20 +211,39 @@ local function CancelCallForLightflierTask(inst)
 end
 
 local function CallForLightflier(inst)
-    if inst.components.pickable:CanBePicked()
-        or inst.components.childspawner.numchildrenoutside < TUNING.LIGHTFLIER_FLOWER_TARGET_NUM_CHILDREN_OUTSIDE then
+    -- [FIX] 清理死亡/无效的子实体（DS 中死亡实体不会自动移除）
+    local alive_count = 0
+    for k, v in pairs(inst.components.childspawner.childrenoutside) do
+        if not v:IsValid() or (v.components.health ~= nil and v.components.health:IsDead()) then
+            inst.components.childspawner.childrenoutside[k] = nil
+        else
+            alive_count = alive_count + 1
+        end
+    end
+    inst.components.childspawner.numchildrenoutside = alive_count
+
+    -- [FIX] 如果所有子实体都死了 → 恢复再生（备份路径，死亡监听未触发时兜底）
+    if alive_count < TUNING.LIGHTFLIER_FLOWER_TARGET_NUM_CHILDREN_OUTSIDE
+        and not inst.components.pickable:CanBePicked() then
+        CancelCallForLightflierTask(inst)
+        inst.components.pickable:Resume()
+        return
+    end
+
+    if inst.components.pickable:CanBePicked() then
         CancelCallForLightflierTask(inst)
         return
     end
 
     -- DS 适配：无 formationfollower，用 homeseeker 判断是否正在回家
     if inst._lightflier_returning_home ~= nil
-        and inst._lightflier_returning_home:IsValid() then
+        and inst._lightflier_returning_home:IsValid()
+        and (inst._lightflier_returning_home.components.health == nil or not inst._lightflier_returning_home.components.health:IsDead()) then
         return
     end
 
     for k, v in pairs(inst.components.childspawner.childrenoutside) do
-        if v:IsValid() then
+        if v:IsValid() and (v.components.health == nil or not v.components.health:IsDead()) then
             inst._lightflier_returning_home = v
             return
         end

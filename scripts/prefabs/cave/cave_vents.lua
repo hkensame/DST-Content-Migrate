@@ -1,6 +1,7 @@
 -- DS 移植版：移除 AddNetwork/SetPristine/ismastersim/riftspawner/miasmamanager/toadstoolspawner
 -- 简化：硬编码 VENT_TYPES.HOT，跳过 miasma/gas 逻辑
 -- cave_vents.lua — 喷气孔
+-- TUNING.CAVE_VENTS 定义于 dst_tuning.lua
 
 local assets =
 {
@@ -259,7 +260,11 @@ local function rock_fn()
     inst.ventilation_type = VENT_TYPES.NONE
 
     local color = 0.5 + math.random() * 0.5
-    inst.AnimState:SetSymbolMultColour("vent_part", color, color, color, 1)
+    if inst.AnimState.SetSymbolMultColour then
+        inst.AnimState:SetSymbolMultColour("vent_part", color, color, color, 1)
+    else
+        inst.AnimState:SetMultColour(color, color, color, 1)
+    end
 
     inst:AddComponent("lootdropper")
     inst.components.lootdropper:SetChanceLootTable('cave_vent_rock')

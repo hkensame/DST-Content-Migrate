@@ -371,6 +371,8 @@ local function OnSpawnDebris(inst)
 	inst:DoTaskInTime((2 + math.random(3)) * FRAMES, SpawnDebris, "debris_small_"..(rnd == 2 and "a" or "b"), -1)
 end
 
+-- DS 没有全局 RGB 函数（DST constants.lua），自行实现
+local function RGB(r, g, b) return { r / 255, g / 255, b / 255, 1 } end
 local LIGHT_COLOUR = RGB(54, 18, 18)
 local function SetLightColour(inst, intensity)
 	inst.Light:SetColour(LIGHT_COLOUR[1] * intensity, LIGHT_COLOUR[2] * intensity, LIGHT_COLOUR[3] * intensity)
@@ -561,7 +563,8 @@ local function ClearNearbyColliders(inst)
     dx, dz = dx / d, dz / d
     for theta = 0, PI2 do
         local px, pz = x + BLOCKERS_RADIUS_CLEAR * dx, z + BLOCKERS_RADIUS_CLEAR * dz
-        if TheWorld.Map:IsAboveGroundAtPoint(px, 0, pz, false) then
+        local theWorld = rawget(_G, "TheWorld")
+        if theWorld and theWorld.Map:IsAboveGroundAtPoint(px, 0, pz, false) then
             inst.Transform:SetPosition(px, y, pz)
             break
         end
@@ -720,7 +723,9 @@ local function fn_base()
 	inst.AnimState:PlayAnimation("idle", true)
 	inst.AnimState:SetFinalOffset(1)
 	inst.AnimState:OverrideSymbol("pillar_full", "daywalker_pillar", "pillar_full_base")
-	inst.AnimState:HideSymbol("fx_vibration")
+	if inst.AnimState.HideSymbol then
+	    inst.AnimState:HideSymbol("fx_vibration")
+	end
 	if inst.AnimState.SetLightOverride then
 		inst.AnimState:SetLightOverride(1)
 	end

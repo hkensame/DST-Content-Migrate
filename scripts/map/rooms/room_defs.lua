@@ -30,7 +30,7 @@ AddRoom("DST_Entrance", {
         distributepercent = .2,
         distributeprefabs = {
             cavelight = 0.05,
-            ["cave/objects/flower_cave"] = 0.5,
+            ["cave/objects/flower_cave"] = 0.4,
         },
     },
 })
@@ -187,7 +187,9 @@ local bgmud = {
         distributepercent = .15,
         distributeprefabs=
         {
-            flower_cave = 0.1,
+            ["cave/objects/flower_cave"] = 0.2,
+            ["cave/objects/flower_cave_double"] = 0.10,
+            ["cave/objects/flower_cave_triple"] = 0.05,
 
             stalagmite_tall=1.5,
             stalagmite_tall_med=1.0,
@@ -214,7 +216,7 @@ AddRoom("DST_BatCave", {
         distributepercent = .15,
         distributeprefabs=
         {
-            batcave = 0.05,
+            ["cave/objects/batcave"] = 0.05,
             guano = 0.27,
             goldnugget=.05,
             flint=0.05,
@@ -236,7 +238,7 @@ AddRoom("DST_BattyCave", {
         distributepercent = .25,
         distributeprefabs=
         {
-            batcave = 0.15,
+            ["cave/objects/batcave"] = 0.15,
             guano = 0.27,
             goldnugget=.05,
             flint=0.05,
@@ -259,7 +261,7 @@ AddRoom("DST_FernyBatCave", {
         distributeprefabs=
         {
             cave_fern = 0.5,
-            batcave = 0.05,
+            ["cave/objects/batcave"] = 0.05,
             guano = 0.27,
             goldnugget=.05,
             flint=0.05,
@@ -280,7 +282,7 @@ local bgbatcave = {
         distributepercent = .13,
         distributeprefabs=
         {
-            batcave = 0.05,
+            ["cave/objects/batcave"] = 0.05,
             stalagmite_tall=0.4,
             stalagmite_tall_med=0.4,
             stalagmite_tall_low=0.4,
@@ -334,7 +336,7 @@ AddRoom("DST_BatsAndSlurtles", {
             pillar_cave_rock = 0.1,
 
             slurtlehole = 0.5,
-            batcave = 0.1,
+            ["cave/objects/batcave"] = 0.1,
 
             fissure = 0.01,
         },
@@ -418,7 +420,7 @@ AddRoom("DST_BatsAndRocky", {
             flint=0.05,
 
             slurtlehole = 0.05,
-            batcave = 0.10,
+            ["cave/objects/batcave"] = 0.10,
 
             fissure = 0.01,
         },
@@ -741,9 +743,21 @@ AddRoom("DST_GreenMushRabbits", {
 })
 
 AddRoom("DST_GreenMushNoise", {
-    colour={r=0.1,g=0.8,b=0.3,a=0.9},
+    colour={r=.36,g=.32,b=.38,a=.50},
     value = GROUND.FUNGUSGREEN,
 
+    custom_tiles={
+        GeneratorFunction = RUNCA.GeneratorFunction,
+        data = {iterations=8, seed_mode=CA_SEED_MODE.SEED_RANDOM, num_random_points=2,
+            translate={
+                {tile=GROUND.FUNGUSGREEN, items={"mushtree_small", "flower_cave", "cave_fern"}, item_count=20},
+                {tile=GROUND.FUNGUSGREEN, items={"mushtree_small", "flower_cave", "cave_fern"}, item_count=20},
+                {tile=GROUND.FUNGUSGREEN, items={"mushtree_small", "flower_cave", "cave_fern"}, item_count=20},
+                {tile=GROUND.SINKHOLE, items={"evergreen", "grass", "sapling", "berrybush"}, item_count=20},
+                {tile=GROUND.SINKHOLE, items={"evergreen", "grass", "sapling"}, item_count=20},
+            },
+        },
+    },
     contents =  {
         distributepercent = .25,
         distributeprefabs=
@@ -802,7 +816,7 @@ AddRoom("DST_BlueMushForest", {
             flower_cave_double = 0.05,
             flower_cave_triple = 0.05,
 
-            batcave = 0.005,
+            ["cave/objects/batcave"] = 0.005,
             dropperweb = 0.015,
 
             slurper = 0.001,
@@ -824,7 +838,7 @@ AddRoom("DST_BlueMushMeadow", {
             flower_cave_double = 0.05,
             flower_cave_triple = 0.05,
 
-            batcave = 0.005,
+            ["cave/objects/batcave"] = 0.005,
             dropperweb = 0.015,
 
             slurper = 0.001,
@@ -892,7 +906,7 @@ local bgbluemush = {
             flower_cave_double = 0.05,
             flower_cave_triple = 0.05,
 
-            batcave = 0.005,
+            ["cave/objects/batcave"] = 0.005,
             dropperweb = 0.015,
 
             slurper = 0.001,
@@ -1046,7 +1060,7 @@ AddRoom("DST_SpidersAndBats", {
             pillar_cave = 0.1,
             pillar_stalactite = 0.1,
             spiderhole = 0.05,
-            batcave = 0.05,
+            ["cave/objects/batcave"] = 0.05,
 
             fissure = 0.01,
         },
@@ -1068,7 +1082,7 @@ AddRoom("DST_ThuleciteDebris", {
             pillar_cave = 0.1,
             pillar_stalactite = 0.1,
             spiderhole = 0.01,
-            batcave = 0.01,
+            ["cave/objects/batcave"] = 0.01,
 
             fissure = 0.1,
             thulecite = 0.01,
@@ -1263,7 +1277,7 @@ AddRoom("DST_SinkholeCopses", {
 })
 
 AddRoom("DST_SparseSinkholes", {
-    colour={r=0.2,g=1,b=0.5,a=0.9},
+    colour={r=0.1,g=0.8,b=0.2,a=0.9},
     value = GROUND.SINKHOLE,
 
     contents =  {
@@ -1285,7 +1299,7 @@ AddRoom("DST_SparseSinkholes", {
 })
 
 AddRoom("DST_SinkholeOasis", {
-    colour={r=0.2,g=1,b=0.5,a=0.9},
+    colour={r=0.1,g=0.8,b=0.2,a=0.9},
     value = GROUND.SINKHOLE,
 
     contents =  {
@@ -1315,7 +1329,7 @@ AddRoom("DST_SinkholeOasis", {
 })
 
 AddRoom("DST_GrasslandSinkhole", {
-    colour={r=0.2,g=1,b=0.5,a=0.9},
+    colour={r=0.1,g=0.8,b=0.2,a=0.9},
     value = GROUND.SINKHOLE,
 
     contents =  {
@@ -1334,8 +1348,8 @@ AddRoom("DST_GrasslandSinkhole", {
 })
 
 AddRoom("DST_SpiderSinkholeMarsh", {
-    colour={r=0.2,g=0.5,b=0.2,a=0.9},
-    value = GROUND.SINKHOLE,
+    colour={r=.45,g=.75,b=.45,a=.50},
+    value = GROUND.MARSH,
 
     contents =  {
         distributepercent = .1,
@@ -1352,11 +1366,19 @@ AddRoom("DST_SpiderSinkholeMarsh", {
             cavelight_small = 0.5,
             cavelight_tiny = 0.5,
         },
+        prefabdata = {
+            spiderden = function() if math.random() < 0.2 then
+                return { growable={stage=2}}
+            else
+                return { growable={stage=1}}
+            end
+        end,
+    },
     }
 })
 
 local bgsinkhole = {
-    colour={r=0.2,g=1,b=0.5,a=0.9},
+    colour={r=0.1,g=0.8,b=0.2,a=0.9},
     value = GROUND.SINKHOLE,
 
     contents =  {
@@ -1381,9 +1403,10 @@ AddRoom("DST_BGSinkholeRoom", Roomify(bgsinkhole))
 
 -- ======================== 真菌噪声区 FUNGUS NOISE ========================
 AddRoom("DST_FungusNoiseForest", {
-    colour={r=1.0,g=0.5,b=1.0,a=0.9},
+    colour={r=1.0,g=1.0,b=1.0,a=0.9},
     value = GROUND.FUNGUS_NOISE,
 
+    type = NODE_TYPE.Room,
     contents =  {
         distributepercent = .4,
         distributeprefabs=
@@ -1430,6 +1453,30 @@ AddRoom("DST_FungusNoiseMeadow", {
 })
 
 -- ======================== 排气口区 VENTS ========================
+local function RandomRockTreeState()
+    if math.random() < TUNING.TREE_ROCK.BOULDER_GEN_CHANCE then
+        local roll = math.random()
+        if roll > 2/3 then
+            return { boulder = true, workable = { workleft = TUNING.TREE_ROCK.MINE_MED} }
+        elseif roll > 1/3 then
+            return { boulder = true, workable = { workleft = TUNING.TREE_ROCK.MINE_LOW} }
+        else
+            return { boulder = true }
+        end
+    end
+end
+
+local function RandomVentRockState()
+    local roll = math.random()
+    if roll > 2/3 then
+        return { workable = { workleft = TUNING.CAVE_VENTS.MINE_MED }, set_loot_table = "cave_vent_rock_med" }
+    elseif roll > 1/3 then
+        return { workable = { workleft = TUNING.CAVE_VENTS.MINE_LOW }, set_loot_table = "cave_vent_rock_low"}
+    else
+        return nil --full state
+    end
+end
+
 AddRoom("DST_BGVentsRoom", {
     colour={r=0.8,g=0.8,b=0.8,a=0.9},
     value = GROUND.VENT,
@@ -1453,6 +1500,11 @@ AddRoom("DST_BGVentsRoom", {
             flower_cave_double_withered = 0.015,
             flower_cave_triple_withered = 0.015,
         },
+        prefabdata = {
+            cave_vent_rock = RandomVentRockState,
+            tree_rock1 = RandomRockTreeState,
+            tree_rock2 = RandomRockTreeState,
+        },
     },
 })
 AddRoom("DST_VentsRoom", {
@@ -1474,6 +1526,11 @@ AddRoom("DST_VentsRoom", {
 
             cave_fern_withered = 1.0,
         },
+        prefabdata = {
+            cave_vent_rock = RandomVentRockState,
+            tree_rock1 = RandomRockTreeState,
+            tree_rock2 = RandomRockTreeState,
+        },
     },
 })
 AddRoom("DST_CentipedeNest", {
@@ -1494,6 +1551,11 @@ AddRoom("DST_CentipedeNest", {
             flower_cave_withered = 0.05,
             flower_cave_double_withered = 0.025,
             flower_cave_triple_withered = 0.025,
+        },
+        prefabdata = {
+            cave_vent_rock = RandomVentRockState,
+            tree_rock1 = RandomRockTreeState,
+            tree_rock2 = RandomRockTreeState,
         },
     },
 })
@@ -1520,6 +1582,11 @@ AddRoom("DST_RockTreeRoom", {
             flower_cave_double_withered = 0.02,
             flower_cave_triple_withered = 0.02,
         },
+        prefabdata = {
+            cave_vent_rock = RandomVentRockState,
+            tree_rock1 = RandomRockTreeState,
+            tree_rock2 = RandomRockTreeState,
+        },
     },
 })
 AddRoom("DST_VentsRoom_exit", {
@@ -1543,6 +1610,11 @@ AddRoom("DST_VentsRoom_exit", {
             flower_cave_withered = 0.04,
             flower_cave_double_withered = 0.02,
             flower_cave_triple_withered = 0.02,
+        },
+        prefabdata = {
+            cave_vent_rock = RandomVentRockState,
+            tree_rock1 = RandomRockTreeState,
+            tree_rock2 = RandomRockTreeState,
         },
     },
 })
@@ -1676,6 +1748,24 @@ AddRoom("DST_RabbitSinkhole", {
     colour={r=.15,g=.18,b=.15,a=.50},
     value = GROUND.SINKHOLE,
     type = NODE_TYPE.Room,
+    custom_tiles={
+        GeneratorFunction = RUNCA.GeneratorFunction,
+        data = {
+            iterations=8,
+            seed_mode=CA_SEED_MODE.SEED_CENTROID,
+            num_random_points=1,
+            translate={
+                {tile = GROUND.GRASS, items = {"sapling","berrybush"},                          item_count = 5},
+                {tile = GROUND.GRASS, items = {"grass", "berrybush", "rabbithouse"},            item_count = 10},
+                {tile = GROUND.GRASS, items = {"grass", "sapling", "evergreen", "rabbithouse"}, item_count = 12},
+                {tile = GROUND.GRASS, items = {"evergreen", "sapling", "rabbithouse"},          item_count = 10},
+                {tile = GROUND.GRASS, items = {"not_used"},                                     item_count = 300},
+            },
+            centroid = {
+                tile = GROUND.FOREST, items = {"cavelight"},                                    item_count = 1
+            },
+        },
+    },
     contents =  {
         distributepercent = .175,
         distributeprefabs =
@@ -1706,6 +1796,22 @@ AddRoom("DST_SpiderIncursion", {
     colour={r=.10,g=.08,b=.05,a=.50},
     value = GROUND.SINKHOLE,
     type = NODE_TYPE.Room,
+    custom_tiles={
+        GeneratorFunction = RUNCA.GeneratorFunction,
+        data = {
+            iterations=3,
+            seed_mode=CA_SEED_MODE.SEED_CENTROID,
+            num_random_points=1,
+            translate={
+                {tile = GROUND.SINKHOLE, items = {"grass"},                                      item_count=3},
+                {tile = GROUND.SINKHOLE, items = {"sapling","berrybush"},                        item_count=5},
+                {tile = GROUND.GRASS,    items = {"grass", "berrybush", "spiderden"},            item_count=10},
+                {tile = GROUND.GRASS,    items = {"grass", "sapling", "evergreen", "spiderden"}, item_count=12},
+                {tile = GROUND.GRASS,    items = {"evergreen", "sapling", "spiderden"},          item_count=10},
+            },
+            centroid= 	{tile=GROUND.FOREST, 	items={"cavelight"},			item_count=1},
+        },
+    },
     contents =  {
         distributepercent = .175,
         distributeprefabs =
@@ -1780,6 +1886,7 @@ AddRoom("DST_ToadstoolRoom", {
 AddRoom("DST_PitRoom", {
     colour={r=.25,g=.28,b=.25,a=.50},
     value = GROUND.IMPASSABLE,
+    type = NODE_TYPE.Room,
 
     contents = {},
 })
@@ -1876,8 +1983,8 @@ AddRoom("DST_CaveJungle", {
             cave_fern = 1,
             pillar_algae = 0.05,
 
-            cave_banana_tree = 0.5,
-            monkeybarrel_spawner = 0.1,
+            ["cave/cave_banana_tree"] = 0.5,
+            ["cave/objects/monkeybarrel"] = 0.1,
 
             slurper_spawner = 0.06,
             pond_cave = 0.07,
@@ -1901,8 +2008,8 @@ AddRoom("DST_MonkeyMeadow", {
             cave_fern = 1,
             pillar_algae = 0.05,
 
-            cave_banana_tree = 0.1,
-            monkeybarrel_spawner = 0.06,
+            ["cave/cave_banana_tree"] = 0.1,
+            ["cave/objects/monkeybarrel"] = 0.06,
 
             slurper_spawner = 0.06,
             pond_cave = 0.07,
@@ -1929,8 +2036,8 @@ local bgwilds = {
             cave_fern = 1,
             pillar_algae = 0.01,
 
-            cave_banana_tree = 0.01,
-            monkeybarrel_spawner = 0.01,
+            ["cave/cave_banana_tree"] = 0.01,
+            ["cave/objects/monkeybarrel"] = 0.01,
 
             flower_cave = 0.05,
             flower_cave_double = 0.03,
@@ -1966,8 +2073,8 @@ AddRoom("DST_Vacant", {
             cave_fern = .6,
             pillar_algae = .01,
             slurper_spawner = .15,
-            cave_banana_tree = .1,
-            monkeybarrel_spawner = .2,
+            ["cave/cave_banana_tree"] = .1,
+            ["cave/objects/monkeybarrel"] = .1,
             dropperweb = .1,
             ruins_rubble_table = 0.1,
             ruins_rubble_chair = 0.1,
@@ -1992,8 +2099,8 @@ AddRoom("DST_RuinedCity", {
             cave_fern = 1,
             pillar_algae = .05,
 
-            cave_banana_tree = 0.1,
-            monkeybarrel_spawner = 0.06,
+            ["cave/cave_banana_tree"] = 0.1,
+            ["cave/objects/monkeybarrel"] = 0.06,
             slurper_spawner = 0.06,
             pond_cave = 0.07,
             fissure_lower = 0.04,
@@ -2021,6 +2128,7 @@ AddRoom("DST_RuinedCityEntrance", {
 AddRoom("DST_MilitaryEntrance", {
     colour={r=0.6,g=0.2,b=0.2,a=0.9},
     value = GROUND.TILES,
+    tags = {"ForceConnected", "MazeEntrance", "RoadPoison"},
 
     type = NODE_TYPE.Room,
     contents =  {
@@ -2037,6 +2145,21 @@ AddRoom("DST_MilitaryMaze", {
 
     type = NODE_TYPE.Room,
     contents = {},
+})
+
+AddRoom("DST_BGMilitary", {
+    colour={r=0.6,g=0.2,b=0.2,a=0.9},
+    value = GROUND.UNDERROCK,
+    tags = {"Nightmare"},
+    contents = {
+        distributepercent = 0.05,
+        distributeprefabs = {
+            dropperweb = 1,
+            pillar_ruins = 0.33,
+            nightmarelight = 0.33,
+            rock_flintless = 0.66,
+        },
+    },
 })
 
 AddRoom("DST_Barracks", {
@@ -2112,19 +2235,6 @@ AddRoom("DST_BrokenAltar", {
         countstaticlayouts =
         {
             ["BrokenAltar"] = 1,
-        },
-    }
-})
-
-AddRoom("DST_Altar", {
-    colour={r=0.7,g=0.5,b=0.1,a=0.9},
-    value = GROUND.BRICK_GLOW,
-
-    type = NODE_TYPE.Room,
-    contents =  {
-        countstaticlayouts =
-        {
-            ["AltarRoom"] = 1,
         },
     }
 })
@@ -2244,7 +2354,23 @@ AddRoom("DST_AtriumMazeEntrance", {
     value = GROUND.FAKE_GROUND,
     tags = {"ForceConnected", "MazeEntrance", "RoadPoison"},
     type = NODE_TYPE.Room,
-    contents = {},
+    contents =  {
+        countprefabs=
+        {
+            cave_hole = 1,
+        },
+        distributepercent = .2,
+        distributeprefabs=
+        {
+            lichen = .8,
+            cave_fern = 1,
+            pillar_algae = .05,
+
+            flower_cave = .2,
+            flower_cave_double = .1,
+            flower_cave_triple = .05,
+        },
+    }
 })
 AddRoom("DST_AtriumMazeRooms", {
     colour={r=0.2,g=0.1,b=0.2,a=0.9},
@@ -2281,7 +2407,11 @@ AddRoom("DST_ArchiveMazeEntrance", {
     tags = {"ForceConnected", "MazeEntrance", "RoadPoison"},
     type = NODE_TYPE.Room,
     contents =  {
-        distributepercent = 0.5,
+        countstaticlayouts =
+        {
+            ["GrottoPoolSmall"] = 1,
+        },
+        distributepercent = 0.6,
         distributeprefabs =
         {
             mushtree_moon = 0.05,
@@ -2321,7 +2451,7 @@ AddRoom("DST_ArchiveStart", {
             archive_centipede = 1,
         },
 
-        distributepercent = 0.01,
+        distributepercent = 0.05,
         distributeprefabs = {
             wall_ruins_2 = 0.03,
             ruins_plate = 0.03,
@@ -2347,7 +2477,7 @@ AddRoom("DST_ArchiveEnd", {
             archive_centipede = 1,
         },
 
-        distributepercent = 0.01,
+        distributepercent = 0.05,
         distributeprefabs = {
             wall_ruins_2 = 0.03,
             ruins_plate = 0.03,
@@ -2373,7 +2503,7 @@ AddRoom("DST_ArchiveKeyroom", {
             archive_centipede = 1,
         },
 
-        distributepercent = 0.01,
+        distributepercent = 0.05,
         distributeprefabs = {
             wall_ruins_2 = 0.03,
             ruins_plate = 0.03,
@@ -2396,7 +2526,7 @@ AddRoom("DST_ArchiveSupplyRoom", {
             ["ArchiveSupplyRoom"] = 1,
         },
 
-        distributepercent = 0.01,
+        distributepercent = 0.05,
         distributeprefabs = {
             wall_ruins_2 = 0.03,
             ruins_plate = 0.03,
@@ -2417,7 +2547,7 @@ AddRoom("DST_ArchiveDistillery", {
     tags = {"RoadPoison"},
     contents = {
         countprefabs = {
-            archive_lockbox_dispencer = 1,
+            archive_lockbox_dispencer = 3,
             archive_centipede = 1,
             archive_security_desk = 1,
             archive_rune_statue = 1,
@@ -2438,59 +2568,59 @@ AddRoom("DST_ArchiveDistillery", {
     },
 })
 
-AddRoom("DST_ArchiveDistillery2", {
-    colour={r=0.4,g=0.4,b=0.5,a=0.9},
-    value = GROUND.ARCHIVE,
-    tags = {"RoadPoison"},
-    contents = {
-        countprefabs = {
-            archive_lockbox_dispencer = 1,
-            archive_centipede = 1,
-            archive_security_desk = 1,
-            archive_rune_statue = 1,
-            archive_chandelier = 1,
-            archive_moon_statue = 1,
-        },
-        distributepercent = 0.05,
-        distributeprefabs = {
-            wall_ruins_2 = 0.03,
-            ruins_plate = 0.03,
-            ruins_bowl = 0.03,
-            ruins_chair = 0.03,
-            ruins_chipbowl = 0.03,
-            ruins_vase = 0.03,
-            ruins_table = 0.03,
-            ruins_rubble_table = 0.03,
-        },
-    },
-})
+-- AddRoom("DST_ArchiveDistillery2", {
+--     colour={r=0.4,g=0.4,b=0.5,a=0.9},
+--     value = GROUND.ARCHIVE,
+--     tags = {"RoadPoison"},
+--     contents = {
+--         countprefabs = {
+--             archive_lockbox_dispencer = 1,
+--             archive_centipede = 1,
+--             archive_security_desk = 1,
+--             archive_rune_statue = 1,
+--             archive_chandelier = 1,
+--             archive_moon_statue = 1,
+--         },
+--         distributepercent = 0.05,
+--         distributeprefabs = {
+--             wall_ruins_2 = 0.03,
+--             ruins_plate = 0.03,
+--             ruins_bowl = 0.03,
+--             ruins_chair = 0.03,
+--             ruins_chipbowl = 0.03,
+--             ruins_vase = 0.03,
+--             ruins_table = 0.03,
+--             ruins_rubble_table = 0.03,
+--         },
+--     },
+-- })
 
-AddRoom("DST_ArchiveDistillery3", {
-    colour={r=0.4,g=0.4,b=0.5,a=0.9},
-    value = GROUND.ARCHIVE,
-    tags = {"RoadPoison"},
-    contents = {
-        countprefabs = {
-            archive_lockbox_dispencer = 1,
-            archive_centipede = 1,
-            archive_security_desk = 1,
-            archive_rune_statue = 1,
-            archive_chandelier = 1,
-            archive_moon_statue = 1,
-        },
-        distributepercent = 0.05,
-        distributeprefabs = {
-            wall_ruins_2 = 0.03,
-            ruins_plate = 0.03,
-            ruins_bowl = 0.03,
-            ruins_chair = 0.03,
-            ruins_chipbowl = 0.03,
-            ruins_vase = 0.03,
-            ruins_table = 0.03,
-            ruins_rubble_table = 0.03,
-        },
-    },
-})
+-- AddRoom("DST_ArchiveDistillery3", {
+--     colour={r=0.4,g=0.4,b=0.5,a=0.9},
+--     value = GROUND.ARCHIVE,
+--     tags = {"RoadPoison"},
+--     contents = {
+--         countprefabs = {
+--             archive_lockbox_dispencer = 1,
+--             archive_centipede = 1,
+--             archive_security_desk = 1,
+--             archive_rune_statue = 1,
+--             archive_chandelier = 1,
+--             archive_moon_statue = 1,
+--         },
+--         distributepercent = 0.05,
+--         distributeprefabs = {
+--             wall_ruins_2 = 0.03,
+--             ruins_plate = 0.03,
+--             ruins_bowl = 0.03,
+--             ruins_chair = 0.03,
+--             ruins_chipbowl = 0.03,
+--             ruins_vase = 0.03,
+--             ruins_table = 0.03,
+--             ruins_rubble_table = 0.03,
+--         },
+--     },
+-- })
 -- ============================================================
 -- 毒菌蛤蟆竞技场房间（原 rooms/cave/toadstoolarena.lua）
 -- ============================================================
@@ -2566,7 +2696,7 @@ AddRoom("ToadstoolArenaBGCave", {
             pillar_cave_rock = 0.01,
             fissure = 0.05,
             pond_cave = 0.15,
-            batcave = 0.01,
+            ["cave/objects/batcave"] = 0.01,
         }
     }
 })

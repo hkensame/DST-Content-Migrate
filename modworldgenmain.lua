@@ -90,28 +90,31 @@ do
     end
 end
 
-----------------<补丁：注册 DLC maptags 缺失的标签>----------------
--- DLC0003（Hamlet）的 maptags.lua 缺少 "fumarolearea" / "not_mainland" 等标签，
--- GetExtrasForRoom() 遇到未知标签时 self.map_tags.Tag[tag] 为 nil → crash。
-do
-    local maptags_module = require("map/maptags")
-    _G.package.loaded["map/maptags"] = function()
-        local result = maptags_module()
-        if result and result.Tag then
-            result.Tag["fumarolearea"] = result.Tag["fumarolearea"] or function(td) return "TAG", "fumarolearea" end
-            result.Tag["not_mainland"] = result.Tag["not_mainland"] or function(td) return "TAG", "not_mainland" end
-        end
-        return result
-    end
-end
-
 modimport "scripts/map/map_dst_maze_layouts.lua"
 
 modimport "scripts/dst_worldgen_config.lua"
 
-----------------<诊断：包裹 forest_map.Generate 以定位闪退>----------------
+modimport "scripts/dst_tuning.lua"
+
+----------------<诊断：包裹 forest_map.Generate + 注入缺失的 room tags>----------------
 do
     local fm = require "map/forest_map"
+    -- 主动加载 storygen（forest_map 的 GenerateVoro 内部才 require，此时还没加载）
+    require "map/storygen"
+    -- 注入 GetExtrasForRoom 缺失标签：当遇到 maptags 中不存在的 tag 时自动注入，避免 crash
+    local _origGetExtras = Story.GetExtrasForRoom
+    Story.GetExtrasForRoom = function(self, next_room)
+        if next_room.tags ~= nil then
+            for i,tag in ipairs(next_room.tags) do
+                if self.map_tags.Tag[tag] == nil then
+                    print("[DIAG-WG] GetExtrasForRoom auto-add missing tag: "..tostring(tag))
+                    self.map_tags.Tag[tag] = function(td) return "TAG", tag end
+                end
+            end
+        end
+        return _origGetExtras(self, next_room)
+    end
+    -- 包裹 forest_map.Generate 以定位闪退
     local _origGen = fm.Generate
     fm.Generate = function(prefab, w, h, tasks, wgc, lt, level)
         print("[DIAG-WG] GenerateVoro START prefab="..tostring(prefab).." w="..tostring(w).." h="..tostring(h).." tasks="..tostring(#(tasks or {})))

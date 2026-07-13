@@ -70,6 +70,15 @@ end
 
 -- 核心：进入启蒙状态
 function Enlightenment:Enable(source, duration)
+    -- 快速路径：源已存在且状态无变化时直接返回（避免每秒 tick 刷屏）
+    if source and self.sources[source] ~= nil and self.enabled then
+        -- 刷新 timed 源的过期时间
+        if duration and duration > 0 then
+            self.sources[source] = GetTime() + duration
+        end
+        return -- 无实际状态变化
+    end
+
     -- 记录激活源
     if source then
         if duration and duration > 0 then
@@ -128,6 +137,11 @@ end
 
 -- 核心：离开启蒙状态（带延续延迟）
 function Enlightenment:Disable(source)
+    -- 快速路径：源不存在时直接返回（避免每秒 tick 刷屏）
+    if source and self.sources[source] == nil then
+        return
+    end
+
     print(string.format("[ENLIGHTEN] Disable: source='%s' enabled=%s", tostring(source), tostring(self.enabled)))
     if source then
         self.sources[source] = nil

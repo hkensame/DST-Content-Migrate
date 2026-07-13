@@ -26,19 +26,11 @@ local function DoSpawnTest(inst)
 
     local ix, iy, iz = inst.Transform:GetWorldPosition()
 
-    local close_players = nil
-    for _, player in ipairs(AllPlayers) do
-        -- DS 移植：移除 areaaware 检测，直接用距离判断
-        local dsq_to_player = player:GetDistanceSqToPoint(ix, iy, iz)
-        if dsq_to_player <= TUNING.CAVE_MITE_SPAWN_RADIUSSQ then
-            if close_players == nil then
-                close_players = {}
-            end
-            table.insert(close_players, player)
-        end
-    end
-
-    if close_players == nil or #close_players == 0 then
+    -- DS 单机：只有一个玩家，用 GetPlayer() 替代 AllPlayers
+    local player = GetPlayer()
+    if player == nil then return end
+    local dsq_to_player = player:GetDistanceSqToPoint(ix, iy, iz)
+    if dsq_to_player > TUNING.CAVE_MITE_SPAWN_RADIUSSQ then
         return
     end
 
@@ -47,9 +39,8 @@ local function DoSpawnTest(inst)
         return
     end
 
-    local random_player_in_range = close_players[math.random(#close_players)]
     local spawn_distance = Lerp(10, 16, math.sqrt(math.random()))
-    local player_position = random_player_in_range:GetPosition()
+    local player_position = player:GetPosition()
 
     local offset = FindWalkableOffset(
         player_position,
@@ -93,7 +84,8 @@ local function OnAddMite(inst)
 end
 
 local function OnPreLoad(inst, data)
-    WorldSettings_ChildSpawner_PreLoad(inst, data, TUNING.CAVE_MITE_RELEASE_TIME, TUNING.CAVE_MITE_ENABLED)
+    -- DS 移植：WorldSettings_ChildSpawner_PreLoad 依赖 worldsettingstimer 组件，DS 无此组件
+    -- childspawner 自带存档恢复逻辑，无需额外处理
 end
 
 local function spawnerfn()
@@ -107,8 +99,8 @@ local function spawnerfn()
     inst.components.childspawner:SetRegenPeriod(TUNING.CAVE_MITE_REGEN_TIME)
     inst.components.childspawner:SetMaxChildren(TUNING.CAVE_MITE_MAX_CHILDREN)
 
-    WorldSettings_ChildSpawner_SpawnPeriod(inst, TUNING.CAVE_MITE_RELEASE_TIME, TUNING.CAVE_MITE_ENABLED)
-    WorldSettings_ChildSpawner_RegenPeriod(inst, TUNING.CAVE_MITE_REGEN_TIME, TUNING.CAVE_MITE_ENABLED)
+    -- DS 移植：WorldSettings_ChildSpawner_* 依赖 worldsettingstimer 组件，DS 无此组件
+    -- childspawner 内置定时器已通过 SetSpawnPeriod/SetRegenPeriod 设置，无需额外调用
     if not TUNING.CAVE_MITE_ENABLED then
         inst.components.childspawner.childreninside = 0
     end

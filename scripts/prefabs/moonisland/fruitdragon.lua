@@ -370,6 +370,10 @@ local function fn()
 
     inst._sleep_interrupted = true
     inst._is_ripe = false
+
+    -- 提前挂载成熟/未成熟函数，确保 stategraph 可访问
+    inst.MakeRipe = MakeRipe
+    inst.MakeUnripe = MakeUnripe
     inst._min_challenge_attacks = 2
     inst._wakeup_time = GetTime()
     inst._nap_time = -math.huge
@@ -417,9 +421,6 @@ local function fn()
     inst.components.locomotor.walkspeed = TUNING.FRUITDRAGON and TUNING.FRUITDRAGON.WALK_SPEED or 3
 
     MakeSmallFreezableCharacter(inst)
-
-    inst.MakeRipe = MakeRipe
-    inst.MakeUnripe = MakeUnripe
 
     inst:SetBrain(brain)
     inst:SetStateGraph("SGfruitdragon")

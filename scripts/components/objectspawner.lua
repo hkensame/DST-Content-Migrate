@@ -1,3 +1,6 @@
+-- DS 移植版 objectspawner 组件
+-- 原 DST 组件，用于 ruinsrespawner 管理重生对象
+
 local ObjectSpawner = Class(function(self, inst)
     self.inst = inst
     self.objects = {}

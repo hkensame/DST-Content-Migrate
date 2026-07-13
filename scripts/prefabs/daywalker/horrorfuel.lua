@@ -6,6 +6,9 @@ local function fn()
 	inst.entity:AddAnimState()
 
 	MakeInventoryPhysics(inst)
+	if rawget(_G, 'MakeInventoryFloatable') then
+		MakeInventoryFloatable(inst, "idle_loop", "idle_loop")
+	end
 
 	inst.AnimState:SetBank("horrorfuel")
 	inst.AnimState:SetBuild("horrorfuel")
@@ -27,6 +30,8 @@ local function fn()
 	inst:AddComponent("waterproofer")
 	inst.components.waterproofer:SetEffectiveness(0)
 	inst:AddComponent("inventoryitem")
+	inst.components.inventoryitem.atlasname = "images/horrorfuel.xml"
+	inst.components.inventoryitem.imagename = "horrorfuel"
 
 	return inst
 end

@@ -62,7 +62,9 @@ local function fn()
     inst:AddTag("show_spoilage")
     inst:AddTag("treeseed")
 
-    MakeInventoryFloatable(inst, "small", 0.15)
+    if rawget(_G, 'MakeInventoryFloatable') then
+        MakeInventoryFloatable(inst, "small", 0.15)
+    end
 
     inst._custom_candeploy_fn = CanDeploy
 
@@ -80,14 +82,12 @@ local function fn()
     inst:AddComponent("edible")
     inst.components.edible.hungervalue = TUNING.CALORIES_TINY
     inst.components.edible.healthvalue = TUNING.HEALING_TINY
-    inst.components.edible.foodtype = FOODTYPE.RAW
+    inst.components.edible.foodtype = "RAW"
 
     inst:AddComponent("stackable")
     inst.components.stackable.maxsize = TUNING.STACK_SIZE_SMALLITEM
 
     inst:AddComponent("deployable")
-    inst.components.deployable:SetDeployMode(DEPLOYMODE.CUSTOM)
-    inst.components.deployable:SetDeploySpacing(DEPLOYSPACING.PLACER_DEFAULT)
     inst.components.deployable.ondeploy = OnDeploy
 
     inst:AddComponent("forcecompostable")

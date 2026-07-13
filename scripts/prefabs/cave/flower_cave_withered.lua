@@ -42,7 +42,6 @@ local function commonfn(bank, build, radius)
     inst.components.pickable:SetUp("spoiled_food", TUNING.FLOWER_CAVE_REGROW_TIME)
     inst.components.pickable.remove_when_picked = true
     inst.components.pickable.quickpick = true
-
     inst:AddComponent("lootdropper")
     inst:AddComponent("inspectable")
 
