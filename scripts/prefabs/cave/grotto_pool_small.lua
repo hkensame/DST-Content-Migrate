@@ -103,7 +103,7 @@ local function poolfn()
     -- 🟡 DS 无 TheNet:IsDedicated()，始终执行
     inst:DoTaskInTime(0, makesmallmist)
 
-    MakeObstaclePhysics(inst, 1.4) -- 🟡 缩小到 1.2，让小瀑布在交互范围内
+    MakeObstaclePhysics(inst, 1.2) -- 🟡 缩小到 1.2，让小瀑布在交互范围内
 
     inst.AnimState:SetBuild("moonglasspool_tile")
     inst.AnimState:SetBank("moonglasspool_tile")

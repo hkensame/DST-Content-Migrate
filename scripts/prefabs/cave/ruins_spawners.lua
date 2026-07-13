@@ -1,4 +1,116 @@
-local RuinsRespawner = require "prefabs/cave/ruinsrespawner"
+-- ========== RuinsRespawner 模块（原 ruinsrespawner.lua，已合并至此） ==========
+local function onnewobjectfn(inst, obj)
+    inst:ListenForEvent("onremove", function(obj)
+        local objects = inst.components.objectspawner.objects
+        for i = #objects, 1, -1 do
+            if objects[i] == obj then
+                table.remove(objects, i)
+                break
+            end
+        end
+    end, obj)
+
+    if inst.listenforprefabsawp then
+        inst:ListenForEvent("onprefabswaped", function(_, data)
+            inst.components.objectspawner:TakeOwnership(data.newobj)
+        end, obj)
+    end
+end
+
+local TRYSPAWN_CANT_TAGS = { "INLIMBO" }
+
+local function tryspawn(inst)
+    if inst.resetruins and #inst.components.objectspawner.objects <= 0 then
+        local x, y, z = inst.Transform:GetWorldPosition()
+        for i, v in ipairs(TheSim:FindEntities(x, y, z, 1, nil, TRYSPAWN_CANT_TAGS)) do
+            if v.components.workable ~= nil and v.components.workable:GetWorkAction() ~= ACTIONS.NET then
+                v.components.workable:Destroy(v)
+            end
+        end
+
+        local obj = inst.components.objectspawner:SpawnObject(inst.spawnprefab)
+        obj.spawnlocation = Vector3(x, y, z)
+        obj.Transform:SetPosition(x, y, z)
+        if inst.onrespawnfn ~= nil then
+            inst.onrespawnfn(obj, inst)
+        end
+    end
+
+    inst.resetruins = nil
+end
+
+local function onsave(inst, data)
+    data.resetruins = inst.resetruins
+end
+
+local function onload(inst, data)
+    if data ~= nil then
+        inst.resetruins = data.resetruins
+    end
+end
+
+local function OnLoadPostPass(inst)
+    if inst.resetruins then
+        tryspawn(inst)
+    end
+end
+
+local function MakeFn(obj, onrespawnfn, data)
+    local fn = function()
+        local inst = CreateEntity()
+
+        inst.entity:AddTransform()
+        --[[Non-networked entity]]
+
+        inst:AddTag("CLASSIFIED")
+
+        inst.spawnprefab = obj
+        inst.onrespawnfn = onrespawnfn
+
+        inst:AddComponent("objectspawner")
+        inst.components.objectspawner.onnewobjectfn = onnewobjectfn
+
+        inst:ListenForEvent("resetruins", function()
+            inst.resetruins = true
+            inst:DoTaskInTime(math.random()*0.75, function() tryspawn(inst) end)
+        end, GetWorld())
+
+        inst.OnSave = onsave
+        inst.OnLoad = onload
+        inst.OnLoadPostPass = OnLoadPostPass
+
+        inst.listenforprefabsawp = data ~= nil and data.listenforprefabsawp or nil
+
+        return inst
+    end
+    return fn
+end
+
+local function MakeRuinsRespawnerInst(obj, onrespawnfn, data)
+    return Prefab(obj.."_ruinsrespawner_inst", MakeFn(obj, onrespawnfn, data), nil, { obj, obj.."_spawner" })
+end
+
+local function MakeRuinsRespawnerWorldGen(obj, onrespawnfn, data)
+    local function worldgenfn()
+        local inst = MakeFn(obj, onrespawnfn, data)()
+
+        inst:SetPrefabName(obj.."_ruinsrespawner_inst")
+
+        inst.resetruins = true
+        inst:DoTaskInTime(0, tryspawn)
+
+        return inst
+    end
+
+    return Prefab(obj.."_spawner", worldgenfn, nil, { obj })
+end
+
+local RuinsRespawner = {Inst = MakeRuinsRespawnerInst, WorldGen = MakeRuinsRespawnerWorldGen}
+
+-- 兼容 minotaur_spawner.lua 的 require("prefabs/cave/ruinsrespawner")
+package.loaded["prefabs/cave/ruinsrespawner"] = RuinsRespawner
+
+-- ========== 原 ruins_spawners.lua 内容 ==========
 
 local function GetTheWorld()
     return rawget(_G, "TheWorld")
@@ -77,7 +189,7 @@ local function MakeChessJunkSpawner()
            Prefab("chessjunk_ruinsrespawner_inst", instfn, nil, { "common/objects/chessjunk1", "common/objects/chessjunk2", "common/objects/chessjunk3" })
 end
 
--- ==================== 标准 1:1 映射（使用 cave/ruinsrespawner）====================
+-- ==================== 标准 1:1 映射 ====================
 -- 每个 prefab 同时注册 WorldGen（_spawner）和 Inst（_ruinsrespawner_inst）
 
 return MakeChessJunkSpawner(),
@@ -100,7 +212,7 @@ return MakeChessJunkSpawner(),
     RuinsRespawner.Inst("cave/monsters/worm"),
     RuinsRespawner.WorldGen("cave/monsters/slurper"),
     RuinsRespawner.Inst("cave/monsters/slurper"),
-    -- 猴岛：猴尾桶
+    -- 非猴岛的：猴子桶
     RuinsRespawner.WorldGen("cave/objects/monkeybarrel"),
     RuinsRespawner.Inst("cave/objects/monkeybarrel"),
     -- 远古祭坛（带 prefab swap 监听）

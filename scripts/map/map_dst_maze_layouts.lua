@@ -102,11 +102,15 @@ Layouts["ArchiveEnd"] = StaticLayout.Get("map/static_layouts/rooms/archive_end/a
 Layouts["ArchiveKeyroom"] = StaticLayout.Get("map/static_layouts/rooms/archive_keyroom/keyroom_1")
 Layouts["ArchiveSupplyRoom"] = StaticLayout.Get("map/static_layouts/rooms/archive_supplyroom/supply")
 
+-- 档案馆蒸馏室布局（3色知识分配器呈等边三角形分布）
+Layouts["ArchiveDistillery"] = StaticLayout.Get("map/static_layouts/rooms/archive_distillery/distillery", {
+    start_mask = PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
+    fill_mask = PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
+    layout_position = LAYOUT_POSITION.CENTER,
+})
+
 -- 中庭特殊布局
 Layouts["AtriumEnd"] = StaticLayout.Get("map/static_layouts/rooms/atrium_end/atrium_end")
-
-Layouts["TentaclePillarToAtrium"] = StaticLayout.Get("map/static_layouts/tentacle_pillar_atrium")
-Layouts["TentaclePillarToAtriumOuter"] = StaticLayout.Get("map/static_layouts/tentacle_pillar_atrium_outer")
 
 -- ==================== 洞穴 / 遗迹静态布局注册 ====================
 -- 这些布局被 room_defs.lua 的 countstaticlayouts 引用，必须注册到 Layouts 表

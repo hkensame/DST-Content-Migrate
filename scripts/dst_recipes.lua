@@ -340,7 +340,10 @@ if GetModConfigData("beta") == true then
 
     local moon_device = Recipe(
         "moon_device",
-        { },
+        { 
+            Ingredient("cutstone", 2),
+            Ingredient("boards", 2),
+        },
         RECIPETABS.REFINE, { SCIENCE = 0 }, RECIPE_GAME_TYPE.COMMON, "moon_device_placer", 1.5
     )
     moon_device.image = "moon_device.tex"

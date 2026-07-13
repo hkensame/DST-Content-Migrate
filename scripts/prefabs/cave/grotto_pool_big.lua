@@ -142,7 +142,7 @@ local function poolfn()
     -- 🟡 DS 无 TheNet:IsDedicated()，始终执行
     inst:DoTaskInTime(0, makebigmist)
 
-    MakeObstaclePhysics(inst, 4) -- 🟡 缩小到 2.0，让月玻璃在碰撞外可到达
+    MakeObstaclePhysics(inst, 3) -- 🟡 缩小到 2.0，让月玻璃在碰撞外可到达
 
     inst.AnimState:SetBuild("moonglasspool_tile")
     inst.AnimState:SetBank("moonglasspool_tile")

@@ -490,5 +490,5 @@ return Prefab("moon_device", fn, assets, prefabs),
        Prefab("moon_device_break_stage1", break_stage1_fn, assets, prefabs),
        Prefab("moon_device_meteor_spawner", meteor_spawner_fn, assets, prefabs),
        --Prefab("moon_altar_link_contained", contained_fn, assets, prefabs),
-       MakePlacer("moon_device_placer", "moon_device_stages", "moon_device", "stage1_idle"),
+       MakePlacer("moon_device_placer", "moon_device_stages", "moon_device", "stage1_idle", true, nil, nil, nil, nil, nil, nil, nil, nil, placer_postinit_fn),
        MakePlacer("moon_device_construction1_placer", "moon_device_stages", "moon_device", "stage1_idle", true, nil, nil, nil, nil, nil, nil, nil, nil, placer_postinit_fn)

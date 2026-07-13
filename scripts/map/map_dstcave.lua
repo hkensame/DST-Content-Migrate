@@ -225,26 +225,20 @@ AddTask("DST_MoonCaveForest",{
     colour={r=0.3,g=0.3,b=0.3,a=0.9},
 })
 
--- 档案馆迷宫区域（使用 maze_tiles 生成大迷宫，仿 DST ArchiveMaze）
+-- 档案馆区域（普通房间连接，取消迷宫生成）
 AddTask("DST_ArchiveArea", {
     locks={LOCKS.ARCHIVE},
     keys_given= {},
     room_tags = {"nocavein"},
     required_prefabs = {"archive_orchestrina_main", "archive_lockbox_dispencer"},
-    entrance_room = "DST_ArchiveMazeEntrance",
     room_choices = {
-        ["DST_ArchiveMazeRooms"] = 4,
         ["DST_ArchiveStart"] = 1,
         ["DST_ArchiveEnd"] = 1,
         ["DST_ArchiveKeyroom"] = 1,
         ["DST_ArchiveSupplyRoom"] = 2,
         ["DST_ArchiveDistillery"] = 1,
-        -- ["DST_ArchiveDistillery2"] = 1,
-        -- ["DST_ArchiveDistillery3"] = 1,
     },
     room_bg = GROUND.ARCHIVE,
-    maze_tiles = {rooms = {"archive_hallway","archive_hallway_two"}, bosses = {"archive_hallway"}, bridge_ground = GROUND.ARCHIVE},
-    background_room="DST_ArchiveMazeRooms",
     cove_room_chance = 0,
     cove_room_max_edges = 0,
     make_loop = true,
@@ -736,11 +730,12 @@ AddTask("DST_Residential3", {
 AddLevel(LEVELTYPE.CAVE, {
     id = "DST_CAVE",
     name = "DST_CAVE",
-    location = "cave",
-    version = 1,
     overrides = {
-        world_size = "huge",
-        start_node = "DST_Entrance",
+        {"world_size",      "huge"},
+        {"location",        "cave"},
+        {"start_setpeice",  "CaveStart"},
+        {"start_node",      "DST_Entrance"},
+        {"wormholes",       "never"},
     },
     tasks = {
         -- 入口
@@ -801,18 +796,10 @@ AddLevel(LEVELTYPE.CAVE, {
         "DST_Residential2",
         "DST_Residential3",
     },
-    background_node_range = {0, 0},
+    -- 不设置 background_node_range，使用 DS 默认值（0~2 个背景节点填充随机资源）
     set_pieces = {
         DSTCaveSpawn = {
             tasks = {"DST_EntranceTask"},
-            count = 1,
-        },
-        TentaclePillarToAtrium = {
-            tasks = {"DST_AtriumMaze"},
-            count = 1,
-        },
-        TentaclePillarToAtriumOuter = {
-            tasks = {"DST_AtriumMaze"},
             count = 1,
         },
     },

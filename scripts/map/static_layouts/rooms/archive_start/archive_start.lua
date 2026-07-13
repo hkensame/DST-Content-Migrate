@@ -144,7 +144,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 182,
           y = 360,
@@ -171,7 +171,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 182,
           y = 377,
@@ -184,7 +184,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 218,
           y = 345,
@@ -197,7 +197,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 250,
           y = 345,
@@ -210,7 +210,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 234,
           y = 345,
@@ -223,7 +223,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 297,
           y = 345,
@@ -236,7 +236,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 282,
           y = 346,
@@ -249,7 +249,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 267,
           y = 345,
@@ -262,7 +262,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 182,
           y = 344,
@@ -275,7 +275,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 200,
           y = 345,
@@ -302,7 +302,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 328,
           y = 344,
@@ -315,7 +315,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 328,
           y = 377,
@@ -328,7 +328,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 328,
           y = 360,
@@ -341,7 +341,7 @@ return {
         },
         {
           name = "",
-          type = "wall_stone_2",
+          type = "wall_stone",
           shape = "rectangle",
           x = 312,
           y = 345,

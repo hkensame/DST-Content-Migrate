@@ -1,4 +1,4 @@
--- DS 移植版：简化 areaaware 检测，移除 CLASSIFIED tag
+-- DS 移植版：简化 areaaware 检测
 -- cave_vent_mite_spawner.lua — 地热螨生成器
 
 local prefabs =
@@ -6,13 +6,8 @@ local prefabs =
     "cave_vent_mite",
 }
 
-local ZERO = Vector3(0,0,0)
-local function zero_spawn_offset(inst)
-    return ZERO
-end
-
-local function OnMiteSpawned(inst, gnome)
-    gnome:PushEvent("spawn")
+local function OnMiteSpawned(inst, mite)
+    mite:PushEvent("spawn")
 end
 
 local function DoSpawnTest(inst)
@@ -77,22 +72,12 @@ local function OnEntitySleep(inst)
     end
 end
 
-local function OnAddMite(inst)
-    if inst._PeriodicSpawnTesting == nil then
-        StartTesting(inst)
-    end
-end
-
-local function OnPreLoad(inst, data)
-    -- DS 移植：WorldSettings_ChildSpawner_PreLoad 依赖 worldsettingstimer 组件，DS 无此组件
-    -- childspawner 自带存档恢复逻辑，无需额外处理
-end
-
 local function spawnerfn()
     local inst = CreateEntity()
 
     inst.entity:AddTransform()
-    -- Non-networked entity（DS 移植：移除 CLASSIFIED tag，DS 单机无分服）
+    --[[Non-networked entity]]
+    inst:AddTag("CLASSIFIED")
 
     inst:AddComponent("childspawner")
     inst.components.childspawner:SetSpawnPeriod(TUNING.CAVE_MITE_RELEASE_TIME)
@@ -100,23 +85,19 @@ local function spawnerfn()
     inst.components.childspawner:SetMaxChildren(TUNING.CAVE_MITE_MAX_CHILDREN)
 
     -- DS 移植：WorldSettings_ChildSpawner_* 依赖 worldsettingstimer 组件，DS 无此组件
-    -- childspawner 内置定时器已通过 SetSpawnPeriod/SetRegenPeriod 设置，无需额外调用
     if not TUNING.CAVE_MITE_ENABLED then
         inst.components.childspawner.childreninside = 0
     end
 
     inst.components.childspawner:SetSpawnedFn(OnMiteSpawned)
     inst.components.childspawner:SetOccupiedFn(StartTesting)
-    inst.components.childspawner:SetOnAddChildFn(OnAddMite)
 
     inst.components.childspawner.childname = "cave_vent_mite"
-    inst.components.childspawner.overridespawnlocation = zero_spawn_offset
 
     inst.components.childspawner:StartRegen()
 
     inst.OnEntityWake = OnEntityWake
     inst.OnEntitySleep = OnEntitySleep
-    inst.OnPreLoad = OnPreLoad
 
     return inst
 end

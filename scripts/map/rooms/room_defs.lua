@@ -2401,44 +2401,35 @@ AddRoom("DST_AtriumEnd", {
 })
 
 -- ======================== 档案馆 ARCHIVE ========================
-AddRoom("DST_ArchiveMazeEntrance", {
-    colour={r=0.4,g=0.4,b=0.5,a=0.9},
-    value = GROUND.FUNGUSMOON,
-    tags = {"ForceConnected", "MazeEntrance", "RoadPoison"},
-    type = NODE_TYPE.Room,
-    contents =  {
-        countstaticlayouts =
-        {
-            ["GrottoPoolSmall"] = 1,
-        },
-        distributepercent = 0.6,
-        distributeprefabs =
-        {
-            mushtree_moon = 0.05,
+-- AddRoom("DST_ArchiveMazeEntrance", {
+--     colour={r=0.4,g=0.4,b=0.5,a=0.9},
+--     value = GROUND.FUNGUSMOON,
+--     tags = {"ForceConnected", "MazeEntrance", "RoadPoison"},
+--     type = NODE_TYPE.Room,
+--     contents =  {
+--         countstaticlayouts =
+--         {
+--             ["GrottoPoolSmall"] = 1,
+--         },
+--         distributepercent = 0.6,
+--         distributeprefabs =
+--         {
+--             mushtree_moon = 0.05,
 
-            lightflier_flower = 0.005,
+--             lightflier_flower = 0.005,
 
-            cavelightmoon = 0.003,
-            cavelightmoon_small = 0.003,
-            cavelightmoon_tiny = 0.003,
+--             cavelightmoon = 0.003,
+--             cavelightmoon_small = 0.003,
+--             cavelightmoon_tiny = 0.003,
 
-            moonglass_stalactite1 = 0.007,
-            moonglass_stalactite2 = 0.007,
-            moonglass_stalactite3 = 0.007,
-        },
-    }
-})
-AddRoom("DST_ArchiveMazeRooms",  { -- layout contents determined by maze
-    colour={r=0.4,g=0.4,b=0.5,a=0.9},
-    value = GROUND.ARCHIVE,
-    tags = {"ForceDisconnected", "Maze", "RoadPoison"},
-    internal_type = NODE_INTERNAL_CONNECTION_TYPE.EdgeCentroid,
-    type = NODE_TYPE.Room,
-    contents = {},
-})
+--             moonglass_stalactite1 = 0.007,
+--             moonglass_stalactite2 = 0.007,
+--             moonglass_stalactite3 = 0.007,
+--         },
+--     }
+-- })
 
--- DS 不支持 maze_tiles.special / maze_tiles.archive，所以把 archive_start/end/keyroom/supplyroom
--- 转成普通 room_choices，用 countstaticlayouts 注入原始静态布局。
+-- Archive 特殊房间：用 countstaticlayouts 注入原始静态布局
 AddRoom("DST_ArchiveStart", {
     colour={r=0.4,g=0.4,b=0.5,a=0.9},
     value = GROUND.ARCHIVE,
@@ -2453,7 +2444,7 @@ AddRoom("DST_ArchiveStart", {
 
         distributepercent = 0.05,
         distributeprefabs = {
-            wall_ruins_2 = 0.03,
+            wall_ruins = 0.03,
             ruins_plate = 0.03,
             ruins_bowl = 0.03,
             ruins_chair = 0.03,
@@ -2479,7 +2470,7 @@ AddRoom("DST_ArchiveEnd", {
 
         distributepercent = 0.05,
         distributeprefabs = {
-            wall_ruins_2 = 0.03,
+            wall_ruins = 0.03,
             ruins_plate = 0.03,
             ruins_bowl = 0.03,
             ruins_chair = 0.03,
@@ -2505,7 +2496,7 @@ AddRoom("DST_ArchiveKeyroom", {
 
         distributepercent = 0.05,
         distributeprefabs = {
-            wall_ruins_2 = 0.03,
+            wall_ruins = 0.03,
             ruins_plate = 0.03,
             ruins_bowl = 0.03,
             ruins_chair = 0.03,
@@ -2528,7 +2519,7 @@ AddRoom("DST_ArchiveSupplyRoom", {
 
         distributepercent = 0.05,
         distributeprefabs = {
-            wall_ruins_2 = 0.03,
+            wall_ruins = 0.03,
             ruins_plate = 0.03,
             ruins_bowl = 0.03,
             ruins_chair = 0.03,
@@ -2540,23 +2531,21 @@ AddRoom("DST_ArchiveSupplyRoom", {
     },
 })
 
--- ======================== 档案馆蒸馏室（3色）=====================
+-- ======================== 档案馆蒸馏室（3色知识分配器呈等边三角形分布）=====================
 AddRoom("DST_ArchiveDistillery", {
     colour={r=0.4,g=0.4,b=0.5,a=0.9},
     value = GROUND.ARCHIVE,
     tags = {"RoadPoison"},
     contents = {
+        countstaticlayouts={
+            ["ArchiveDistillery"]=1,
+        },
         countprefabs = {
-            archive_lockbox_dispencer = 3,
             archive_centipede = 1,
-            archive_security_desk = 1,
-            archive_rune_statue = 1,
-            archive_chandelier = 1,
-            archive_moon_statue = 1,
         },
         distributepercent = 0.05,
         distributeprefabs = {
-            wall_ruins_2 = 0.03,
+            wall_ruins = 0.03,
             ruins_plate = 0.03,
             ruins_bowl = 0.03,
             ruins_chair = 0.03,
@@ -2567,60 +2556,6 @@ AddRoom("DST_ArchiveDistillery", {
         },
     },
 })
-
--- AddRoom("DST_ArchiveDistillery2", {
---     colour={r=0.4,g=0.4,b=0.5,a=0.9},
---     value = GROUND.ARCHIVE,
---     tags = {"RoadPoison"},
---     contents = {
---         countprefabs = {
---             archive_lockbox_dispencer = 1,
---             archive_centipede = 1,
---             archive_security_desk = 1,
---             archive_rune_statue = 1,
---             archive_chandelier = 1,
---             archive_moon_statue = 1,
---         },
---         distributepercent = 0.05,
---         distributeprefabs = {
---             wall_ruins_2 = 0.03,
---             ruins_plate = 0.03,
---             ruins_bowl = 0.03,
---             ruins_chair = 0.03,
---             ruins_chipbowl = 0.03,
---             ruins_vase = 0.03,
---             ruins_table = 0.03,
---             ruins_rubble_table = 0.03,
---         },
---     },
--- })
-
--- AddRoom("DST_ArchiveDistillery3", {
---     colour={r=0.4,g=0.4,b=0.5,a=0.9},
---     value = GROUND.ARCHIVE,
---     tags = {"RoadPoison"},
---     contents = {
---         countprefabs = {
---             archive_lockbox_dispencer = 1,
---             archive_centipede = 1,
---             archive_security_desk = 1,
---             archive_rune_statue = 1,
---             archive_chandelier = 1,
---             archive_moon_statue = 1,
---         },
---         distributepercent = 0.05,
---         distributeprefabs = {
---             wall_ruins_2 = 0.03,
---             ruins_plate = 0.03,
---             ruins_bowl = 0.03,
---             ruins_chair = 0.03,
---             ruins_chipbowl = 0.03,
---             ruins_vase = 0.03,
---             ruins_table = 0.03,
---             ruins_rubble_table = 0.03,
---         },
---     },
--- })
 -- ============================================================
 -- 毒菌蛤蟆竞技场房间（原 rooms/cave/toadstoolarena.lua）
 -- ============================================================

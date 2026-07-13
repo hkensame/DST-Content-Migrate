@@ -74,6 +74,11 @@ local function OnLinkEstablished(inst, altars)
     if not POPULATING then
         for i, altar in ipairs(altars) do
             inst.components.entitytracker:TrackEntity(altar.prefab, altar)
+            
+            -- 三角形形成：将三个祭坛的科技等级提升到 CELESTIAL=4
+            if altar.components.prototyper ~= nil then
+                altar.components.prototyper.trees = { CELESTIAL = 4 }
+            end
         end
 
         ClearArea(inst)

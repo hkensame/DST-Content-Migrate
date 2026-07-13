@@ -4,10 +4,10 @@ local tiledefs = require 'worldtiledefs'
 
 local tile_spec_defaults = {
 	noise_texture = "images/square.tex",
-	runsound = "run_dirt",
-	walksound = "walk_dirt",
-	snowsound = "run_ice",
-	mudsound = "run_mud",
+	runsound = "dontstarve/movement/run_dirt",
+	walksound = "dontstarve/movement/walk_dirt",
+	snowsound = "dontstarve/movement/run_ice",
+	mudsound = "dontstarve/movement/run_mud",
 }
 
 local mini_tile_spec_defaults = {
@@ -134,21 +134,21 @@ end
 local TURF_DEFS = {
 
     --------------------<热带三件套>--------------------
-    { name = "METEOR",        sound = "meteor",             noise = "noise_meteor",             mini = "mini_meteor",             mini_name = "map_edge", run = "run_meteor", walk = "run_meteor",       turf = "turf_meteor" },
-    { name = "SHELLBEACH",    sound = "cave",               noise = "ground_noise_shellbeach",   mini = "mini_shellbeach_noise",        mini_name = "map_edge", run = "run_sand",   walk = "walk_sand",       turf = "turf_shellbeach" },
-    { name = "PEBBLEBEACH",   sound = "rocky",              noise = "noise_pebblebeach",         mini = "mini_pebblebeach",         mini_name = "map_edge", run = "run_sand",   walk = "walk_sand",       turf = "turf_pebblebeach" },
+    { name = "METEOR",        sound = "meteor",             noise = "noise_meteor",             mini = "mini_meteor",             mini_name = "map_edge", run = "turnoftides/movement/run_meteor", walk = "turnoftides/movement/run_meteor",       turf = "turf_meteor" },
+    { name = "SHELLBEACH",    sound = "cave",               noise = "ground_noise_shellbeach",   mini = "mini_shellbeach_noise",        mini_name = "map_edge", run = "turnoftides/movement/run_pebblebeach", walk = "turnoftides/movement/run_pebblebeach",       turf = "turf_shellbeach" },
+    { name = "PEBBLEBEACH",   sound = "rocky",              noise = "noise_pebblebeach",         mini = "mini_pebblebeach",         mini_name = "map_edge", run = "turnoftides/movement/run_pebblebeach", walk = "turnoftides/movement/run_pebblebeach",       turf = "turf_pebblebeach" },
 
     --------------------<DST 移植地皮>--------------------
-    { name = "ARCHIVE",       sound = "blocky",             noise = "Ground_noise_archive",      mini = "Ground_noise_archive_mini",  mini_name = "map_edge", run = "run_marble", walk = "walk_marble",  hard = true, turf = "turf_archive" },
-    { name = "FUNGUSMOON",    sound = "cave",                noise = "Ground_noise_moon_fungus",  mini = "Ground_noise_moon_fungus_mini", mini_name = "map_edge", run = "run_dirt",   walk = "walk_dirt",       turf = "turf_fungus_moon" },
-    { name = "MONKEY_GROUND", sound = "cave",                noise = "ground_noise_monkeyisland", mini = "mini_pebblebeach",            mini_name = "map_edge", run = "run_dirt",   walk = "walk_dirt",       turf = "turf_monkey_ground" },
+    { name = "ARCHIVE",       sound = "blocky",             noise = "Ground_noise_archive",      mini = "Ground_noise_archive_mini",  mini_name = "map_edge", run = "dontstarve/movement/run_marble", walk = "dontstarve/movement/run_marble",  hard = true, turf = "turf_archive" },
+    { name = "FUNGUSMOON",    sound = "cave",                noise = "Ground_noise_moon_fungus",  mini = "Ground_noise_moon_fungus_mini", mini_name = "map_edge", run = "grotto/movement/grotto_footstep", walk = "grotto/movement/grotto_footstep",       turf = "turf_fungus_moon" },
+    { name = "MONKEY_GROUND", sound = "cave",                noise = "ground_noise_monkeyisland", mini = "mini_pebblebeach",            mini_name = "map_edge", run = "turnoftides/movement/run_pebblebeach", walk = "turnoftides/movement/run_pebblebeach",       turf = "turf_monkey_ground" },
 
     --------------------<DST 洞穴地皮>--------------------
     -- hard=true 与 DST 源码 tiledefs.lua 一致
-    { name = "VENT",            sound = "cave",               noise = "ground_noise_fumarole",         mini = "ground_noise_fumarole_mini",       mini_name = "map_edge", run = "run_dirt",    walk = "walk_dirt",       hard = true, turf = "turf_vent" },
+    { name = "VENT",            sound = "cave",               noise = "ground_noise_fumarole",         mini = "ground_noise_fumarole_mini",       mini_name = "map_edge", run = "dontstarve/movement/run_dirt",    walk = "dontstarve/movement/walk_dirt",       hard = true, turf = "turf_vent" },
     { name = "VENT_NOISE",      sound = "cave",               noise = "ground_noise_fumarole",         mini = "ground_noise_fumarole_mini" },
-    { name = "VAULT",           sound = "blocky",             noise = "Ground_noise_vault",            mini = "Ground_noise_vault_clean_mini",    mini_name = "map_edge", run = "run_stone",   walk = "walk_stone",      hard = true, turf = "turf_vault" },
-    { name = "VAULT_CLEAN",     sound = "blocky",             noise = "Ground_noise_vault_clean",      mini = "Ground_noise_vault_clean_mini",    mini_name = "map_edge", run = "run_stone",   walk = "walk_stone",      hard = true },
+    { name = "VAULT",           sound = "blocky",             noise = "Ground_noise_vault",            mini = "Ground_noise_vault_clean_mini",    mini_name = "map_edge", run = "dontstarve/movement/run_marble", walk = "dontstarve/movement/run_marble",      hard = true, turf = "turf_vault" },
+    { name = "VAULT_CLEAN",     sound = "blocky",             noise = "Ground_noise_vault_clean",      mini = "Ground_noise_vault_clean_mini",    mini_name = "map_edge", run = "dontstarve/movement/run_marble", walk = "dontstarve/movement/run_marble",      hard = true },
     { name = "FUNGUSMOON_NOISE", sound = "cave",              noise = "Ground_noise_moon_fungus",       mini = "Ground_noise_moon_fungus_mini" },
     { name = "FAKE_GROUND",     sound = "blocky",             noise = "ground_noise_fumarole",         mini = "ground_noise_fumarole_mini" },
 }
@@ -157,9 +157,9 @@ local TURF_DEFS = {
 -- 实验性地穴的 rooms_dstcave.lua 和 map_dstcave.lua 引用了它们，
 -- 不注册会导致 GROUND.XXX = nil → storygen 崩溃。
 local COMPAT_TILES = {
-    { name = "BRICK",        sound = "cave",   noise = "noise_ruinsbrickglow", mini = "mini_ruinsbrick_noise",             run = "run_stone", walk = "walk_stone", hard = true },
-    { name = "BRICK_GLOW",   sound = "cave",   noise = "noise_ruinsbrick",      mini = "mini_ruinsbrick_noise",             run = "run_stone", walk = "walk_stone", hard = true },
-    { name = "TILES",        sound = "cave",   noise = "noise_ruinstileglow",   mini = "mini_ruinstile_noise",              run = "run_stone", walk = "walk_stone", hard = true },
+    { name = "BRICK",        sound = "cave",   noise = "noise_ruinsbrickglow", mini = "mini_ruinsbrick_noise",             run = "dontstarve/movement/run_dirt", walk = "dontstarve/movement/walk_dirt", hard = true },
+    { name = "BRICK_GLOW",   sound = "cave",   noise = "noise_ruinsbrick",      mini = "mini_ruinsbrick_noise",             run = "dontstarve/movement/run_dirt", walk = "dontstarve/movement/walk_dirt", hard = true },
+    { name = "TILES",        sound = "cave",   noise = "noise_ruinstileglow",   mini = "mini_ruinstile_noise",              run = "dontstarve/movement/run_dirt", walk = "dontstarve/movement/walk_dirt", hard = true },
     { name = "FUNGUS_NOISE", sound = "cave",   noise = "Ground_noise_moon_fungus",  mini = "Ground_noise_moon_fungus_mini" },
 }
 
@@ -241,21 +241,21 @@ end
 local TURF_DEFS = {
 
     --------------------<热带三件套>--------------------
-    { name = "METEOR",        sound = "meteor",             noise = "noise_meteor",             mini = "mini_meteor",             mini_name = "map_edge", run = "run_meteor", walk = "run_meteor",       turf = "turf_meteor" },
-    { name = "SHELLBEACH",    sound = "cave",               noise = "ground_noise_shellbeach",   mini = "mini_shellbeach_noise",        mini_name = "map_edge", run = "run_sand",   walk = "walk_sand",       turf = "turf_shellbeach" },
-    { name = "PEBBLEBEACH",   sound = "rocky",              noise = "noise_pebblebeach",         mini = "mini_pebblebeach",         mini_name = "map_edge", run = "run_sand",   walk = "walk_sand",       turf = "turf_pebblebeach" },
+    { name = "METEOR",        sound = "meteor",             noise = "noise_meteor",             mini = "mini_meteor",             mini_name = "map_edge", run = "turnoftides/movement/run_meteor", walk = "turnoftides/movement/run_meteor",       turf = "turf_meteor" },
+    { name = "SHELLBEACH",    sound = "cave",               noise = "ground_noise_shellbeach",   mini = "mini_shellbeach_noise",        mini_name = "map_edge", run = "turnoftides/movement/run_pebblebeach", walk = "turnoftides/movement/run_pebblebeach",       turf = "turf_shellbeach" },
+    { name = "PEBBLEBEACH",   sound = "rocky",              noise = "noise_pebblebeach",         mini = "mini_pebblebeach",         mini_name = "map_edge", run = "turnoftides/movement/run_pebblebeach", walk = "turnoftides/movement/run_pebblebeach",       turf = "turf_pebblebeach" },
 
     --------------------<DST 移植地皮>--------------------
-    { name = "ARCHIVE",       sound = "blocky",             noise = "Ground_noise_archive",      mini = "Ground_noise_archive_mini",  mini_name = "map_edge", run = "run_marble", walk = "walk_marble",  hard = true, turf = "turf_archive" },
-    { name = "FUNGUSMOON",    sound = "cave",                noise = "Ground_noise_moon_fungus",  mini = "Ground_noise_moon_fungus_mini", mini_name = "map_edge", run = "run_dirt",   walk = "walk_dirt",       turf = "turf_fungus_moon" },
-    { name = "MONKEY_GROUND", sound = "cave",                noise = "ground_noise_monkeyisland", mini = "mini_pebblebeach",            mini_name = "map_edge", run = "run_dirt",   walk = "walk_dirt",       turf = "turf_monkey_ground" },
+    { name = "ARCHIVE",       sound = "blocky",             noise = "Ground_noise_archive",      mini = "Ground_noise_archive_mini",  mini_name = "map_edge", run = "dontstarve/movement/run_marble", walk = "dontstarve/movement/run_marble",  hard = true, turf = "turf_archive" },
+    { name = "FUNGUSMOON",    sound = "cave",                noise = "Ground_noise_moon_fungus",  mini = "Ground_noise_moon_fungus_mini", mini_name = "map_edge", run = "grotto/movement/grotto_footstep", walk = "grotto/movement/grotto_footstep",       turf = "turf_fungus_moon" },
+    { name = "MONKEY_GROUND", sound = "cave",                noise = "ground_noise_monkeyisland", mini = "mini_pebblebeach",            mini_name = "map_edge", run = "turnoftides/movement/run_pebblebeach", walk = "turnoftides/movement/run_pebblebeach",       turf = "turf_monkey_ground" },
 
     --------------------<DST 洞穴地皮>--------------------
     -- hard=true 与 DST 源码 tiledefs.lua 一致
-    { name = "VENT",            sound = "cave",               noise = "ground_noise_fumarole",         mini = "ground_noise_fumarole_mini",       mini_name = "map_edge", run = "run_dirt",    walk = "walk_dirt",       hard = true, turf = "turf_vent" },
+    { name = "VENT",            sound = "cave",               noise = "ground_noise_fumarole",         mini = "ground_noise_fumarole_mini",       mini_name = "map_edge", run = "dontstarve/movement/run_dirt",    walk = "dontstarve/movement/walk_dirt",       hard = true, turf = "turf_vent" },
     { name = "VENT_NOISE",      sound = "cave",               noise = "ground_noise_fumarole",         mini = "ground_noise_fumarole_mini" },
-    { name = "VAULT",           sound = "blocky",             noise = "Ground_noise_vault",            mini = "Ground_noise_vault_clean_mini",    mini_name = "map_edge", run = "run_stone",   walk = "walk_stone",      hard = true, turf = "turf_vault" },
-    { name = "VAULT_CLEAN",     sound = "blocky",             noise = "Ground_noise_vault_clean",      mini = "Ground_noise_vault_clean_mini",    mini_name = "map_edge", run = "run_stone",   walk = "walk_stone",      hard = true },
+    { name = "VAULT",           sound = "blocky",             noise = "Ground_noise_vault",            mini = "Ground_noise_vault_clean_mini",    mini_name = "map_edge", run = "dontstarve/movement/run_marble", walk = "dontstarve/movement/run_marble",      hard = true, turf = "turf_vault" },
+    { name = "VAULT_CLEAN",     sound = "blocky",             noise = "Ground_noise_vault_clean",      mini = "Ground_noise_vault_clean_mini",    mini_name = "map_edge", run = "dontstarve/movement/run_marble", walk = "dontstarve/movement/run_marble",      hard = true },
     { name = "FUNGUSMOON_NOISE", sound = "cave",              noise = "Ground_noise_moon_fungus",       mini = "Ground_noise_moon_fungus_mini" },
     { name = "FAKE_GROUND",     sound = "blocky",             noise = "ground_noise_fumarole",         mini = "ground_noise_fumarole_mini" },
 }
@@ -264,9 +264,9 @@ local TURF_DEFS = {
 -- 实验性地穴的 rooms_dstcave.lua 和 map_dstcave.lua 引用了它们，
 -- 不注册会导致 GROUND.XXX = nil → storygen 崩溃。
 local COMPAT_TILES = {
-    { name = "BRICK",        sound = "cave",   noise = "noise_ruinsbrickglow", mini = "mini_ruinsbrick_noise",             run = "run_stone", walk = "walk_stone", hard = true },
-    { name = "BRICK_GLOW",   sound = "cave",   noise = "noise_ruinsbrick",      mini = "mini_ruinsbrick_noise",             run = "run_stone", walk = "walk_stone", hard = true },
-    { name = "TILES",        sound = "cave",   noise = "noise_ruinstileglow",   mini = "mini_ruinstile_noise",              run = "run_stone", walk = "walk_stone", hard = true },
+    { name = "BRICK",        sound = "cave",   noise = "noise_ruinsbrickglow", mini = "mini_ruinsbrick_noise",             run = "dontstarve/movement/run_dirt", walk = "dontstarve/movement/walk_dirt", hard = true },
+    { name = "BRICK_GLOW",   sound = "cave",   noise = "noise_ruinsbrick",      mini = "mini_ruinsbrick_noise",             run = "dontstarve/movement/run_dirt", walk = "dontstarve/movement/walk_dirt", hard = true },
+    { name = "TILES",        sound = "cave",   noise = "noise_ruinstileglow",   mini = "mini_ruinstile_noise",              run = "dontstarve/movement/run_dirt", walk = "dontstarve/movement/walk_dirt", hard = true },
     { name = "FUNGUS_NOISE", sound = "cave",   noise = "Ground_noise_moon_fungus",  mini = "Ground_noise_moon_fungus_mini" },
 }
 
@@ -338,3 +338,36 @@ function PatchGroundTypes(layout)
 end
 
 GLOBAL.DST_TURFS = DST_TURFS
+
+----------------<环境背景音：扩展 DS ambientsoundmixer>----------------
+-- DS 的 ambientsoundmixer 组件根据玩家脚下的地皮类型播放环境音。
+-- 新增地皮类型需在此注册，否则对应群系无背景环境音。
+-- 事件路径来自 DST 源码 ambientsound.lua 的 AMBIENT_SOUNDS 表。
+AddComponentPostInit("ambientsoundmixer", function(self)
+    local G = GLOBAL
+
+    -- 月岛区域
+    self.ambient_sounds[G.GROUND.METEOR] = { sound = "turnoftides/together_amb/moon_island/fall" }
+    self.ambient_sounds[G.GROUND.PEBBLEBEACH] = { sound = "turnoftides/together_amb/moon_island/fall" }
+    self.ambient_sounds[G.GROUND.SHELLBEACH] = { sound = "hookline_2/amb/hermit_island" }
+
+    -- 猴岛区域
+    self.ambient_sounds[G.GROUND.MONKEY_GROUND] = { sound = "monkeyisland/amb/island_amb" }
+
+    -- 档案馆区域
+    self.ambient_sounds[G.GROUND.ARCHIVE] = { sound = "grotto/amb/archive" }
+    self.ambient_sounds[G.GROUND.VAULT] = { sound = "grotto/amb/archive" }
+    self.ambient_sounds[G.GROUND.VAULT_CLEAN] = { sound = "grotto/amb/archive" }
+
+    -- 月蘑菇林
+    self.ambient_sounds[G.GROUND.FUNGUSMOON] = { sound = "grotto/amb/grotto" }
+
+    -- Vent 区（使用 DS 原生洞穴环境音）
+    self.ambient_sounds[G.GROUND.VENT] = { sound = "dontstarve/AMB/caves/main" }
+
+    -- 兼容地皮
+    self.ambient_sounds[G.GROUND.BRICK] = { sound = "dontstarve/cave/ruinsAMB" }
+    self.ambient_sounds[G.GROUND.BRICK_GLOW] = { sound = "dontstarve/cave/ruinsAMB" }
+    self.ambient_sounds[G.GROUND.TILES] = { sound = "dontstarve/cave/civruinsAMB" }
+end)
+
