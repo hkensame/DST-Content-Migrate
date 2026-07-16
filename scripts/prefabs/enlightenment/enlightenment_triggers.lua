@@ -193,12 +193,12 @@ local function HookSanityOverrides(sanity)
     -- [A] Override GetPercent: 启蒙期间报告 1.0（满理智）
     -- 注意：enlightenment:GetPercent() 直接读 sanity.current/sanity.max 不受影响
     -- 注意：DS 的 GetPercent(usepenalty) 有可选参数，需用 ... 透传
-    -- 注意：用 behaviour_level > 0 而非 IsEnabled()，因为 linger 期间
-    --       (behaviour_level=0, enabled=true) 应暴露真实理智让 spawner 积累压力
+    -- 用 IsEnabled() 而非 behaviour_level > 0，确保 linger 期间和低san子阈值期间
+    -- 都不暴露真实理智，从而阻止 sanitymonsterspawner 生成影怪
     local _GetPercent = sanity.GetPercent
     sanity.GetPercent = function(self, ...)
         local enlight = self.inst and self.inst.components.enlightenment
-        if enlight and enlight:IsEnabled() and enlight.behaviour_level > 0 then
+        if enlight and enlight:IsEnabled() then
             return 1.0
         end
         return _GetPercent(self, ...)
@@ -208,7 +208,7 @@ local function HookSanityOverrides(sanity)
     local _IsCrazy = sanity.IsCrazy
     sanity.IsCrazy = function(self, ...)
         local enlight = self.inst and self.inst.components.enlightenment
-        if enlight and enlight:IsEnabled() and enlight.behaviour_level > 0 then
+        if enlight and enlight:IsEnabled() then
             return false
         end
         return _IsCrazy(self, ...)
@@ -219,7 +219,7 @@ local function HookSanityOverrides(sanity)
     local _IsSane = sanity.IsSane
     sanity.IsSane = function(self, ...)
         local enlight = self.inst and self.inst.components.enlightenment
-        if enlight and enlight:IsEnabled() and enlight.behaviour_level > 0 then
+        if enlight and enlight:IsEnabled() then
             return true
         end
         return _IsSane(self, ...)
@@ -341,6 +341,20 @@ AddComponentPostInit("colourcubemanager", function(self)
     end
 end)
 
+----------------------<Dreadstone Set Immunity>----------------------
+-- 穿戴完整绝望石套装（头盔 + 盔甲）时免疫启蒙
+
+local DREADSTONE_SET_TAGS = {"dreadstone_helm", "dreadstone_armor"}
+
+local function IsDreadstoneSetEquipped(inst)
+	for _, tag in ipairs(DREADSTONE_SET_TAGS) do
+		if not inst:HasTag(tag) then return false end
+	end
+	return true
+end
+
+local _last_dreadstone = false
+
 ----------------------<Main Update Loop>----------------------
 
 print("[ENLIGHTEN] enlightenment_triggers.lua loaded successfully")
@@ -358,6 +372,26 @@ local function EnlightenmentUpdate(inst)
         return
     end
 
+	-- 绝望石套装免疫检测：穿齐时强制禁用所有源，跳过扫描
+	local dreadstone_on = IsDreadstoneSetEquipped(inst)
+	if dreadstone_on ~= _last_dreadstone then
+		_last_dreadstone = dreadstone_on
+		if dreadstone_on then
+			print("[ENLIGHTEN] Dreadstone set equipped — enlightenment suppressed")
+		else
+			print("[ENLIGHTEN] Dreadstone set removed — enlightenment resumed")
+		end
+	end
+	if dreadstone_on then
+		-- 强制禁用所有激活中的源
+		for k, _ in pairs(enlight.sources) do
+			enlight:Disable(k)
+		end
+		-- 仍然调用 CheckThresholds 以触发状态回调
+		enlight:CheckThresholds()
+		return
+	end
+
     -- 诊断日志（每 10 秒打印一次，避免刷屏）
     _enlighten_diag_tick = _enlighten_diag_tick + SCAN_INTERVAL
     if _enlighten_diag_tick >= 10 then
@@ -373,8 +407,18 @@ local function EnlightenmentUpdate(inst)
     local ok, err = pcall(function()
         enlight:CleanupExpiredSources()
 
-        -- Plan B: Tile density
-        local tile_pass = ScanMoonTileDensity(inst)
+        -- Plan B: Tile density（缓存在原地不动时不重复扫描）
+        local x, y, z = inst.Transform:GetWorldPosition()
+        local last_x = rawget(inst, "_enlighten_last_x") or -99999
+        local last_z = rawget(inst, "_enlighten_last_z") or -99999
+        local moved = math.abs(x - last_x) >= 4 or math.abs(z - last_z) >= 4
+        if moved then
+            rawset(inst, "_enlighten_last_x", x)
+            rawset(inst, "_enlighten_last_z", z)
+            local tile_pass = ScanMoonTileDensity(inst)
+            rawset(inst, "_enlighten_tile_result", tile_pass)
+        end
+        local tile_pass = rawget(inst, "_enlighten_tile_result") or false
         if tile_pass then
             enlight:Enable("tile_density")
         else

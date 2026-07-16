@@ -200,39 +200,6 @@ return {
           height = 284,
           visible = true,
           properties = {}
-        },
-        {
-          name = "",
-          type = "archive_lockbox_dispencer_temp",
-          shape = "rectangle",
-          x = 255,
-          y = 416,
-          width = 0,
-          height = 0,
-          visible = true,
-          properties = {}
-        },
-        {
-          name = "",
-          type = "archive_lockbox_dispencer_temp",
-          shape = "rectangle",
-          x = 96,
-          y = 255,
-          width = 0,
-          height = 0,
-          visible = true,
-          properties = {}
-        },
-        {
-          name = "",
-          type = "archive_lockbox_dispencer_temp",
-          shape = "rectangle",
-          x = 416,
-          y = 256,
-          width = 0,
-          height = 0,
-          visible = true,
-          properties = {}
         }
       }
     }

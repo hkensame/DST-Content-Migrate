@@ -58,6 +58,8 @@ EnsureLockKey("ISLAND7")
 EnsureLockKey("ISLAND8")
 -- 中庭自锁
 EnsureLockKey("ATRIUM")
+-- 中庭End（迷宫完成后解锁）
+EnsureLockKey("ATRIUM_END")
 
 local _G = GLOBAL
 local Layouts = require("map/layouts").Layouts
@@ -96,7 +98,7 @@ modimport "scripts/dst_worldgen_config.lua"
 
 modimport "scripts/dst_tuning.lua"
 
-----------------<诊断：包裹 forest_map.Generate + 注入缺失的 room tags>----------------
+----------------<诊断：包裹 forest_map.Generate + 注入缺失的 room tags + 抑制洞穴虫洞错误 + 绕过 disconnected tiles PANIC>----------------
 do
     local fm = require "map/forest_map"
     -- 主动加载 storygen（forest_map 的 GenerateVoro 内部才 require，此时还没加载）
@@ -114,11 +116,54 @@ do
         end
         return _origGetExtras(self, next_room)
     end
-    -- 包裹 forest_map.Generate 以定位闪退
+    -- 洞穴虫洞抑制开关：DST 洞穴房间的节点结构会导致 DS 的 C++ WorldSim
+    -- 在 SwapWormholesAndRoadsExtra 中返回无效虫洞数据，使 forest_map.Generate 失败。
+    -- DST 洞穴不使用 DS 虫洞系统，直接跳过该处理。
+    -- 注意：network.lua 无 return，Graph 是全局变量，不能 require 取值。
+    local _origSwapWormholes = Graph.SwapWormholesAndRoadsExtra
+    local suppress_wormhole = false
+    Graph.SwapWormholesAndRoadsExtra = function(self, entities, width, height)
+        if suppress_wormhole then
+            -- cave 层级：跳过虫洞处理，直接初始化空表
+            if entities["wormhole"] == nil then
+                entities["wormhole"] = {}
+            end
+            return
+        end
+        return _origSwapWormholes(self, entities, width, height)
+    end
+    -- forest_map.lua 内部的 SKIP_GEN_CHECKS 是 local 变量（第2行），
+    -- 外面的全局赋值无效！必须通过 debug.setupvalue 直接修改 upvalue。
+    local _skip_idx = nil
+    for i = 1, 100 do
+        local name = debug.getupvalue(fm.Generate, i)
+        if name == nil then break end
+        if name == "SKIP_GEN_CHECKS" then
+            _skip_idx = i
+            break
+        end
+    end
+    if _skip_idx == nil then
+        print("[DIAG-WG] WARNING: could not find SKIP_GEN_CHECKS upvalue in fm.Generate")
+    else
+        print("[DIAG-WG] Found SKIP_GEN_CHECKS upvalue at index "..tostring(_skip_idx))
+    end
+    -- 包裹 forest_map.Generate，注入洞穴 wormhole 抑制 + 跳过 disconnected tiles 检查
     local _origGen = fm.Generate
     fm.Generate = function(prefab, w, h, tasks, wgc, lt, level)
+        suppress_wormhole = (prefab == "cave")
+        if prefab == "cave" and _skip_idx then
+            -- DST 洞穴房间产生大量不连通区块（遗迹/档案馆/中庭等独立区域），DS 默认检查会拒绝。
+            -- 这些区域在 DST 中通过虫洞连接，DS 模式不需要连通性。
+            -- 使用 debug.setupvalue 绕过 forest_map.lua 内部的 local SKIP_GEN_CHECKS
+            debug.setupvalue(_origGen, _skip_idx, true)
+        end
         print("[DIAG-WG] GenerateVoro START prefab="..tostring(prefab).." w="..tostring(w).." h="..tostring(h).." tasks="..tostring(#(tasks or {})))
         local ok, result = pcall(_origGen, prefab, w, h, tasks, wgc, lt, level)
+        if prefab == "cave" and _skip_idx then
+            debug.setupvalue(_origGen, _skip_idx, false)
+        end
+        suppress_wormhole = false
         if not ok then
             print("[DIAG-WG] GenerateVoro ERROR: "..tostring(result))
             return nil

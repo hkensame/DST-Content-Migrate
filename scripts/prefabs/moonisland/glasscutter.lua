@@ -16,11 +16,16 @@ local function onunequip(inst, owner)
     owner.AnimState:Show("ARM_normal")
 end
 
+local shadow_util = require("shadow_util")
+
 local function onattack(inst, attacker, target)
-	inst.components.weapon.attackwear = target ~= nil and target:IsValid() 
-		and (target:HasTag("shadow") or target:HasTag("shadowminion") or target:HasTag("shadowchesspiece") or target:HasTag("stalker") or target:HasTag("stalkerminion")) 
-		and 0.5
-		or 1
+	local is_shadow = shadow_util.IsShadow(target)
+
+	-- 对暗影生物：耐久消耗减半
+	inst.components.weapon.attackwear = is_shadow and 0.7 or 1
+
+	-- 对暗影生物：伤害提升到 80
+	inst.components.weapon.damage = is_shadow and 72 or 59
 end
 
 local function fn()
@@ -43,7 +48,7 @@ local function fn()
     end
 
     inst:AddComponent("weapon")
-    inst.components.weapon:SetDamage(68)
+    inst.components.weapon:SetDamage(59)
 	inst.components.weapon:SetOnAttack(onattack)
 
     -------

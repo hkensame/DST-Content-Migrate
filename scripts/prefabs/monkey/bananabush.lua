@@ -173,7 +173,6 @@ local function fn()
     inst.AnimState:SetBuild("bananabush")
     inst.AnimState:PlayAnimation("idle_small", true)
 
-    --------------------------------------------------------------------------
     inst:AddComponent("pickable")
     inst.components.pickable.picksound = "dontstarve/wilson/harvest_berries"
 
@@ -190,7 +189,6 @@ local function fn()
     inst.components.pickable:SetOnRegenFn(OnRegen)
     inst.components.pickable.canbepicked = false
 
-    --------------------------------------------------------------------------
     inst:AddComponent("growable")
     inst.components.growable.stages = BANANABUSH_GROWTH_STAGES
     inst.components.growable:SetStage(1)
@@ -201,38 +199,30 @@ local function fn()
     --inst:AddComponent("simplemagicgrower")
     --inst.components.simplemagicgrower:SetLastStage(#inst.components.growable.stages)
 
-    --------------------------------------------------------------------------
     -- DS 无 GetGameModeProperty，直接允许挖掘移植
     inst:AddComponent("workable")
     inst.components.workable:SetWorkAction(ACTIONS.DIG)
     inst.components.workable:SetWorkLeft(1)
     inst.components.workable:SetOnFinishCallback(OnDig)
 
-    --------------------------------------------------------------------------
     inst:AddComponent("lootdropper")
 
-    --------------------------------------------------------------------------
     inst:AddComponent("inspectable")
 
-    --------------------------------------------------------------------------
     -- DS: 枯萎由 pickable 组件内置管理 (MakeWitherable)
     if inst.components.pickable then
         inst.components.pickable:MakeWitherable()
     end
 
-    --------------------------------------------------------------------------
     --MakeNoGrowInWinter(inst) -- DS 无冬季生长抑制
 
-    --------------------------------------------------------------------------
     MakeLargeBurnable(inst)
     MakeMediumPropagator(inst)
 
-    --------------------------------------------------------------------------
     --MakeHauntableIgnite(inst) -- DS 无幽灵互动
 
     --MakeWaxablePlant(inst) -- DS 无蜡质植物
 
-    --------------------------------------------------------------------------
     inst.OnLoad = on_load
 
     return inst

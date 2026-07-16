@@ -1,10 +1,10 @@
-local assets = { Asset("ANIM", "anim/hat_dreadstone.zip") }
+local shadow_util = require("shadow_util")
 
-local DREADSTONE_SHADOW_TAG = "shadow_aligned"	-- 暗影阵营标签，用户可自行修改
+local assets = { Asset("ANIM", "anim/hat_dreadstone.zip") }
 
 local function OnBlocked(inst, owner, data)
 	owner.SoundEmitter:PlaySound("dontstarve/wilson/hit_dreadstone")
-	if data and data.attacker and data.attacker:HasTag(DREADSTONE_SHADOW_TAG) then
+	if data and data.attacker and shadow_util.IsShadow(data.attacker) then
 		-- 暗影阵营减伤：受伤 -10%（回血 10%）
 		if owner.components.health and not owner.components.health:IsDead() then
 			owner.components.health:DoDelta(data.damage * 0.1)
@@ -23,12 +23,15 @@ end
 local function DoRegen(inst, owner)
 	if owner.components.sanity ~= nil and owner.components.sanity:GetPercent() < 0.15 then
 		local setbonus = HasSetBonus(owner) and TUNING.ARMOR_DREADSTONE_REGEN_SETBONUS or 1
-		local rate = 1 / Lerp(1 / TUNING.ARMOR_DREADSTONE_REGEN_MAXRATE, 1 / TUNING.ARMOR_DREADSTONE_REGEN_MINRATE, owner.components.sanity:GetPercent())
+		local t = owner.components.sanity:GetPercent() / 0.15
+		local rate = TUNING.ARMOR_DREADSTONE_REGEN_MAXRATE + (TUNING.ARMOR_DREADSTONE_REGEN_MINRATE - TUNING.ARMOR_DREADSTONE_REGEN_MAXRATE) * t
 		inst.components.armor:Repair(inst.components.armor.maxcondition * rate * setbonus)
 	end
 	if inst.components.armor.condition >= inst.components.armor.maxcondition then
-		inst.regentask:Cancel()
-		inst.regentask = nil
+		if inst.regentask ~= nil then
+			inst.regentask:Cancel()
+			inst.regentask = nil
+		end
 	end
 end
 

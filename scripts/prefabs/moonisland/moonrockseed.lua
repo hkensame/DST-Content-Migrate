@@ -244,6 +244,7 @@ local function fn()
     inst.AnimState:SetBuild("moonrock_seed")
     inst.AnimState:PlayAnimation("idle")
 
+    inst:AddTag("prototyper")
     inst:AddTag("irreplaceable")
     inst:AddTag("nonpotatable")
     inst:AddTag("celestial_station")

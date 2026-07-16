@@ -745,18 +745,29 @@ local CHANDELIER_MUST_TAGS = {"archive_chandelier"}
 local function checkforgems(inst)
     local x,y,z = inst.Transform:GetWorldPosition()
     local ents = TheSim:FindEntities(x, y, z, 6, GEM_SOCKET_MUST_TAGS )
+    print("[ARCHIVE] checkforgems: caller="..tostring(inst).." found="..tostring(#ents).." switches within range 6")
 
     for i=#ents,1,-1 do
         local ent = ents[i]
         if not ent.gem then
+            print("[ARCHIVE] checkforgems: removing switch "..tostring(ent).." (no gem)")
             table.remove(ents,i)
+        else
+            print("[ARCHIVE] checkforgems: keeping switch "..tostring(ent).." (has gem)")
         end
     end
 
-    local theWorld = inst:GetTheWorld()
+    local theWorld = GetWorld()
     local archive = theWorld ~= nil and theWorld.components.archivemanager
+    print("[ARCHIVE] checkforgems: gems_with_gems="..tostring(#ents).." archive="..tostring(archive).." power="..tostring(archive and archive:GetPowerSetting()).." theWorld="..tostring(theWorld))
     if archive and #ents >= 3  then
-        archive:SwitchPowerOn(true)
+        print("[ARCHIVE] checkforgems: ACTIVATING POWER! calling SwitchPowerOn(true)")
+        local success, err = pcall(archive.SwitchPowerOn, archive, true)
+        if not success then
+            print("[ARCHIVE] checkforgems: ARCHIVE CRASHED! SwitchPowerOn error: "..tostring(err))
+        else
+            print("[ARCHIVE] checkforgems: SwitchPowerOn returned OK")
+        end
         startpowersound(inst)
         startshadowwar(inst)
         local ents = TheSim:FindEntities(x, y, z, 10, CHANDELIER_MUST_TAGS )
@@ -765,16 +776,20 @@ local function checkforgems(inst)
                 ent.updatelight(ent)
             end
         end
+    else
+        print("[ARCHIVE] checkforgems: power NOT activated (need "..tostring(3 - (#ents or 0)).." more gems)")
     end
 end
 
 local function OnGemGiven(inst, giver, item)
+    print("[ARCHIVE] OnGemGiven: switch="..tostring(inst).." giver="..tostring(giver).." item="..tostring(item and item.prefab))
     inst.SoundEmitter:PlaySound("dontstarve/common/telebase_gemplace")
 
     inst.components.trader:Disable()
     inst.components.pickable:SetUp("opalpreciousgem", 1000000)
     inst.components.pickable.caninteractwith = true
     inst.gem = true
+    print("[ARCHIVE] OnGemGiven: gem=true set, calling checkforgems")
     checkforgems(inst)  -- 始终检查，无论动画状态
 
     if not inst.AnimState:IsCurrentAnimation("idle_full") and not inst.AnimState:IsCurrentAnimation("activate") then
@@ -837,7 +852,9 @@ local function OnSaveSwitch(inst, data)
 end
 
 local function OnLoadPostPassSwitch(inst, newents, data)
+    print("[ARCHIVE] OnLoadPostPassSwitch: data="..tostring(data).." spawnopal="..tostring(data and data.spawnopal).." gem="..tostring(data and data.gem))
     if data and data.spawnopal then
+        print("[ARCHIVE] OnLoadPostPassSwitch: spawnopal=true, creating opal")
         local opal = SpawnPrefab("opalpreciousgem")
         inst.components.trader:AcceptGift(nil, opal)
     end
@@ -897,6 +914,7 @@ local function switchfn()
     inst:ListenForEvent("animover", function()
         if inst.AnimState:IsCurrentAnimation("activate") then
             inst.AnimState:PlayAnimation("idle_full")
+            print("[ARCHIVE] animover: activate complete, calling checkforgems")
             checkforgems(inst)
         end
         if inst.AnimState:IsCurrentAnimation("deactivate") then

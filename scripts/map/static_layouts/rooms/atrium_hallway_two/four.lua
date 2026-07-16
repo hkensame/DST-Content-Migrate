@@ -78,7 +78,7 @@ return {
       objects = {
         {
           name = "",
-          type = "rook",
+          type = "rook_nightmare_spawner",
           shape = "rectangle",
           x = 256,
           y = 256,
@@ -89,7 +89,7 @@ return {
         },
         {
           name = "",
-          type = "bishop",
+          type = "bishop_nightmare_spawner",
           shape = "rectangle",
           x = 352,
           y = 160,
@@ -100,7 +100,7 @@ return {
         },
         {
           name = "",
-          type = "bishop",
+          type = "bishop_nightmare_spawner",
           shape = "rectangle",
           x = 160,
           y = 352,
@@ -111,7 +111,7 @@ return {
         },
         {
           name = "",
-          type = "knight",
+          type = "knight_nightmare_spawner",
           shape = "rectangle",
           x = 352,
           y = 352,
@@ -122,7 +122,7 @@ return {
         },
         {
           name = "",
-          type = "knight",
+          type = "knight_nightmare_spawner",
           shape = "rectangle",
           x = 160,
           y = 160,

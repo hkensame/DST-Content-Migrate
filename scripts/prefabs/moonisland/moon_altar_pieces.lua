@@ -238,5 +238,5 @@ return
 
     makepiece("crown", "moon_altar_cosmic"),
 
-    makepiece("ward", "moon_altar_astral"),
+    makepiece("ward"),
     makepiece("icon", "moon_altar_astral")

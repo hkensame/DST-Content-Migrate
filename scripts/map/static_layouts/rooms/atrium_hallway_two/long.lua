@@ -234,7 +234,7 @@ return {
         },
         {
           name = "",
-          type = "knight",
+          type = "knight_nightmare_spawner",
           shape = "rectangle",
           x = 117,
           y = 278,
@@ -245,7 +245,7 @@ return {
         },
         {
           name = "",
-          type = "knight",
+          type = "knight_nightmare_spawner",
           shape = "rectangle",
           x = 146,
           y = 241,
@@ -256,7 +256,7 @@ return {
         },
         {
           name = "",
-          type = "rook",
+          type = "rook_nightmare_spawner",
           shape = "rectangle",
           x = 96,
           y = 224,

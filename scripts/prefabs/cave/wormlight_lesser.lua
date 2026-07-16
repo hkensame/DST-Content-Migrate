@@ -6,7 +6,7 @@
 
 local assets =
 {
-    Asset("ANIM", "anim/worm_light.zip"),
+    Asset("ANIM", "anim/worm_light_lesser.zip"),
 }
 
 local function fn()
@@ -16,8 +16,8 @@ local function fn()
     inst.entity:AddAnimState()
     inst.entity:AddLight()
 
-    inst.AnimState:SetBank("worm_light")
-    inst.AnimState:SetBuild("worm_light")
+    inst.AnimState:SetBank("worm_light_lesser")
+    inst.AnimState:SetBuild("worm_light_lesser")
     inst.AnimState:PlayAnimation("idle")
     inst.AnimState:SetBloomEffectHandle("shaders/anim.ksh")
 

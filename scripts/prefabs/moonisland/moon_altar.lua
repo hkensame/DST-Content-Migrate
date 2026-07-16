@@ -117,7 +117,12 @@ local function onturnon(inst)
             if inst._activetask ~= nil then
                 inst._activetask:Cancel()
             end
-            inst._activetask = inst:DoTaskInTime(inst.AnimState:GetCurrentAnimationLength() - inst.AnimState:GetCurrentAnimationTime(), StartPrototyperSound)
+            if inst.AnimState.GetCurrentAnimationTime ~= nil then
+                inst._activetask = inst:DoTaskInTime(inst.AnimState:GetCurrentAnimationLength() - inst.AnimState:GetCurrentAnimationTime(), StartPrototyperSound)
+            else
+                -- DS 没有 GetCurrentAnimationTime，直接启动
+                StartPrototyperSound(inst)
+            end
         else
             inst.AnimState:PlayAnimation("proximity_pre")
 
@@ -154,6 +159,7 @@ local function onactivate(inst)
 end
 
 local function addprototyper(inst)
+	inst:AddTag("prototyper")
 	inst:AddComponent("prototyper")
 	inst.components.prototyper.onturnon = onturnon
 	inst.components.prototyper.onturnoff = onturnoff
@@ -162,6 +168,7 @@ local function addprototyper(inst)
 end
 
 local function addprototyper_partial(inst)
+	inst:AddTag("prototyper")
 	inst:AddComponent("prototyper")
 	inst.components.prototyper.onturnon = onturnon
 	inst.components.prototyper.onturnoff = onturnoff
@@ -287,10 +294,10 @@ end
 local function AddRepairableAstral(inst)
     if inst.components.repairable == nil then
         inst:AddComponent("repairable")
-        -- 使用 MOON_ALTAR 以便裂隙碎片（ward/icon）都可以嵌入
-        inst.components.repairable.repairmaterial = "MOON_ALTAR"
+        -- stage 1 接受 ward（repairmaterial = MOON_ALTAR_WARD）
+        -- set_stage 在 stage 2 时会移除 repairable，无需过渡
+        inst.components.repairable.repairmaterial = "MOON_ALTAR_WARD"
         inst.components.repairable.onrepaired = on_piece_slotted
-        inst.components.repairable.checkmaterialfn = check_pieceastral
         inst.components.repairable.noannounce = true
     end
 end

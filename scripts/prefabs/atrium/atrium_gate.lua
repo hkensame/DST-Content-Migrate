@@ -201,7 +201,7 @@ local function OnDestabilizingPulse(inst)
         return
     end
 
-    -- DS 单机：只有一个玩家，用 GetPlayer() 替代 AllPlayers
+    -- DS 单机：只有一个玩家，�?GetPlayer() 替代 AllPlayers
     local player = GetPlayer()
     if player ~= nil then
         --改，先凑合用if player.components.areaaware:CurrentlyInTag("Nightmare") then
@@ -307,8 +307,9 @@ local function OnDestabilizeExplode(inst)
     inst:StartCooldown(false)
 
     GetWorld():PushEvent("resetruins")
+    print("[DST] atrium_gate pushed resetruins event")
 
-    -- DS 单机：只有一个玩家
+    -- DS 单机：只有一个玩�?
     local player = GetPlayer()
     if player ~= nil then
         player.components.talker:Say(GetString(player.prefab, "ANNOUNCE_RUINS_RESET"))
@@ -541,7 +542,7 @@ local function fn()
     inst.AnimState:PlayAnimation("idle")
 
     inst.MiniMapEntity:SetIcon("atrium_gate.tex")
---ShowFx(inst, "overload") --改
+--ShowFx(inst, "overload") --�?
     inst:AddTag("gemsocket") -- for "Socket" action string
     inst:AddTag("stargate")
 

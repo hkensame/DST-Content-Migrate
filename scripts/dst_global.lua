@@ -256,8 +256,18 @@ GLOBAL.IsPassableAtPointWithPlatformRadiusBias = function(x, y, z, allow_water, 
 end
 
 GLOBAL.IsAboveGroundAtPoint = function(x, y, z, allow_water)
-    local tile = GetWorld().Map:GetTileAtPoint(x, y, z)
-    local valid_water_tile = (allow_water == true) and tile >= GROUND.OCEAN_START and tile <= GROUND.OCEAN_END
+    local theWorld = GetWorld()
+    if theWorld == nil or theWorld.Map == nil then
+        return false
+    end
+    local tile = theWorld.Map:GetTileAtPoint(x, y, z)
+    if tile == nil then
+        return false
+    end
+    local valid_water_tile = false
+    if allow_water == true and GROUND.OCEAN_START ~= nil and GROUND.OCEAN_END ~= nil then
+        valid_water_tile = tile >= GROUND.OCEAN_START and tile <= GROUND.OCEAN_END
+    end
     return (tile < GROUND.UNDERGROUND or valid_water_tile) and
         tile ~= GROUND.IMPASSABLE and
         tile ~= GROUND.INVALID

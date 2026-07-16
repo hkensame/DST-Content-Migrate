@@ -61,6 +61,14 @@ MazeLayouts.AllLayouts["atrium_hallway_three"] = GetLayoutsForType("atrium_hallw
 MazeLayouts.AllLayouts["archive_hallway"]      = GetLayoutsForType("archive_hallway", archive_areas)
 MazeLayouts.AllLayouts["archive_hallway_two"]   = GetLayoutsForType("archive_hallway_two", archive_areas)
 
+-- 遗迹军事区走廊瓦片（hallway_armoury 内含 nightmare spawner）
+MazeLayouts.AllLayouts["room_armoury"]        = GetLayoutsForType("room_armoury")
+MazeLayouts.AllLayouts["hallway_armoury"]     = GetLayoutsForType("hallway_armoury")
+MazeLayouts.AllLayouts["room_armoury_two"]    = GetLayoutsForType("room_armoury_two")
+MazeLayouts.AllLayouts["pit_room_armoury"]    = GetLayoutsForType("pit_room_armoury")
+MazeLayouts.AllLayouts["pit_hallway_armoury"] = GetLayoutsForType("pit_hallway_armoury")
+MazeLayouts.AllLayouts["pit_room_armoury_two"] = GetLayoutsForType("pit_room_armoury_two")
+
 -- 档案馆特殊布局（起点/终点/钥匙房）
 local function GetSpecialLayoutsForType(layout_dir, name)
     local path = "map/static_layouts/rooms/" .. layout_dir .. "/" .. name
@@ -100,7 +108,13 @@ patch_special_layouts("archive_supplyroom")
 Layouts["ArchiveStart"] = StaticLayout.Get("map/static_layouts/rooms/archive_start/archive_start")
 Layouts["ArchiveEnd"] = StaticLayout.Get("map/static_layouts/rooms/archive_end/archive_end")
 Layouts["ArchiveKeyroom"] = StaticLayout.Get("map/static_layouts/rooms/archive_keyroom/keyroom_1")
-Layouts["ArchiveSupplyRoom"] = StaticLayout.Get("map/static_layouts/rooms/archive_supplyroom/supply")
+
+-- 档案馆蒸馏室布局（3色知识分配器呈等边三角形分布）
+Layouts["ArchiveDistillery"] = StaticLayout.Get("map/static_layouts/rooms/archive_distillery/distillery", {
+    start_mask = PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
+    fill_mask = PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
+    layout_position = LAYOUT_POSITION.CENTER,
+})
 
 -- 档案馆蒸馏室布局（3色知识分配器呈等边三角形分布）
 Layouts["ArchiveDistillery"] = StaticLayout.Get("map/static_layouts/rooms/archive_distillery/distillery", {

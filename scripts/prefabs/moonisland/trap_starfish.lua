@@ -186,7 +186,7 @@ local function trap_starfish()
     end
     inst.components.mine.StartTesting = function(self)
         self:StopTesting()
-        self.testtask = self.inst:DoPeriodicTask(0.3, _FastMineTest, 0)
+        self.testtask = self.inst:DoPeriodicTask(0.3, _FastMineTest, 0.9 + math.random() * 0.1)
     end
     inst.components.mine:SetReusable(false)
     reset(inst)

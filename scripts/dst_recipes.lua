@@ -180,7 +180,7 @@ local dragonflyfurnace = Recipe(
         Ingredient("redgem", 2),
         Ingredient("charcoal", 10),
     },
-    RECIPETABS.TOWN, TECH.SCIENCE_TWO, RECIPE_GAME_TYPE.COMMON, "dragonflyfurnace_placer"
+    RECIPETABS.TOWN, TECH.LOST, RECIPE_GAME_TYPE.COMMON, "dragonflyfurnace_placer"
 )
 dragonflyfurnace.image = "dragonflyfurnace.tex"
 dragonflyfurnace.atlas = "images/dst_boss.xml"
@@ -513,6 +513,25 @@ if GetModConfigData("beta") == true then
     --]]
 end
 
+-- 月岛科技6大碎片（测试用，固定放在建筑栏 RECIPETABS.TOWN）
+for _, name in ipairs({"idol", "glass", "seed", "crown", "ward", "icon"}) do
+    local r = Recipe("moon_altar_"..name, { }, RECIPETABS.TOWN, { SCIENCE = 0 })
+    r.image = "moon_altar_"..name..".tex"
+    r.atlas = "images/dst_boss.xml"
+end
+
+-- 月亮虹吸器（测试用，1 石砖+1 树枝，科学栏）
+do
+    local r = Recipe("moon_device_construction1",
+        { Ingredient("cutstone", 1), Ingredient("twigs", 1) },
+        RECIPETABS.SCIENCE, { SCIENCE = 0 },
+        RECIPE_GAME_TYPE.COMMON, "moon_device_construction1_placer", 2.5
+    )
+    r.image = "moon_device.tex"
+    r.atlas = "images/dst_boss.xml"
+    print("[RECIPE] moon_device test recipe added")
+end
+
 -- 彩虹宝石：6 色宝石合成（DST transmute_opalpreciousgem 移植）
 local opalpreciousgem_recipe = Recipe(
     "opalpreciousgem",
@@ -565,25 +584,31 @@ local horrorfuel_recipe = Recipe("horrorfuel", {
 local armordreadstone_recipe = Recipe("armordreadstone", {
     Ingredient("dreadstone", 6, "images/dreadstone.xml"),
     Ingredient("horrorfuel", 3, "images/horrorfuel.xml"),
-}, RECIPETABS.MAGIC, TECH.MAGIC_TWO)
+}, RECIPETABS.MAGIC, TECH.LOST)
     armordreadstone_recipe.image = "armordreadstone.tex"
     armordreadstone_recipe.atlas = "images/armordreadstone.xml"
-    armordreadstone_recipe.nounlock = true
     armordreadstone_recipe.nounlock = true
 
 local dreadstonehat_recipe = Recipe("dreadstonehat", {
     Ingredient("dreadstone", 4, "images/dreadstone.xml"),
     Ingredient("horrorfuel", 2, "images/horrorfuel.xml"),
-}, RECIPETABS.MAGIC, TECH.MAGIC_TWO)
+}, RECIPETABS.MAGIC, TECH.LOST)
     dreadstonehat_recipe.image = "dreadstonehat.tex"
     dreadstonehat_recipe.atlas = "images/dreadstonehat.xml"
-    dreadstonehat_recipe.nounlock = true
     dreadstonehat_recipe.nounlock = true
 
 local wall_dreadstone_item_recipe = Recipe("wall_dreadstone_item", {
     Ingredient("dreadstone", 2, "images/dreadstone.xml"),
-}, RECIPETABS.MAGIC, TECH.MAGIC_TWO)
+}, RECIPETABS.MAGIC, TECH.LOST)
     wall_dreadstone_item_recipe.image = "wall_dreadstone.tex"
     wall_dreadstone_item_recipe.atlas = "images/wall_dreadstone.xml"
     wall_dreadstone_item_recipe.nounlock = true
-    wall_dreadstone_item_recipe.nounlock = true
+
+----------------<远古钥匙配方>----------------
+-- 毁灭之种 + 铥矿 → 远古钥匙
+local atrium_key_recipe = Recipe("atrium_key", {
+    Ingredient("cave_regenerator", 1),
+    Ingredient("thulecite", 3, "images/dst_boss.xml"),
+}, RECIPETABS.ANCIENT, TECH.ANCIENT_TWO)
+    atrium_key_recipe.image = "atrium_key.tex"
+    atrium_key_recipe.atlas = "images/dst_boss.xml"

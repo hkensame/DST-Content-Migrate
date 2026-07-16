@@ -153,7 +153,10 @@ AddComponentPostInit("workable", function(self)
       local isplant = self.inst:HasTag("plant") and not self.inst:HasTag("burnt") and not (self.inst.components.diseaseable ~= nil and self.inst.components.diseaseable:IsDiseased())
       local pos = isplant and self.inst:GetPosition() or nil
       if self.onfinish ~= nil then
-        self.onfinish(self.inst, worker)
+        local ok, err = pcall(self.onfinish, self.inst, worker)
+        if not ok then
+          print("[WORKABLE] WARNING: onfinish failed - " .. tostring(err))
+        end
       end
       self.inst:PushEvent("workfinished", { worker = worker })
       worker:PushEvent("finishedwork", { target = self.inst, action = self.action })

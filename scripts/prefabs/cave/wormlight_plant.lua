@@ -16,7 +16,7 @@ local prefabs =
 
 local function onregenfn(inst)
     inst.AnimState:PlayAnimation("grow")
-    inst.AnimState:PushAnimation("berry_idle", true)
+    inst.AnimState:PushAnimation("idle_loop", true)
     inst:DoTaskInTime(8 * FRAMES, function()
         inst.Light:Enable(true)
     end)
@@ -51,7 +51,7 @@ local function fn()
 
     inst.AnimState:SetBank("worm")
     inst.AnimState:SetBuild("worm")
-    inst.AnimState:PlayAnimation("berry_idle", true)
+    inst.AnimState:PlayAnimation("idle_loop", true)
 
     inst.Light:SetRadius(1.5)
     inst.Light:SetIntensity(0.8)
@@ -73,12 +73,8 @@ local function fn()
 
     inst:AddComponent("inspectable")
 
-    ---------------------
-
     MakeMediumBurnable(inst)
     MakeSmallPropagator(inst)
-
-    ---------------------
 
     return inst
 end

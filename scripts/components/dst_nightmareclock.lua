@@ -1,4 +1,3 @@
---------------------------------------------------------------------------
 -- DS 移植版 dst_nightmareclock.lua
 -- 从 DST 源码 scripts/components/nightmareclock.lua 移植
 -- 改名原因：DS 原版已有自己的 nightmareclock 组件（gamelogic.lua:542），
@@ -9,7 +8,6 @@
 --   移除 areaaware 区域感知（DS 纯单机，无需分服同步）
 --   移除 _ismastersim 判断（DS 永远是 master）
 --   保留：4 阶段轮转、事件推送、锁定机制、Save/Load、音效
---------------------------------------------------------------------------
 
 local function GetTheWorld()
     return rawget(_G, "TheWorld")
@@ -28,9 +26,9 @@ if not table.invert then
     end
 end
 
---------------------------------------------------------------------------
+print("[DST] dst_nightmareclock constructed, inst="..tostring(inst))
+
 --[[ Constants ]]
---------------------------------------------------------------------------
 
 local PHASE_NAMES =
 {
@@ -61,15 +59,15 @@ local SOUNDS =
     },
 }
 
---------------------------------------------------------------------------
 --[[ Member variables ]]
---------------------------------------------------------------------------
 
 --Public
 self.inst = inst
 
 --Private
-local _world = GetTheWorld()
+-- 使用 inst（= cave 实体 = TheWorld）而不是 GetTheWorld()
+-- 原因：模块加载时 TheWorld 还不存在，但 inst 在 AddComponent 时已经传入
+local _world = inst
 local _phasedirty = true
 local _oldphase = 1  -- 用于 DS 兼容的 phasechange 事件
 
@@ -83,9 +81,7 @@ local _totaltimeinphase = _segs[_phase] * TUNING.SEG_TIME
 local _remainingtimeinphase = _totaltimeinphase
 local _lockedphase = nil
 
---------------------------------------------------------------------------
 --[[ Sound helpers ]]
---------------------------------------------------------------------------
 
 local function OnPhaseChanged()
     -- 播放阶段切换音效
@@ -108,17 +104,15 @@ local function OnPhaseChanged()
     end
 end
 
---------------------------------------------------------------------------
 --[[ Initialization ]]
---------------------------------------------------------------------------
 
-inst:StartUpdatingComponent(self)
+print("[DST_NMCLOCK] Initializing: phase="..PHASE_NAMES[_phase].." total=".._totaltimeinphase.." remaining=".._remainingtimeinphase)
+print("[DST_NMCLOCK] segs: calm="..(_segs[1] or 0).." warn="..(_segs[2] or 0).." wild="..(_segs[3] or 0).." dawn="..(_segs[4] or 0))
 
---------------------------------------------------------------------------
 --[[ Event listeners ]]
---------------------------------------------------------------------------
 
 inst:ListenForEvent("ms_setnightmaresegs", function(src, lengths)
+    print("[DST_NMCLOCK] ms_setnightmaresegs received")
     local normremaining = _totaltimeinphase > 0 and (_remainingtimeinphase / _totaltimeinphase) or 1
 
     if lengths then
@@ -134,16 +128,19 @@ inst:ListenForEvent("ms_setnightmaresegs", function(src, lengths)
     local resulttime = _segs[_phase] * TUNING.SEG_TIME + math.random() * TUNING.NIGHTMARE_SEG_VARIATION * TUNING.SEG_TIME
     _totaltimeinphase = resulttime
     _remainingtimeinphase = normremaining * _totaltimeinphase
+    print("[DST_NMCLOCK] segs set: calm="..(_segs[1] or 0).." warn="..(_segs[2] or 0).." wild="..(_segs[3] or 0).." dawn="..(_segs[4] or 0))
 end, _world)
 
 inst:ListenForEvent("ms_setnightmarephase", function(src, phase)
-    if _lockedphase ~= nil then return end
+    print("[DST_NMCLOCK] ms_setnightmarephase received: "..tostring(phase))
+    if _lockedphase ~= nil then print("[DST_NMCLOCK] phase locked at "..PHASE_NAMES[_lockedphase]..", ignoring") return end
     phase = PHASES[phase]
     if phase ~= nil then
         _phase = phase
         local resulttime = _segs[_phase] * TUNING.SEG_TIME + math.random() * TUNING.NIGHTMARE_SEG_VARIATION * TUNING.SEG_TIME
         _totaltimeinphase = resulttime
         _remainingtimeinphase = _totaltimeinphase
+        print("[DST_NMCLOCK] phase forced to "..PHASE_NAMES[_phase])
     end
     self:LongUpdate(0)
 end, _world)
@@ -162,21 +159,22 @@ inst:ListenForEvent("ms_nextnightmarecycle", function()
 end, _world)
 
 inst:ListenForEvent("ms_locknightmarephase", function(src, phase)
+    print("[DST_NMCLOCK] ms_locknightmarephase received: "..tostring(phase))
     _lockedphase = PHASES[phase]
     if _lockedphase ~= nil then
         _phase = _lockedphase
         local resulttime = _segs[_phase] * TUNING.SEG_TIME + math.random() * TUNING.NIGHTMARE_SEG_VARIATION * TUNING.SEG_TIME
         _totaltimeinphase = resulttime
         _remainingtimeinphase = 0
+        print("[DST_NMCLOCK] phase LOCKED to "..PHASE_NAMES[_lockedphase])
     end
     self:LongUpdate(0)
 end, _world)
 
---------------------------------------------------------------------------
 --[[ Update ]]
---------------------------------------------------------------------------
 
 function self:OnUpdate(dt)
+    --print("[DST] nightmareclock OnUpdate dt=", dt) -- uncomment for heartbeat debug
     local remainingtimeinphase = _remainingtimeinphase - dt
 
     if remainingtimeinphase > 0 then
@@ -184,11 +182,13 @@ function self:OnUpdate(dt)
         _remainingtimeinphase = remainingtimeinphase
     else
         -- 进入下一阶段
+        print("[DST_NMCLOCK] phase transition: "..PHASE_NAMES[_phase].." remaining=".._remainingtimeinphase.." dt="..dt)
         _remainingtimeinphase = 0
 
         if _lockedphase == nil then
             while _remainingtimeinphase <= 0 do
                 _phase = (_phase % #PHASE_NAMES) + 1
+                print("[DST_NMCLOCK] advancing to phase ".._phase.."="..PHASE_NAMES[_phase])
                 _phasedirty = true
                 local resulttime = _segs[_phase] * TUNING.SEG_TIME + math.random() * TUNING.NIGHTMARE_SEG_VARIATION * TUNING.SEG_TIME
                 _totaltimeinphase = resulttime
@@ -199,12 +199,15 @@ function self:OnUpdate(dt)
                 self:OnUpdate(-remainingtimeinphase)
                 return
             end
+        else
+            print("[DST_NMCLOCK] phase locked at "..PHASE_NAMES[_lockedphase]..", skipping advance")
         end
     end
 
     -- 相位变更时推送事件 + 更新音效
     if _phasedirty then
         _world:PushEvent("nightmarephasechanged", PHASE_NAMES[_phase])
+        print("[DST] nightmareclock phase changed to: "..PHASE_NAMES[_phase])
         -- DS 兼容：同时推送 phasechange 事件
         -- DS 用 "nightmare" 对应模组的 "wild"，需要映射
         local ds_newphase = PHASE_NAMES[_phase] == "wild" and "nightmare" or PHASE_NAMES[_phase]
@@ -227,13 +230,14 @@ function self:OnUpdate(dt)
         elapsedtime = elapsedtime + v * TUNING.SEG_TIME
     end
     _world:PushEvent("nightmareclocktick", { phase = PHASE_NAMES[_phase], timeinphase = normtimeinphase, time = elapsedtime })
+    print("[DST_NMCLOCK] OnUpdate heartbeat: phase="..PHASE_NAMES[_phase].." remaining=".._remainingtimeinphase.." total=".._totaltimeinphase)
 end
 
 self.LongUpdate = self.OnUpdate
+print("[DST_NMCLOCK] OnUpdate and LongUpdate assigned, starting update component")
+inst:StartUpdatingComponent(self)
 
---------------------------------------------------------------------------
 --[[ Save/Load ]]
---------------------------------------------------------------------------
 
 function self:OnSave()
     local data =
@@ -248,6 +252,8 @@ function self:OnSave()
     for i, v in ipairs(_segs) do
         data.lengths[PHASE_NAMES[i]] = v
     end
+
+    print("[DST_NMCLOCK] OnSave: phase="..data.phase.." remaining="..data.remainingtimeinphase.." locked="..tostring(data.lockedphase))
 
     return data
 end
@@ -271,13 +277,13 @@ function self:OnLoad(data)
     _totaltimeinphase = data.totaltimeinphase or _segs[_phase] * TUNING.SEG_TIME
     _remainingtimeinphase = math.min(data.remainingtimeinphase or _totaltimeinphase, _totaltimeinphase)
     _lockedphase = data.lockedphase ~= nil and PHASES[data.lockedphase] or nil
+
+    print("[DST_NMCLOCK] OnLoad: phase="..PHASE_NAMES[_phase].." remaining=".._remainingtimeinphase.." locked="..tostring(data.lockedphase))
 end
 
---------------------------------------------------------------------------
 --[[ DS 兼容公开方法 ]]
 -- DS nightmare_timepiece、nightmarelight、fissure 等 prefab
 -- 通过 GetNightmareClock() 获取组件后调用这些方法
---------------------------------------------------------------------------
 
 function self:GetPhase()
     -- DS 兼容：将 "wild" 映射为 "nightmare"（DS 原版阶段名）
@@ -310,16 +316,12 @@ function self:GetTimeLeftInEra()
     return _remainingtimeinphase
 end
 
---------------------------------------------------------------------------
 --[[ Debug ]]
---------------------------------------------------------------------------
 
 function self:GetDebugString()
     return string.format("%s: %2.2f ", PHASE_NAMES[_phase], _remainingtimeinphase)
 end
 
---------------------------------------------------------------------------
 --[[ End ]]
---------------------------------------------------------------------------
 
 end)

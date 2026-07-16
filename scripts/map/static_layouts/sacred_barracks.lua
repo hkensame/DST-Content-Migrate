@@ -416,7 +416,7 @@ return {
         },
         {
           name = "",
-          type = "chessjunk",
+          type = "chessjunk_spawner",
           shape = "rectangle",
           x = 256,
           y = 192,
@@ -427,7 +427,7 @@ return {
         },
         {
           name = "",
-          type = "chessjunk",
+          type = "chessjunk_spawner",
           shape = "rectangle",
           x = 160,
           y = 416,
@@ -438,7 +438,7 @@ return {
         },
         {
           name = "",
-          type = "chessjunk",
+          type = "chessjunk_spawner",
           shape = "rectangle",
           x = 352,
           y = 288,
@@ -449,7 +449,7 @@ return {
         },
         {
           name = "",
-          type = "rook",
+          type = "rook_nightmare_spawner",
           shape = "rectangle",
           x = 208,
           y = 304,
@@ -460,7 +460,7 @@ return {
         },
         {
           name = "",
-          type = "rook",
+          type = "rook_nightmare_spawner",
           shape = "rectangle",
           x = 480,
           y = 368,
@@ -471,7 +471,7 @@ return {
         },
         {
           name = "",
-          type = "bishop",
+          type = "bishop_nightmare_spawner",
           shape = "rectangle",
           x = 432,
           y = 176,

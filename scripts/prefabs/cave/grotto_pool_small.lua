@@ -144,9 +144,7 @@ local function poolfn()
 
     inst:AddComponent("inspectable")
 
-    -- DS 无 watersource 组件（DST 水源系统）
-    local ok, err = pcall(function() inst:AddComponent("watersource") end)
-    if not ok then print("[grotto_pool_small] watersource skipped:", err) end
+    inst:AddComponent("watersource")
 
     inst:ListenForEvent("onremove", on_removed)
 

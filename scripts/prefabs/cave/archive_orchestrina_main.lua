@@ -313,7 +313,7 @@ local function testforplayers(inst)
 	if main and not main.busy then
         local failed = main.failed
         local lockboxents = findlockbox( main )
-        local dist = inst:GetDistanceSqToClosestPlayer(true)
+        local dist = GetPlayer() ~= nil and inst:GetDistanceSqToInst(GetPlayer()) or math.huge
         if dist < 1.7*1.7 then
             inst.close = true
         end
@@ -395,7 +395,9 @@ local function mainfn()
     end)
 
     inst.task = inst:DoPeriodicTask(0.10, function()
-        if IsArchivePowered(inst) then
+        local theWorld = inst:GetTheWorld()
+        local archive = theWorld ~= nil and theWorld.components.archivemanager or nil
+        if not archive or archive:GetPowerSetting() then
             testforlockbox(inst)
         end
     end)
@@ -458,7 +460,9 @@ local function smallfn()
     end)
 
     inst.task = inst:DoPeriodicTask(0.10, function()
-        if IsArchivePowered(inst) then
+        local theWorld = inst:GetTheWorld()
+        local archive = theWorld ~= nil and theWorld.components.archivemanager or nil
+        if not archive or archive:GetPowerSetting() then
             testforplayers(inst)
         end
     end)

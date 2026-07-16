@@ -191,7 +191,11 @@ end
 
 local function onloadpostpass(inst, newents, data)
     if data and data.additems and inst.components.container then
-        for i, itemname in ipairs(data.additems)do
+        local items = data.additems
+        if type(items) ~= "table" then
+            items = {items}
+        end
+        for i, itemname in ipairs(items)do
             local ent = SpawnPrefab(itemname)
             inst.components.container:GiveItem( ent )
         end

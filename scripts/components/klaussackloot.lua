@@ -10,7 +10,6 @@ local giant_loot2 =
     "dragonflyfurnace_blueprint",
     "townportal_blueprint",
     "bundlewrap_blueprint",
-	"trident_blueprint",
 }
 
 local giant_loot3 =
