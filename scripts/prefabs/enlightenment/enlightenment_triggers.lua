@@ -76,7 +76,15 @@ local function OnPlayerAttacked(inst, data)
     if not attacker then return end
     for _, tag in ipairs(LUNAR_ENEMY_TAGS) do
         if attacker:HasTag(tag) then
-            print(string.format("[ENLIGHTEN] LunarCombat: attacked by '%s' (tag=%s)", tostring(attacker.prefab), tag))
+            -- 理智阈值守卫：如果玩家当前理智极低，被月灵攻击也不强制激活启蒙
+            -- 否则 player 低san时在月岛会被月灵攻击→lunar_combat源→启蒙不退出→振荡
+            local pct = inst.components.enlightenment:GetPercent()
+            local min_thresh = TUNING.ENLIGHTENMENT_THRESH_SPAWN or 0.6
+            if pct < min_thresh then
+                print(string.format("[ENLIGHTEN] LunarCombat SUPPRESSED: pct=%.2f < min_thresh=%.2f", pct, min_thresh))
+                return
+            end
+            print(string.format("[ENLIGHTEN] LunarCombat: attacked by '%s' (tag=%s) pct=%.2f", tostring(attacker.prefab), tag, pct))
             inst.components.enlightenment:Enable("lunar_combat", TUNING.ENLIGHTENMENT_COMBAT_DURATION or 10)
             return
         end
@@ -96,7 +104,13 @@ local function OnPlayerEat(inst, data)
     local food = data and data.food
     if not food then return end
     if MOON_FOODS[food.prefab] then
-        print(string.format("[ENLIGHTEN] MoonFood: ate '%s'", tostring(food.prefab)))
+        local pct = inst.components.enlightenment:GetPercent()
+        local min_thresh = TUNING.ENLIGHTENMENT_THRESH_SPAWN or 0.6
+        if pct < min_thresh then
+            print(string.format("[ENLIGHTEN] MoonFood SUPPRESSED: pct=%.2f < min_thresh=%.2f", pct, min_thresh))
+            return
+        end
+        print(string.format("[ENLIGHTEN] MoonFood: ate '%s' pct=%.2f", tostring(food.prefab), pct))
         inst.components.enlightenment:Enable("moon_food", TUNING.ENLIGHTENMENT_FOOD_DURATION or 30)
     end
 end
@@ -419,16 +433,33 @@ local function EnlightenmentUpdate(inst)
             rawset(inst, "_enlighten_tile_result", tile_pass)
         end
         local tile_pass = rawget(inst, "_enlighten_tile_result") or false
+        -- [FIX] 添加理智阈值守卫：低san时不因站在月岛地皮而强制激活启蒙
+        -- 否则低san退出启蒙后，下一 tick 又被 tile_density 重新激活，
+        -- 导致影怪不刷、月灵不消、低san视觉不恢复的振荡循环
+        local _san_pct = enlight:GetPercent()
+        local _spawn_thresh = TUNING.ENLIGHTENMENT_THRESH_SPAWN or 0.6
         if tile_pass then
-            enlight:Enable("tile_density")
+            if _san_pct >= _spawn_thresh then
+                enlight:Enable("tile_density")
+            else
+                enlight:Disable("tile_density")
+                print(string.format("[ENLIGHTEN] tile_density SUPPRESSED: pct=%.2f < thresh=%.2f",
+                    _san_pct, _spawn_thresh))
+            end
         else
             enlight:Disable("tile_density")
         end
 
-        -- Plan F: Moon altar
+        -- Plan F: Moon altar 同理加理智守卫
         local altar_pass = IsNearMoonAltar(inst)
         if altar_pass then
-            enlight:Enable("moon_altar")
+            if _san_pct >= _spawn_thresh then
+                enlight:Enable("moon_altar")
+            else
+                enlight:Disable("moon_altar")
+                print(string.format("[ENLIGHTEN] moon_altar SUPPRESSED: pct=%.2f < thresh=%.2f",
+                    _san_pct, _spawn_thresh))
+            end
         else
             enlight:Disable("moon_altar")
         end
@@ -492,6 +523,19 @@ local function InstallEnlightenment(inst)
     inst:ListenForEvent("attacked", OnPlayerAttacked)
     inst:ListenForEvent("oneat", OnPlayerEat)
     inst:ListenForEvent("oneatsomething", OnPlayerEat)
+
+    -- 诊断：跟踪启蒙使能/禁能状态变化
+    local _enlight_enable_trace = false
+    inst:ListenForEvent("enlightenment_enabled", function()
+        _enlight_enable_trace = true
+        local pct = inst.components.enlightenment and inst.components.enlightenment:GetPercent() or -1
+        print(string.format("[ENLIGHTEN] EVENT enlightenment_enabled fired (sanity_pct=%.2f)", pct))
+    end)
+    inst:ListenForEvent("enlightenment_disabled", function()
+        _enlight_enable_trace = false
+        local pct = inst.components.enlightenment and inst.components.enlightenment:GetPercent() or -1
+        print(string.format("[ENLIGHTEN] EVENT enlightenment_disabled fired (sanity_pct=%.2f)", pct))
+    end)
 
     inst:DoPeriodicTask(SCAN_INTERVAL, EnlightenmentUpdate)
     print("[ENLIGHTEN] Periodic task installed, system ready")

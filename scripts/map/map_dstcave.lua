@@ -730,9 +730,9 @@ AddTask("DST_Residential3", {
 AddLevel(LEVELTYPE.CAVE, {
     id = "DST_CAVE",
     name = "DST_CAVE",
+    location = "cave",
     overrides = {
         {"world_size",      "huge"},
-        {"location",        "cave"},
         {"start_setpeice",  "CaveStart"},
         {"start_node",      "DST_Entrance"},
         {"wormholes",       "never"},

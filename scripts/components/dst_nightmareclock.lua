@@ -109,6 +109,14 @@ end
 print("[DST_NMCLOCK] Initializing: phase="..PHASE_NAMES[_phase].." total=".._totaltimeinphase.." remaining=".._remainingtimeinphase)
 print("[DST_NMCLOCK] segs: calm="..(_segs[1] or 0).." warn="..(_segs[2] or 0).." wild="..(_segs[3] or 0).." dawn="..(_segs[4] or 0))
 
+-- 暴露 .phase 字符串属性供 DS 原版预制体（nightmarefissure 等）直接访问
+-- DS 原版 nightmareclock 有 self.phase，而本组件用私有 _phase（整数），
+-- 不加此字段会导致 clock.phase == nil → nightmarefissure 崩溃
+local function update_public_phase()
+    self.phase = PHASE_NAMES[_phase] == "wild" and "nightmare" or PHASE_NAMES[_phase]
+end
+update_public_phase()
+
 --[[ Event listeners ]]
 
 inst:ListenForEvent("ms_setnightmaresegs", function(src, lengths)
@@ -137,9 +145,11 @@ inst:ListenForEvent("ms_setnightmarephase", function(src, phase)
     phase = PHASES[phase]
     if phase ~= nil then
         _phase = phase
+        _phasedirty = true
         local resulttime = _segs[_phase] * TUNING.SEG_TIME + math.random() * TUNING.NIGHTMARE_SEG_VARIATION * TUNING.SEG_TIME
         _totaltimeinphase = resulttime
         _remainingtimeinphase = _totaltimeinphase
+        update_public_phase()
         print("[DST_NMCLOCK] phase forced to "..PHASE_NAMES[_phase])
     end
     self:LongUpdate(0)
@@ -206,6 +216,7 @@ function self:OnUpdate(dt)
 
     -- 相位变更时推送事件 + 更新音效
     if _phasedirty then
+        update_public_phase()
         _world:PushEvent("nightmarephasechanged", PHASE_NAMES[_phase])
         print("[DST] nightmareclock phase changed to: "..PHASE_NAMES[_phase])
         -- DS 兼容：同时推送 phasechange 事件
@@ -278,6 +289,7 @@ function self:OnLoad(data)
     _remainingtimeinphase = math.min(data.remainingtimeinphase or _totaltimeinphase, _totaltimeinphase)
     _lockedphase = data.lockedphase ~= nil and PHASES[data.lockedphase] or nil
 
+    update_public_phase()
     print("[DST_NMCLOCK] OnLoad: phase="..PHASE_NAMES[_phase].." remaining=".._remainingtimeinphase.." locked="..tostring(data.lockedphase))
 end
 

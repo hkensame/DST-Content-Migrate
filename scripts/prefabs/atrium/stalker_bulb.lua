@@ -1,11 +1,11 @@
 local assets_single =
 {
-    Asset("ANIM", "anim/moonisland/bulb_plant_single.zip"),
+    -- bulb_plant_single: DS 原版已有，无需导入
 }
 
 local assets_double =
 {
-    Asset("ANIM", "anim/moonisland/bulb_plant_double.zip"),
+    -- bulb_plant_double: DS 原版已有，无需导入
 }
 
 local prefabs =

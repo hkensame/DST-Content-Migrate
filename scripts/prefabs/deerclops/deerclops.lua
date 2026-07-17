@@ -4,9 +4,7 @@ require "stategraphs/SGdeerclops_yule"
 
 local assets =
 {
-    Asset("ANIM", "anim/deerclops/deerclops_basic.zip"),
-    Asset("ANIM", "anim/deerclops/deerclops_actions.zip"),
-    Asset("ANIM", "anim/deerclops/deerclops_build.zip"),
+    Asset("ANIM", "anim/deerclops/dst_deerclops_actions.zip"),
     Asset("ANIM", "anim/deerclops/deerclops_yule.zip"),
     Asset("SOUND", "sound/deerclops.fsb"),
     Asset("ANIM", "anim/lavaarena_staff_smoke_fx.zip"),

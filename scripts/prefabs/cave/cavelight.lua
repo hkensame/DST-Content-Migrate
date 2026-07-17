@@ -1,7 +1,4 @@
-local assets =
-{
-    Asset("ANIM", "anim/cave/cave_exit_lightsource.zip"),
-}
+-- DS 原版 data/anim 已有此 bank，无需 mod 提供
 
 local function timechange(inst)
     local c = GetClock()
@@ -62,7 +59,7 @@ local function atriumfn()
     return inst
 end
 
-return Prefab("cavelight", normalfn, assets),
-       Prefab("cavelight_small", smallfn, assets),
-       Prefab("cavelight_tiny", tinyfn, assets),
-       Prefab("cavelight_atrium", atriumfn, assets)
+return Prefab("cavelight", normalfn),
+       Prefab("cavelight_small", smallfn),
+       Prefab("cavelight_tiny", tinyfn),
+       Prefab("cavelight_atrium", atriumfn)

@@ -19,8 +19,8 @@ end
 
 local assets =
 {
-    Asset("ANIM", "anim/monkey/kiki_basic.zip"),
-    Asset("ANIM", "anim/monkey/kiki_nightmare_skin.zip"),
+    -- kiki_basic: DS 原版已有，无需导入
+    -- kiki_nightmare_skin: DS 原版已有，无需导入
     Asset("SOUND", "sound/monkey.fsb"),
 }
 

@@ -1,8 +1,14 @@
 -- DS 移植版：删除 AddNetwork/SetPristine/ismastersim/scrapbook
--- 仅保留 3 种枯萎变种，采摘即消失（枯萎概念）
+-- 仅保留 3 种枯萎变种，播放 picked_wilt 动画后消失
 
 local assets =
 {
+    -- Bank（动画骨架）：来自正常版
+    Asset("ANIM", "anim/bulb_plant_single.zip"),
+    Asset("ANIM", "anim/bulb_plant_double.zip"),
+    Asset("ANIM", "anim/bulb_plant_triple.zip"),
+    Asset("ANIM", "anim/bulb_plant_springy.zip"),
+    -- Build（枯萎贴图）：来自枯萎版
     Asset("ANIM", "anim/bulb_plant_single_withered_build.zip"),
     Asset("ANIM", "anim/bulb_plant_double_withered_build.zip"),
     Asset("ANIM", "anim/bulb_plant_triple_withered_build.zip"),
@@ -17,6 +23,12 @@ local withered_prefabs =
 local plantnames = { "_single", "_springy" }
 
 local LIGHT_COLOUR = { 201/255, 93/255, 10/255 } -- 暗淡橙光
+
+local function onpickedfn(inst)
+    inst.AnimState:PlayAnimation("picked_wilt")
+    inst.persists = false
+    inst:ListenForEvent("animover", inst.Remove)
+end
 
 local function commonfn(bank, build, radius)
     local inst = CreateEntity()
@@ -40,7 +52,7 @@ local function commonfn(bank, build, radius)
     inst:AddComponent("pickable")
     inst.components.pickable.picksound = "dontstarve/wilson/pickup_reeds"
     inst.components.pickable:SetUp("spoiled_food", TUNING.FLOWER_CAVE_REGROW_TIME)
-    inst.components.pickable.remove_when_picked = true
+    inst.components.pickable.onpickedfn = onpickedfn
     inst.components.pickable.quickpick = true
     inst:AddComponent("lootdropper")
     inst:AddComponent("inspectable")

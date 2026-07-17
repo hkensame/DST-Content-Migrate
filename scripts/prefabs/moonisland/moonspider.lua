@@ -5,7 +5,7 @@ require "stategraphs/SGmoonspider"
 
 local assets =
 {
-    Asset("ANIM", "anim/moonisland/ds_spider_basic.zip"),
+    -- ds_spider_basic: DS 原版已有，无需导入
     Asset("ANIM", "anim/moonisland/ds_spider_moon.zip"),
     Asset("ANIM", "anim/moonisland/ds_spider_moon_boat_jump.zip"),
 	Asset("SOUND", "sound/spider.fsb"),

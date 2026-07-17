@@ -30,7 +30,7 @@ AddRoom("DST_Entrance", {
         distributepercent = .2,
         distributeprefabs = {
             cavelight = 0.05,
-            ["cave/objects/flower_cave"] = 0.4,
+            flower_cave = 0.4
         },
     },
 })
@@ -53,9 +53,9 @@ AddRoom("DST_LightPlantField", {
         distributepercent = .2,
         distributeprefabs=
         {
-            ["cave/objects/flower_cave"] = 1.0,
-            ["cave/objects/flower_cave_double"] = 0.5,
-            ["cave/objects/flower_cave_triple"] = 0.5,
+            flower_cave = 1.0,
+            flower_cave_double = 0.5,
+            flower_cave_triple = 0.5,
 
             stalagmite_tall=0.05,
             stalagmite_tall_med=0.05,
@@ -67,7 +67,7 @@ AddRoom("DST_LightPlantField", {
 
             slurtlehole = 0.01,
 
-            slurper = 0.001,
+            slurper_spawner = 0.001,
         },
     }
 })
@@ -80,9 +80,9 @@ AddRoom("DST_WormPlantField", {
         distributepercent = .15,
         distributeprefabs=
         {
-            ["cave/objects/flower_cave"] = 0.5,
-            ["cave/objects/flower_cave_double"] = 0.1,
-            ["cave/objects/flower_cave_triple"] = 0.1,
+            flower_cave = 0.5,
+            flower_cave_double = 0.1,
+            flower_cave_triple = 0.1,
 
             stalagmite_tall=0.05,
             stalagmite_tall_med=0.05,
@@ -107,9 +107,9 @@ AddRoom("DST_FernGully", {
         distributepercent = .25,
         distributeprefabs=
         {
-            ["cave/objects/flower_cave"] = 0.2,
-            ["cave/objects/flower_cave_double"] = 0.1,
-            ["cave/objects/flower_cave_triple"] = 0.1,
+            flower_cave = 0.2,
+            flower_cave_double = 0.1,
+            flower_cave_triple = 0.1,
 
             stalagmite_tall=0.5,
             stalagmite_tall_med=0.3,
@@ -134,11 +134,11 @@ AddRoom("DST_SlurtlePlains", {
         distributepercent = .20,
         distributeprefabs=
         {
-            ["cave/objects/flower_cave"] = 0.2,
-            ["cave/objects/flower_cave_double"] = 0.1,
-            ["cave/objects/flower_cave_triple"] = 0.1,
+            flower_cave = 0.2,
+            flower_cave_double = 0.1,
+            flower_cave_triple = 0.1,
 
-            stalagmite_tall=1.5,
+            stalagmite_tall=0.5,
             stalagmite_tall_med=0.5,
             stalagmite_tall_low=0.5,
             pillar_cave_rock = 0.1,
@@ -163,9 +163,9 @@ AddRoom("DST_MudWithRabbit", {
         distributepercent = .15,
         distributeprefabs=
         {
-            ["cave/objects/flower_cave"] = 0.5,
-            ["cave/objects/flower_cave_double"] = 0.3,
-            ["cave/objects/flower_cave_triple"] = 0.2,
+            flower_cave = 0.5,
+            flower_cave_double = 0.3,
+            flower_cave_triple = 0.2,
 
             stalagmite_tall=0.5,
             stalagmite_tall_med=0.3,
@@ -187,9 +187,9 @@ local bgmud = {
         distributepercent = .15,
         distributeprefabs=
         {
-            ["cave/objects/flower_cave"] = 0.2,
-            ["cave/objects/flower_cave_double"] = 0.10,
-            ["cave/objects/flower_cave_triple"] = 0.05,
+            flower_cave = 0.2,
+            flower_cave_double = 0.10,
+            flower_cave_triple = 0.05,
 
             stalagmite_tall=1.5,
             stalagmite_tall_med=1.0,
@@ -216,7 +216,7 @@ AddRoom("DST_BatCave", {
         distributepercent = .15,
         distributeprefabs=
         {
-            ["cave/objects/batcave"] = 0.05,
+            batcave = 0.05,
             guano = 0.27,
             goldnugget=.05,
             flint=0.05,
@@ -238,7 +238,7 @@ AddRoom("DST_BattyCave", {
         distributepercent = .25,
         distributeprefabs=
         {
-            ["cave/objects/batcave"] = 0.15,
+            batcave = 0.15,
             guano = 0.27,
             goldnugget=.05,
             flint=0.05,
@@ -261,7 +261,7 @@ AddRoom("DST_FernyBatCave", {
         distributeprefabs=
         {
             cave_fern = 0.5,
-            ["cave/objects/batcave"] = 0.05,
+            batcave = 0.05,
             guano = 0.27,
             goldnugget=.05,
             flint=0.05,
@@ -282,7 +282,7 @@ local bgbatcave = {
         distributepercent = .13,
         distributeprefabs=
         {
-            ["cave/objects/batcave"] = 0.05,
+            batcave = 0.05,
             stalagmite_tall=0.4,
             stalagmite_tall_med=0.4,
             stalagmite_tall_low=0.4,
@@ -336,7 +336,7 @@ AddRoom("DST_BatsAndSlurtles", {
             pillar_cave_rock = 0.1,
 
             slurtlehole = 0.5,
-            ["cave/objects/batcave"] = 0.1,
+            batcave = 0.15,
 
             fissure = 0.01,
         },
@@ -420,7 +420,7 @@ AddRoom("DST_BatsAndRocky", {
             flint=0.05,
 
             slurtlehole = 0.05,
-            ["cave/objects/batcave"] = 0.10,
+            batcave = 0.10,
 
             fissure = 0.01,
         },
@@ -816,7 +816,7 @@ AddRoom("DST_BlueMushForest", {
             flower_cave_double = 0.05,
             flower_cave_triple = 0.05,
 
-            ["cave/objects/batcave"] = 0.005,
+            batcave = 0.005,
             dropperweb = 0.015,
 
             slurper = 0.001,
@@ -838,7 +838,7 @@ AddRoom("DST_BlueMushMeadow", {
             flower_cave_double = 0.05,
             flower_cave_triple = 0.05,
 
-            ["cave/objects/batcave"] = 0.005,
+            batcave = 0.005,
             dropperweb = 0.015,
 
             slurper = 0.001,
@@ -906,7 +906,7 @@ local bgbluemush = {
             flower_cave_double = 0.05,
             flower_cave_triple = 0.05,
 
-            ["cave/objects/batcave"] = 0.005,
+            batcave = 0.005,
             dropperweb = 0.015,
 
             slurper = 0.001,
@@ -1060,7 +1060,7 @@ AddRoom("DST_SpidersAndBats", {
             pillar_cave = 0.1,
             pillar_stalactite = 0.1,
             spiderhole = 0.05,
-            ["cave/objects/batcave"] = 0.05,
+            batcave = 0.05,
 
             fissure = 0.01,
         },
@@ -1082,7 +1082,7 @@ AddRoom("DST_ThuleciteDebris", {
             pillar_cave = 0.1,
             pillar_stalactite = 0.1,
             spiderhole = 0.01,
-            ["cave/objects/batcave"] = 0.01,
+            batcave = 0.01,
 
             fissure = 0.1,
             thulecite = 0.01,
@@ -1915,15 +1915,15 @@ AddRoom("DST_WetWilds", {
 
     type = NODE_TYPE.Room,
     contents =  {
-        distributepercent = 0.25,
+        distributepercent = 0.20,
         distributeprefabs=
         {
-            lichen = .25,
-            cave_fern = 0.1,
-            pillar_algae = .01,
+            lichen = .7,
+            cave_fern = 0.08,
+            pillar_algae = .005,
             pond_cave = 0.1,
-            ["cave/monsters/slurper_spawner"] = .05,
-            fissure_lower = 0.05,
+            slurper_spawner = .03,
+            fissure_lower = 0.03,
         },
     }
 })
@@ -1940,14 +1940,14 @@ AddRoom("DST_LichenMeadow", {
             lichen = 1.0,
             cave_fern = 1.0,
             pillar_algae = 0.1,
-            ["cave/monsters/slurper_spawner"] = 0.35,
+            slurper_spawner = 0.35,
             fissure_lower = 0.05,
 
             flower_cave = .05,
             flower_cave_double = .03,
             flower_cave_triple = .01,
 
-            ["cave/monsters/worm_spawner"] = 0.07,
+            worm_spawner = 0.07,
             wormlight_plant = 0.15,
         },
     }
@@ -1964,7 +1964,7 @@ AddRoom("DST_LichenLand", {
             lichen = 2.0,
             cave_fern = 0.5,
             pillar_algae = 0.5,
-            ["cave/monsters/slurper_spawner"] = 0.05,
+            slurper_spawner = 0.05,
             fissure_lower = 0.05,
         },
     }
@@ -1983,13 +1983,13 @@ AddRoom("DST_CaveJungle", {
             cave_fern = 1,
             pillar_algae = 0.05,
 
-            ["cave/cave_banana_tree"] = 0.5,
-            ["cave/objects/monkeybarrel_spawner"] = 0.1,
+            cave_banana_tree = 0.5,
+            monkeybarrel_spawner = 0.1,
 
-            ["cave/monsters/slurper_spawner"] = 0.06,
+            slurper_spawner = 0.06,
             pond_cave = 0.07,
             fissure_lower = 0.04,
-            ["cave/monsters/worm_spawner"] = 0.04,
+            worm_spawner = 0.04,
             wormlight_plant = 0.08,
         },
     }
@@ -2008,13 +2008,13 @@ AddRoom("DST_MonkeyMeadow", {
             cave_fern = 1,
             pillar_algae = 0.05,
 
-            ["cave/cave_banana_tree"] = 0.1,
-            ["cave/objects/monkeybarrel_spawner"] = 0.06,
+            cave_banana_tree = 0.1,
+            monkeybarrel_spawner = 0.06,
 
-            ["cave/monsters/slurper_spawner"] = 0.06,
+            slurper_spawner = 0.06,
             pond_cave = 0.07,
             fissure_lower = 0.04,
-            ["cave/monsters/worm_spawner"] = 0.04,
+            worm_spawner = 0.04,
             wormlight_plant = 0.08,
         },
     }
@@ -2036,14 +2036,14 @@ local bgwilds = {
             cave_fern = 1,
             pillar_algae = 0.01,
 
-            ["cave/cave_banana_tree"] = 0.01,
-            ["cave/objects/monkeybarrel_spawner"] = 0.01,
+            cave_banana_tree = 0.01,
+            monkeybarrel_spawner = 0.01,
 
             flower_cave = 0.05,
             flower_cave_double = 0.03,
             flower_cave_triple = 0.01,
 
-            ["cave/monsters/worm_spawner"] = 0.07,
+            worm_spawner = 0.07,
             wormlight_plant = 0.15,
 
             fissure_lower = 0.04,
@@ -2066,19 +2066,19 @@ AddRoom("DST_Vacant", {
             ["CornerWall2"] = function() return math.random(2,3) end,
             ["StraightWall2"] = function() return math.random(2,3) end,
         },
-        distributepercent = 0.5,
+        distributepercent = 0.45,
         distributeprefabs=
         {
-            lichen = .4,
+            lichen = .3,
             cave_fern = .6,
-            pillar_algae = .01,
-            ["cave/monsters/slurper_spawner"] = .15,
-            ["cave/cave_banana_tree"] = .1,
-            ["cave/objects/monkeybarrel_spawner"] = .1,
+            pillar_algae = .008,
+            slurper_spawner = .10,
+            cave_banana_tree = .08,
+            monkeybarrel_spawner = .07,
             dropperweb = .1,
-            ruins_rubble_table = 0.1,
-            ruins_rubble_chair = 0.1,
-            ruins_rubble_vase = 0.1,
+            ruins_rubble_table = 0.12,
+            ruins_rubble_chair = 0.12,
+            ruins_rubble_vase = 0.12,
         },
     }
 })
@@ -2099,12 +2099,12 @@ AddRoom("DST_RuinedCity", {
             cave_fern = 1,
             pillar_algae = .05,
 
-            ["cave/cave_banana_tree"] = 0.1,
-            ["cave/objects/monkeybarrel_spawner"] = 0.06,
-            ["cave/monsters/slurper_spawner"] = 0.06,
+            cave_banana_tree = 0.1,
+            monkeybarrel_spawner = 0.06,
+            slurper_spawner = 0.06,
             pond_cave = 0.07,
             fissure_lower = 0.04,
-            ["cave/monsters/worm_spawner"] = 0.04,
+            worm_spawner = 0.04,
         },
     }
 })
@@ -2179,9 +2179,9 @@ AddRoom("DST_Barracks", {
 
             nightmarelight = 1,
 
-            ["cave/monsters/rook_nightmare_spawner"] = .07,
-            ["cave/monsters/bishop_nightmare_spawner"] = .07,
-            ["cave/monsters/knight_nightmare_spawner"] = .07,
+            rook_nightmare_spawner = .07,
+            bishop_nightmare_spawner = .07,
+            knight_nightmare_spawner = .07,
         },
     }
 })
@@ -2197,6 +2197,14 @@ AddRoom("DST_SacredBarracks", {
         {
             ["SacredBarracks"] = 1,
         },
+        countprefabs =
+        {
+            chessjunk_spawner = 2,
+            nightmarelight = 1,
+            ruins_statue_head_spawner = 1,
+            ruins_statue_head_nogem_spawner = 1,
+            rook_nightmare_spawner = 1,
+        },
     }
 })
 
@@ -2209,6 +2217,15 @@ AddRoom("DST_Bishops", {
         countstaticlayouts =
         {
             ["Barracks2"] = 1,
+        },
+        countprefabs =
+        {
+            chessjunk_spawner = 1,
+            nightmarelight = 1,
+            ruins_statue_head_spawner = 1,
+            ruins_statue_mage_spawner = 1,
+            rook_nightmare_spawner = 1,
+            knight_nightmare_spawner = 1,
         },
     }
 })
@@ -2223,6 +2240,14 @@ AddRoom("DST_Spiral", {
         {
             ["Spiral"] = 1,
         },
+        countprefabs =
+        {
+            chessjunk_spawner = 2,
+            nightmarelight = 1,
+            ruins_statue_mage_spawner = 1,
+            ruins_statue_mage_nogem_spawner = 1,
+            bishop_nightmare_spawner = 1,
+        },
     }
 })
 
@@ -2235,6 +2260,13 @@ AddRoom("DST_BrokenAltar", {
         countstaticlayouts =
         {
             ["BrokenAltar"] = 1,
+        },
+        countprefabs =
+        {
+            chessjunk_spawner = 2,
+            nightmarelight = 1,
+            ruins_statue_head_nogem_spawner = 1,
+            rook_nightmare_spawner = 1,
         },
     }
 })
@@ -2262,19 +2294,19 @@ local bgsacred = {
         {
             chessjunk_spawner = .3,
 
-            nightmarelight = 1,
+            nightmarelight = 0.5,
 
             pillar_ruins = 0.5,
 
-            ["cave/objects/ruins_statue_head_spawner"] = .1,
-            ["cave/objects/ruins_statue_head_nogem_spawner"] = .2,
+            ruins_statue_head_spawner = .1,
+            ruins_statue_head_nogem_spawner = 2,
 
-            ["cave/objects/ruins_statue_mage_spawner"] =.1,
-            ["cave/objects/ruins_statue_mage_nogem_spawner"] = .2,
+            ruins_statue_mage_spawner =.1,
+            ruins_statue_mage_nogem_spawner = 2,
 
-            ["cave/monsters/rook_nightmare_spawner"] = .07,
-            ["cave/monsters/bishop_nightmare_spawner"] = .07,
-            ["cave/monsters/knight_nightmare_spawner"] = .07,
+            rook_nightmare_spawner = .07,
+            bishop_nightmare_spawner = .07,
+            knight_nightmare_spawner = .07,
         },
     }
 }
@@ -2319,9 +2351,9 @@ AddRoom("DST_Labyrinth", {
 
             chessjunk_spawner = 0.03,
 
-            ["cave/monsters/rook_nightmare_spawner"] = 0.01,
-            ["cave/monsters/bishop_nightmare_spawner"] = 0.01,
-            ["cave/monsters/knight_nightmare_spawner"] = 0.01,
+            rook_nightmare_spawner = 0.01,
+            bishop_nightmare_spawner = 0.01,
+            knight_nightmare_spawner = 0.01,
 
             thulecite_pieces = 0.05,
         },
@@ -2513,10 +2545,6 @@ AddRoom("DST_ArchiveSupplyRoom", {
     value = GROUND.ARCHIVE,
     tags = {"RoadPoison"},
     contents = {
-        countstaticlayouts = {
-            ["ArchiveSupplyRoom"] = 1,
-        },
-
         distributepercent = 0.05,
         distributeprefabs = {
             wall_ruins = 0.03,
@@ -2625,13 +2653,13 @@ AddRoom("ToadstoolArenaBGCave", {
             flower_cave = 0.1,
             flower_cave_double = 0.05,
             flower_cave_triple = 0.05,
-            stalagmite_tall=0.4,
-            stalagmite_tall_med=0.4,
-            stalagmite_tall_low=0.4,
+            stalagmite_tall=0.08,
+            stalagmite_tall_med=0.05,
+            stalagmite_tall_low=0.04,
             pillar_cave_rock = 0.01,
             fissure = 0.05,
             pond_cave = 0.15,
-            ["cave/objects/batcave"] = 0.01,
+            batcave = 0.01,
         }
     }
 })

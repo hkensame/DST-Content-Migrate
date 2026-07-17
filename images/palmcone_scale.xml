@@ -1,0 +1,6 @@
+<Atlas>
+	<Texture filename="palmcone_scale.tex" />
+	<Elements>
+		<Element name="palmcone_scale.tex" u1="0" u2="0.0625" v1="0" v2="0.0625" />
+	</Elements>
+</Atlas>

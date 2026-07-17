@@ -87,5 +87,5 @@ local function fn()
 	return inst
 end
 
--- 使用与 DS 原版相同的 prefab 名 "cave/objects/batcave"，覆盖 DS 废弃版本
-return Prefab( "cave/objects/batcave", fn, assets, prefabs)
+-- 改短名，方便 room_defs 中直接用 batcave 引用
+return Prefab( "batcave", fn, assets, prefabs)

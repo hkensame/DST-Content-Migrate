@@ -12,6 +12,8 @@ if rawget(GLOBAL, "EntityScript") and not GLOBAL.EntityScript.SetPhysicsRadiusOv
     GLOBAL.EntityScript.SetPhysicsRadiusOverride = function() end
 end
 
+modimport("scripts/debug_ppapi.lua") -- 调试：PostProcessor API 自检
+
 -- ==================== 天体制作栏 ====================
 RECIPETABS.DST_CELESTIAL = {
     str = "DST_CELESTIAL",
@@ -32,6 +34,11 @@ GLOBAL.TUNING.PROTOTYPER_TREES = GLOBAL.TUNING.PROTOTYPER_TREES or {}
 GLOBAL.TUNING.PROTOTYPER_TREES.MOON_ALTAR = { CELESTIAL = 1 }
 GLOBAL.TUNING.PROTOTYPER_TREES.MOON_ALTAR_FULL = { CELESTIAL = 3 }
 GLOBAL.TUNING.PROTOTYPER_TREES.MOON_ALTAR_MAX  = { CELESTIAL = 4 }
+
+-- ==================== 棕榈锥树 TUNING ====================
+GLOBAL.TUNING.PALMCONETREE_CHOPS_SMALL = 5
+GLOBAL.TUNING.PALMCONETREE_CHOPS_NORMAL = 10
+GLOBAL.TUNING.PALMCONETREE_CHOPS_TALL = 15
 
 -- ==================== 梦魇疯猪 Daywalker 注册 ====================
 AddPrefabPostInit("daywalkerspawningground", function(inst)
@@ -315,6 +322,11 @@ PrefabFiles =
   -- 猴岛挖起植物
   "monkey/dug_monkeytail",
   "monkey/dug_bananabush",
+  -- 棕榈锥树（palmconetree.lua 一次性返回 4 个 prefab）
+  "monkey/palmconetree",
+  -- 猴岛物品
+  "monkey/palmcone_seed",
+  "monkey/palmcone_scale",
   -- DST 洞穴入口/出口
   "cave/dst_cave_entrance",
   "cave/dst_cave_exit",
@@ -384,8 +396,7 @@ PrefabFiles =
   "cave/wormlight_lesser",         -- 小荧光果（荧光果植物作物）
   -- 遗迹 respawner（ruins _spawner 系列，DS 简化版）
   "cave/ruins_spawners",
-  -- 远古守卫者 spawner（重生机制）
-  "cave/minotaur_spawner",
+  -- 远古守卫者 spawner（已整合到 ruins_spawners）
   -- 梦魇疯猪 Daywalker（洞穴版）
   "daywalker/daywalker",
   "daywalker/daywalker_sinkhole",
@@ -402,7 +413,7 @@ PrefabFiles =
 
 Assets = {
   -- ========== ANIM ==========
-  Asset("ANIM", "anim/turf.zip"),
+  Asset("ANIM", "anim/dst_turf.zip"),
   Asset("ANIM", "anim/burntground.zip"),
   -- 启蒙系统：月灵理智徽章（需从 DST 提取 status_sanity.zip）
   Asset("ANIM", "anim/status_sanity.zip"),
@@ -458,8 +469,6 @@ Assets = {
   Asset("ANIM", "anim/tree_rock2_normal.zip"),
   Asset("ANIM", "anim/tree_rock_fx.zip"),
   Asset("ANIM", "anim/tree_rock_seed.zip"),
-  Asset("ANIM", "anim/rock_stalagmite.zip"),
-  Asset("ANIM", "anim/rock_stalagmite_tall.zip"),
   Asset("ANIM", "anim/cave_vent.zip"),
   Asset("ANIM", "anim/cave_vent_fx.zip"),
   Asset("ANIM", "anim/cave_vent_ground.zip"),
@@ -476,22 +485,26 @@ Assets = {
   Asset("SOUNDPACKAGE", "sound/rifts6.fev"),
 
   Asset("ANIM", "anim/lavaarena_staff_smoke_fx.zip"),
-  Asset("ANIM", "anim/leaves_canopy.zip"), --水中木叶片
+  Asset("ANIM", "anim/dst_leaves_canopy.zip"), --水中木叶片
  
   Asset("ANIM", "anim/monkey/bananabush.zip"),
   Asset("ANIM", "anim/monkey/cutless.zip"),
   Asset("ANIM", "anim/monkey/hat_monkey_small.zip"),
-  Asset("ANIM", "anim/monkey/kiki_basic.zip"),
-  Asset("ANIM", "anim/monkey/kiki_nightmare_skin.zip"),
-  Asset("ANIM", "anim/monkey/monkey_barrel.zip"),
+  -- kiki_basic / kiki_nightmare_skin: DS 原版已有，无需导入
+  Asset("ANIM", "anim/monkey/dst_monkey_barrel.zip"),
   Asset("ANIM", "anim/monkey/monkey_small.zip"),
   Asset("ANIM", "anim/monkey/monkeyhut.zip"),
   Asset("ANIM", "anim/monkey/pillar_monkey.zip"),
   Asset("ANIM", "anim/monkey/reeds_monkeytails.zip"),
   Asset("ANIM", "anim/monkey/turf_monkey_ground.zip"),
+  Asset("ANIM", "anim/monkey/palmcone_build.zip"),
+  Asset("ANIM", "anim/monkey/palmcone_short.zip"),
+  Asset("ANIM", "anim/monkey/palmcone_normal.zip"),
+  Asset("ANIM", "anim/monkey/palmcone_tall.zip"),
+  Asset("ANIM", "anim/monkey/palmcone_seed.zip"),
+  Asset("ANIM", "anim/monkey/palmcone_scale.zip"),
 
-  Asset("ANIM", "anim/moonisland/bulb_plant_single.zip"), --光飞虫花
-  Asset("ANIM", "anim/moonisland/bulb_plant_springy.zip"), --光飞虫花变体
+  -- bulb_plant_single / bulb_plant_springy: DS 原版已有，无需导入
   Asset("ANIM", "anim/moonisland/butterfly_moon.zip"),
   Asset("ANIM", "anim/moonisland/carrat_basic.zip"),
   Asset("ANIM", "anim/moonisland/carrat_build.zip"),
@@ -514,7 +527,7 @@ Assets = {
   Asset("ANIM", "anim/player_attackss.zip"),
   Asset("ANIM", "anim/player_encumbered.zip"), --背大理石
   Asset("ANIM", "anim/player_encumbered_jump.zip"), --背大理石跳船
-  Asset("ANIM", "anim/player_groggy.zip"), --走得慢
+  --走得慢: DS 原版 data/anim 已有 player_groggy bank
   
   Asset("ANIM", "anim/toadstool/canary.zip"),
   Asset("ANIM", "anim/toadstool/canary_build.zip"),
@@ -755,6 +768,10 @@ Assets = {
   Asset("ATLAS", "images/monkeyhut.xml"),
   Asset("IMAGE", "images/monkeytail.tex"),
   Asset("ATLAS", "images/monkeytail.xml"),
+  Asset("IMAGE", "images/palmcone_seed.tex"),
+  Asset("ATLAS", "images/palmcone_seed.xml"),
+  Asset("IMAGE", "images/palmcone_scale.tex"),
+  Asset("ATLAS", "images/palmcone_scale.xml"),
   Asset("IMAGE", "images/moonbase.tex"),
   Asset("ATLAS", "images/moonbase.xml"),
   Asset("IMAGE", "images/hotspring.tex"),

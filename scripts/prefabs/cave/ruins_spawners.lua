@@ -90,7 +90,8 @@ local function MakeRuinsRespawnerInst(obj, onrespawnfn, data)
     return Prefab(obj.."_ruinsrespawner_inst", MakeFn(obj, onrespawnfn, data), nil, { obj, obj.."_spawner" })
 end
 
-local function MakeRuinsRespawnerWorldGen(obj, onrespawnfn, data)
+local function MakeRuinsRespawnerWorldGen(obj, onrespawnfn, data, shortname)
+    local spawner_name = (shortname or obj).."_spawner"
     local function worldgenfn()
         local inst = MakeFn(obj, onrespawnfn, data)()
 
@@ -102,7 +103,7 @@ local function MakeRuinsRespawnerWorldGen(obj, onrespawnfn, data)
         return inst
     end
 
-    return Prefab(obj.."_spawner", worldgenfn, nil, { obj })
+    return Prefab(spawner_name, worldgenfn, nil, { obj })
 end
 
 local RuinsRespawner = {Inst = MakeRuinsRespawnerInst, WorldGen = MakeRuinsRespawnerWorldGen}
@@ -193,30 +194,41 @@ end
 -- 每个 prefab 同时注册 WorldGen（_spawner）和 Inst（_ruinsrespawner_inst）
 
 return MakeChessJunkSpawner(),
-    RuinsRespawner.WorldGen("cave/monsters/rook_nightmare"),
+    RuinsRespawner.WorldGen("cave/monsters/rook_nightmare", nil, nil, "rook_nightmare"),
     RuinsRespawner.Inst("cave/monsters/rook_nightmare"),
-    RuinsRespawner.WorldGen("cave/monsters/bishop_nightmare"),
+    RuinsRespawner.WorldGen("cave/monsters/bishop_nightmare", nil, nil, "bishop_nightmare"),
     RuinsRespawner.Inst("cave/monsters/bishop_nightmare"),
-    RuinsRespawner.WorldGen("cave/monsters/knight_nightmare"),
+    RuinsRespawner.WorldGen("cave/monsters/knight_nightmare", nil, nil, "knight_nightmare"),
     RuinsRespawner.Inst("cave/monsters/knight_nightmare"),
-    RuinsRespawner.WorldGen("cave/objects/ruins_statue_head"),
+    RuinsRespawner.WorldGen("cave/objects/ruins_statue_head", nil, nil, "ruins_statue_head"),
     RuinsRespawner.Inst("cave/objects/ruins_statue_head"),
-    RuinsRespawner.WorldGen("cave/objects/ruins_statue_head_nogem"),
+    RuinsRespawner.WorldGen("cave/objects/ruins_statue_head_nogem", nil, nil, "ruins_statue_head_nogem"),
     RuinsRespawner.Inst("cave/objects/ruins_statue_head_nogem"),
-    RuinsRespawner.WorldGen("cave/objects/ruins_statue_mage"),
+    RuinsRespawner.WorldGen("cave/objects/ruins_statue_mage", nil, nil, "ruins_statue_mage"),
     RuinsRespawner.Inst("cave/objects/ruins_statue_mage"),
-    RuinsRespawner.WorldGen("cave/objects/ruins_statue_mage_nogem"),
+    RuinsRespawner.WorldGen("cave/objects/ruins_statue_mage_nogem", nil, nil, "ruins_statue_mage_nogem"),
     RuinsRespawner.Inst("cave/objects/ruins_statue_mage_nogem"),
     -- 洞穴生物：蠕虫、粘液虫
-    RuinsRespawner.WorldGen("cave/monsters/worm"),
+    RuinsRespawner.WorldGen("cave/monsters/worm", nil, nil, "worm"),
     RuinsRespawner.Inst("cave/monsters/worm"),
-    RuinsRespawner.WorldGen("cave/monsters/slurper"),
+    RuinsRespawner.WorldGen("cave/monsters/slurper", nil, nil, "slurper"),
     RuinsRespawner.Inst("cave/monsters/slurper"),
     -- 非猴岛的：猴子桶
-    RuinsRespawner.WorldGen("cave/objects/monkeybarrel"),
+    RuinsRespawner.WorldGen("cave/objects/monkeybarrel", nil, nil, "monkeybarrel"),
     RuinsRespawner.Inst("cave/objects/monkeybarrel"),
     -- 远古祭坛（带 prefab swap 监听）
-    RuinsRespawner.WorldGen("common/objects/ancient_altar", nil, { listenforprefabsawp = true }),
+    RuinsRespawner.WorldGen("common/objects/ancient_altar", nil, { listenforprefabsawp = true }, "ancient_altar"),
     RuinsRespawner.Inst("common/objects/ancient_altar", nil, { listenforprefabsawp = true }),
-    RuinsRespawner.WorldGen("common/objects/ancient_altar_broken", nil, { listenforprefabsawp = true }),
-    RuinsRespawner.Inst("common/objects/ancient_altar_broken", nil, { listenforprefabsawp = true })
+    RuinsRespawner.WorldGen("common/objects/ancient_altar_broken", nil, { listenforprefabsawp = true }, "ancient_altar_broken"),
+    RuinsRespawner.Inst("common/objects/ancient_altar_broken", nil, { listenforprefabsawp = true }),
+    -- 远古守卫者（minotaur）：DS 原版已有 minotaur prefab，只需 spawner 负责生成
+    -- 死亡时设置全局标记，供 modmain minotaurchest PostInit 替换 cave_regenerator → atrium_key
+    RuinsRespawner.WorldGen("minotaur",
+        function(obj, spawner)
+            obj:ListenForEvent("death", function()
+                local x, y, z = obj.Transform:GetWorldPosition()
+                rawset(_G, "_DST_CAVE_MINOTAUR_DEAD", {x=x, y=y, z=z})
+            end)
+        end,
+        nil, "minotaur"),
+    RuinsRespawner.Inst("minotaur")

@@ -70,6 +70,12 @@ end
 
 -- 核心：进入启蒙状态
 function Enlightenment:Enable(source, duration)
+    -- 振荡检测：如果刚被 Disable 不到 2 秒就又被 Enable，打印警告
+    if source and self._last_disable_time and GetTime() - self._last_disable_time < 2 then
+        print(string.format("[ENLIGHTEN] WARN OSCILLATION: Enable('%s') called %.1fs after Disable!",
+            source, GetTime() - self._last_disable_time))
+    end
+
     -- 快速路径：源已存在且状态无变化时直接返回（避免每秒 tick 刷屏）
     if source and self.sources[source] ~= nil and self.enabled then
         -- 刷新 timed 源的过期时间
@@ -143,6 +149,7 @@ function Enlightenment:Disable(source)
     end
 
     print(string.format("[ENLIGHTEN] Disable: source='%s' enabled=%s", tostring(source), tostring(self.enabled)))
+    self._last_disable_time = GetTime()  -- 振荡检测用
     if source then
         self.sources[source] = nil
         print(string.format("[ENLIGHTEN] Disable: removed source '%s'", source))

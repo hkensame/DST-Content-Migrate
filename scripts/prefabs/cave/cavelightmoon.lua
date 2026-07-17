@@ -7,10 +7,7 @@
 --   🔴 移除 WatchWorldState，改用 DoPeriodicTask 轮询
 --   🟡 洞穴月相判定改用 GetClock() + GetWorld()
 
-local assets =
-{
-    Asset("ANIM", "anim/cave_exit_lightsource.zip"),
-}
+-- DS 原版 data/anim 已有此 bank，无需 mod 提供
 
 local large_prefabs =
 {
@@ -251,6 +248,6 @@ local function tinyfn()
     return common_fn(0.2)
 end
 
-return Prefab("cavelightmoon", normalfn, assets, large_prefabs),
-       Prefab("cavelightmoon_small", smallfn, assets),
-       Prefab("cavelightmoon_tiny", tinyfn, assets)
+return Prefab("cavelightmoon", normalfn, nil, large_prefabs),
+       Prefab("cavelightmoon_small", smallfn),
+       Prefab("cavelightmoon_tiny", tinyfn)

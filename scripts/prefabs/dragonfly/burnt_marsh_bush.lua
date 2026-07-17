@@ -1,6 +1,6 @@
 local assets =
 {
-	Asset("ANIM", "anim/dragonfly/marsh_bush.zip")
+	Asset("ANIM", "anim/dragonfly/dst_marsh_bush.zip")
 }
 
 local prefabs =
@@ -15,7 +15,7 @@ local function burnt_fn()
 	inst.entity:AddTransform()
 	inst.entity:AddAnimState()
 
-	inst.AnimState:SetBuild("marsh_bush")
+	inst.AnimState:SetBuild("dst_marsh_bush")
 	inst.AnimState:SetBank("marsh_bush")
 
 	inst:AddTag("thorny")

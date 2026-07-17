@@ -61,7 +61,9 @@ end
 local function makestafflight(name, is_hot, anim, colour, idles, is_fx)
     local assets =
     {
-        Asset("ANIM", "anim/moonisland/"..anim..".zip"),
+        -- star_hot: DS 原版已有，无需导入
+        -- star_cold: DST 独有，需从 mod 提供
+        Asset("ANIM", "anim/moonisland/star_cold.zip"),
     }
 
     local PlayRandomStarIdle = #idles > 1 and function(inst)

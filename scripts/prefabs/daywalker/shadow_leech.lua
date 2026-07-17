@@ -54,6 +54,21 @@ local function OnLoadPostPass(inst)--, ents, data)
 	end
 end
 
+local function CanBeAttacked(inst)
+	local player = inst.components.combat.target
+	if player ~= nil and player.components.sanity then
+		return player.components.sanity:IsCrazy()
+	end
+	-- 无目标或目标无 sanity 时，检查附近的玩家
+	local players = FindPlayersInRangeSortedByDistance(inst.Transform:GetWorldPosition(), 20, false)
+	for i, v in ipairs(players) do
+		if v.components.sanity and v.components.sanity:IsCrazy() then
+			return true
+		end
+	end
+	return false
+end
+
 local function fn()
 	local inst = CreateEntity()
 
@@ -89,6 +104,15 @@ local function fn()
 	inst.components.health.nofadeout = true
 
 	inst:AddComponent("combat")
+	inst.components.combat.canbeattackedfn = CanBeAttacked
+
+	-- DS 兼容：根据理智透明度（移除了 DST 的 TheNet:IsDedicated 守卫）
+	if rawget(_G, "transparentonsanity") ~= nil then
+		inst:AddComponent("transparentonsanity")
+		inst.components.transparentonsanity.most_alpha = .8
+		inst.components.transparentonsanity.osc_amp = .1
+		inst.components.transparentonsanity:ForceUpdate()
+	end
 
 	inst:AddComponent("lootdropper")
 	inst.components.lootdropper:SetLoot(LOOT)

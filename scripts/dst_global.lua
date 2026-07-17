@@ -825,6 +825,18 @@ if CommonHandlers.UpdateHitRecoveryDelay == nil then
     end
 end
 
+-- ==================== 补充: DST 电击系统 (DS 无此机制, 空函数返回 false) ====================
+if CommonHandlers.TryElectrocuteOnAttacked == nil then
+    CommonHandlers.TryElectrocuteOnAttacked = function(inst, data)
+        return false
+    end
+end
+if CommonHandlers.TryElectrocuteOnEvent == nil then
+    CommonHandlers.TryElectrocuteOnEvent = function(inst, data)
+        return false
+    end
+end
+
 -- ==================== 补充: AddHitState ====================
 if CommonStates.AddHitState == nil then
     local function idleonanimover(inst)

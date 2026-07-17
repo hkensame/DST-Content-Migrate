@@ -3,7 +3,7 @@ require "prefabutil"
 local assets =
 {
     Asset("ANIM", "anim/antlion/oasis_tile.zip"),
-    Asset("ANIM", "anim/splash.zip"),
+    -- DS 原版已有 splash.zip
     Asset("MINIMAP_IMAGE", "oasis"),
 }
 

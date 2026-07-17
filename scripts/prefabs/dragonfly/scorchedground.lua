@@ -1,7 +1,4 @@
-local assets =
-{
-	Asset("ANIM", "anim/dragonfly/scorched_ground.zip")
-}
+-- DS 原版 data/anim 已有 scorched_ground bank，无需 mod 提供
 
 local anim_names =
 {
@@ -55,4 +52,4 @@ local function fn()
 	return inst
 end
 
-return Prefab("scorchedground", fn, assets)
+return Prefab("scorchedground", fn)

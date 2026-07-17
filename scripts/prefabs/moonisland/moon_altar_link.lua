@@ -83,6 +83,11 @@ local function OnLinkEstablished(inst, altars)
 
         ClearArea(inst)
 
+        -- DS 没有月风暴，三角形形成后直接允许建造月亮虹吸器
+        if not inst:HasTag("can_build_moon_device") then
+            inst:AddTag("can_build_moon_device")
+        end
+
         inst.AnimState:PlayAnimation("stage0_low_pre", false)
         inst:ListenForEvent("animover", onlinkpreanimover)
 
@@ -91,8 +96,15 @@ local function OnLinkEstablished(inst, altars)
     else
         inst.AnimState:PlayAnimation("stage0_high_idle", true)
 
-        if moonstormexists(inst) and not inst:HasTag("can_build_moon_device") then
+        -- 加载时恢复 can_build_moon_device 标签
+        if not inst:HasTag("can_build_moon_device") then
             inst:AddTag("can_build_moon_device")
+        end
+
+        if moonstormexists(inst) then
+            if not inst:HasTag("can_build_moon_device") then
+                inst:AddTag("can_build_moon_device")
+            end
         end
     end
 end
@@ -123,15 +135,8 @@ local function OnLoadPostPass(inst)
     local moon_altar_astral = inst.components.entitytracker:GetEntity("moon_altar_astral")
 
     if moon_altar ~= nil and moon_altar_cosmic ~= nil and moon_altar_astral ~= nil then
-        if GetWorld().components.moonstormmanager and GetWorld().components.moonstormmanager:TestAltarTriangleValid(moon_altar, moon_altar_cosmic, moon_altar_astral, inst:GetPosition()) then
-            inst.components.moonaltarlink:EstablishLink({ moon_altar, moon_altar_cosmic, moon_altar_astral })
-        else
-            moon_altar._force_on = false
-            moon_altar_cosmic._force_on = false
-            moon_altar_astral._force_on = false
-
-            inst:Remove()
-        end
+        -- DS 没有 moonstormmanager，跳过三角形有效性检查
+        inst.components.moonaltarlink:EstablishLink({ moon_altar, moon_altar_cosmic, moon_altar_astral })
     else
         if moon_altar ~= nil then moon_altar._force_on = false end
         if moon_altar_cosmic ~= nil then moon_altar_cosmic._force_on = false end

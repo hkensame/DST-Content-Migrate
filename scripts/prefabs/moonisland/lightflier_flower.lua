@@ -5,8 +5,7 @@
 
 local assets =
 {
-    Asset("ANIM", "anim/moonisland/bulb_plant_single.zip"),
-    Asset("ANIM", "anim/moonisland/bulb_plant_springy.zip"),
+    -- bulb_plant_single / bulb_plant_springy: DS 原版已有，无需导入
     Asset("SOUND", "sound/common.fsb"),
     Asset("MINIMAP_IMAGE", "bulb_plant"),
 }

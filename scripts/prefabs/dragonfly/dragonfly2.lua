@@ -3,10 +3,8 @@ require "stategraphs/SGdragonfly2"
 
 local assets =
 {
-    Asset("ANIM", "anim/dragonfly/dragonfly_build.zip"),
-    Asset("ANIM", "anim/dragonfly/dragonfly_fire_build.zip"),
-    Asset("ANIM", "anim/dragonfly/dragonfly_basic.zip"),
-    Asset("ANIM", "anim/dragonfly/dragonfly_actions.zip"),
+    Asset("ANIM", "anim/dragonfly/dst_dragonfly_basic.zip"),
+    Asset("ANIM", "anim/dragonfly/dst_dragonfly_actions.zip"),
 	Asset("SOUND", "sound/dragonfly.fsb"),
 	-- WINTERS_FEAST
     Asset("ANIM", "anim/dragonfly/dragonfly_yule_actions.zip"),

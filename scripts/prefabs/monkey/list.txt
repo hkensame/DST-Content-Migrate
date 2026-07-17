@@ -1,7 +1,7 @@
 monkey/ — 猴岛/猴子内容 Prefab 清单
 ==========================================
 猴岛群系（猴子、香蕉丛、猴尾草等）
-共计 13 个 Lua 文件
+共计 16 个 Lua 文件
 ==========================================
 
 --- 生物 ---
@@ -23,6 +23,9 @@ dug_bananabush.lua                 — 挖起的香蕉丛（可移植）
 cave_banana_tree.lua               — 洞穴香蕉树（地下香蕉树，含树桩/烧毁版）
 monkeytail.lua                     — 猴尾草（猴岛特色植物，可采集）
 dug_monkeytail.lua                 — 挖起的猴尾草（可移植）
+palmconetree.lua                   — 棕榈锥树（含 short/normal/tall 3 阶段 + 通用变体）
+palmcone_seed.lua                  — 棕榈锥种子（可种植为棕榈锥树）
+palmcone_scale.lua                 — 棕榈锥鳞片（棕榈锥树掉落物）
 
 --- 物品/战斗 ---
 

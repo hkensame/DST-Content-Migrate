@@ -6,9 +6,10 @@ local TheCamera = rawget(_G, "TheCamera")
 
 local assets =
 {
-    Asset("ANIM", "anim/tentacle_pillar.zip"),
     Asset("SOUND", "sound/tentacle.fsb"),
 }
+
+-- DS 原版 data/anim 已有 tentacle_pillar bank，无需 mod 提供
 
 local prefabs =
 {

@@ -84,7 +84,6 @@ end
 MazeLayouts.AllLayouts["archive_start"]       = GetSpecialLayoutsForType("archive_start", "archive_start")
 MazeLayouts.AllLayouts["archive_end"]         = GetSpecialLayoutsForType("archive_end", "archive_end")
 MazeLayouts.AllLayouts["archive_keyroom"]     = GetSpecialLayoutsForType("archive_keyroom", "keyroom_1")
-MazeLayouts.AllLayouts["archive_supplyroom"]  = GetSpecialLayoutsForType("archive_supplyroom", "supply")
 
 -- 档案馆特殊布局只注册了 SINGLE_* 变体，但 DS 迷宫系统可能使用其他连接类型。
 -- 为所有缺失的连接类型以 SINGLE_NORTH 填充，避免 LayoutForDefinition 因 key 不存在而 crash。
@@ -102,7 +101,6 @@ end
 patch_special_layouts("archive_start")
 patch_special_layouts("archive_end")
 patch_special_layouts("archive_keyroom")
-patch_special_layouts("archive_supplyroom")
 
 -- 注册到 objs.Layouts，使 countstaticlayouts 可以引用这些特殊房间布局
 Layouts["ArchiveStart"] = StaticLayout.Get("map/static_layouts/rooms/archive_start/archive_start")
@@ -124,7 +122,11 @@ Layouts["ArchiveDistillery"] = StaticLayout.Get("map/static_layouts/rooms/archiv
 })
 
 -- 中庭特殊布局
-Layouts["AtriumEnd"] = StaticLayout.Get("map/static_layouts/rooms/atrium_end/atrium_end")
+Layouts["AtriumEnd"] = StaticLayout.Get("map/static_layouts/rooms/atrium_end/atrium_end", {
+    start_mask = PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
+    fill_mask = PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
+    layout_position = LAYOUT_POSITION.CENTER,
+})
 
 -- ==================== 洞穴 / 遗迹静态布局注册 ====================
 -- 这些布局被 room_defs.lua 的 countstaticlayouts 引用，必须注册到 Layouts 表

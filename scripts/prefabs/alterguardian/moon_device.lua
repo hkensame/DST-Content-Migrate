@@ -71,7 +71,7 @@ end
 local PLACER_SNAP_DISTANCE = 6
 local MOON_ALTAR_LINK_TAGS = { "moon_altar_link" }
 local function validate_spawn(inst)
-    --if not inst._has_replaced_moon_altar_link then
+    if not inst._has_replaced_moon_altar_link then
         local x, y, z = inst.Transform:GetWorldPosition()
         local ents = TheSim:FindEntities(x, y, z, PLACER_SNAP_DISTANCE, MOON_ALTAR_LINK_TAGS)
         if #ents > 0 then
@@ -80,30 +80,25 @@ local function validate_spawn(inst)
 
             ents[1]:Remove()
 
-            --inst._has_replaced_moon_altar_link = true
+            inst._has_replaced_moon_altar_link = true
         else
             print("moon_device must be instantiated on top of a moon_altar_link -- removing instance")
-            --inst:Remove()
+            inst:Remove()
         end
-    --end
+    end
 end
-
 
 local function meteor_invitem_behaviour(inst, v)
     local x, y, z = inst.Transform:GetWorldPosition()
 
     if v.components.container ~= nil then
-        -- Spill backpack contents, but don't destroy backpack
         if math.random() <= TUNING.METEOR_SMASH_INVITEM_CHANCE then
             v.components.container:DropEverything()
         end
     elseif v.components.mine ~= nil and not v.components.mine.inactive then
-        -- Always smash things on the periphery so that we don't end up with a ring of flung loot
         v.components.mine:Deactivate()
     elseif math.random() <= TUNING.METEOR_SMASH_INVITEM_CHANCE and not v:HasTag("irreplaceable") then
-        -- Always smash things on the periphery so that we don't end up with a ring of flung loot
         local vx, vy, vz = v.Transform:GetWorldPosition()
-        --SpawnPrefab("ground_chunks_breaking").Transform:SetPosition(vx, 0, vz)
         v:Remove()
     end
 
@@ -119,7 +114,6 @@ local function meteor_invitem_behaviour(inst, v)
         v.Physics:Teleport(vx, 0, vz)
         v.Physics:SetVel(math.cos(angle) * spd, 0, math.sin(angle) * spd)
     end
-    --改，暂时禁用v.components.inventoryitem:SetLanded(false, true)
 end
 
 local ALTAR_FX_PREFABS =

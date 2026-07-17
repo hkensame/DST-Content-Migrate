@@ -78,14 +78,14 @@ local TURF_CONFIG = {
     vent = {
         anim = "fumarole",        tile = GROUND.VENT,
         bank_build = "turf",
-        anim_assets = { "anim/turf.zip" },
+        anim_assets = { "anim/dst_turf.zip" },
         inv_image = "turf_vent",  inv_atlas = "images/turf_vent.xml",
     },
 
     vault = {
         anim = "vault",           tile = GROUND.VAULT,
         bank_build = "turf",
-        anim_assets = { "anim/turf.zip" },
+        anim_assets = { "anim/dst_turf.zip" },
         inv_image = "turf_vault", inv_atlas = "images/turf_vault.xml",
     },
 

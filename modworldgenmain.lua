@@ -98,6 +98,11 @@ modimport "scripts/dst_worldgen_config.lua"
 
 modimport "scripts/dst_tuning.lua"
 
+-- 注册世界生成时需加载的 prefab（countprefabs 引用的须在这里注册）
+PrefabFiles = {
+	"daywalker/daywalkerspawningground",
+}
+
 ----------------<诊断：包裹 forest_map.Generate + 注入缺失的 room tags + 抑制洞穴虫洞错误 + 绕过 disconnected tiles PANIC>----------------
 do
     local fm = require "map/forest_map"
