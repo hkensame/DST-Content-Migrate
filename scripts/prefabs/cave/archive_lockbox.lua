@@ -182,8 +182,8 @@ local function IsArchivePowered(inst)
     if theWorld ~= nil and theWorld.components.archivemanager ~= nil then
         return theWorld.components.archivemanager:GetPowerSetting()
     end
-    -- DST compatibility: treat as powered when archivemanager doesn't exist yet (init timing)
-    return true
+    -- 没有存档管理器时保守返回 false（不能使用）
+    return false
 end
 
 local function OnActivate(inst, doer)

@@ -629,7 +629,7 @@ local function fn()
 	inst.Light:Enable(true)
 	inst.Light:SetColour(unpack(LIGHT_COLOUR))
 
-	inst.MiniMapEntity:SetIcon("daywalker_pillar.png")
+	inst.MiniMapEntity:SetIcon("daywalker_pillar.tex")
 	inst.MiniMapEntity:SetPriority(4)
 
 	inst.enablechains = false

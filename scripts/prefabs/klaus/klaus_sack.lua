@@ -178,18 +178,6 @@ local function fn()
     inst.components.trader:SetAcceptTest(ItemTradeTest)
     inst.components.trader.onaccept = ItemGet
 
-------------<生成一只无眼鹿>--------------
-    inst:DoTaskInTime(0, function()
-        local x, y, z = inst.Transform:GetWorldPosition()
-        local offset = FindWalkableOffset(Vector3(x, y, z), math.random() * 2 * PI, 3, 8, true, false)
-        if offset ~= nil then
-            local deer = SpawnPrefab("deer")
-            if deer ~= nil then
-                deer.Transform:SetPosition(x + offset.x, 0, z + offset.z)
-            end
-        end
-    end)
-----------------------------------------
     inst:AddComponent("klaussackloot")
 
     inst.unlock = true

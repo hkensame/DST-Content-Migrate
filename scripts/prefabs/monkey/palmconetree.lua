@@ -5,10 +5,10 @@
 -- 适配：SetPrefabName→displaynamefn, 树冠颜色随机化
 
 local assets = {
-    Asset("ANIM", "anim/monkey/palmcone_short.zip"),
-    Asset("ANIM", "anim/monkey/palmcone_normal.zip"),
-    Asset("ANIM", "anim/monkey/palmcone_tall.zip"),
-    Asset("ANIM", "anim/monkey/palmcone_build.zip"),
+    Asset("ANIM", "anim/monkey/dst_palmcone_short.zip"),
+    Asset("ANIM", "anim/monkey/dst_palmcone_nomal.zip"),
+    Asset("ANIM", "anim/monkey/dst_palmcone_tall.zip"),
+    Asset("ANIM", "anim/monkey/palmcone_seed.zip"),
 }
 
 local prefabs = {
@@ -83,6 +83,7 @@ local function tree_burnt_immediate_helper(inst, immediate)
         inst:DoTaskInTime(.5, burnt_changes)
     end
     inst.AnimState:PlayAnimation(anims[inst.size].burnt, true)
+    inst.MiniMapEntity:SetIcon("palmcone_tree_burnt.tex")
     inst.AnimState:SetRayTestOnBB(true)
     inst:AddTag("burnt")
 end
@@ -133,6 +134,7 @@ local function make_stump(inst)
     RemovePhysicsColliders(inst)
 
     inst:AddTag("stump")
+    inst.MiniMapEntity:SetIcon("palmcone_tree_stump.tex")
     if inst.components.growable ~= nil then
         inst.components.growable:StopGrowing()
     end
@@ -151,7 +153,7 @@ local function on_chop_tree_down(inst, chopper)
     inst.components.lootdropper:DropLoot(inst:GetPosition())
 
     inst:DoTaskInTime(0.4, function(inst)
-        ShakeAllCameras(CAMERASHAKE.FULL, .25, .03, (inst.size == TALL and .5) or .25, inst, 6)
+        GetPlayer().components.playercontroller:ShakeCamera(inst, "FULL", .25, .03, (inst.size == TALL and .5) or .25, 6)
     end)
 
     make_stump(inst)
@@ -160,6 +162,7 @@ end
 
 local function sway(inst)
     local anim_to_play = (math.random() > .5 and anims[inst.size].sway1) or anims[inst.size].sway2
+    print("[PALMCONETREE] sway: size=", inst.size, " anim=", anim_to_play)
     inst.AnimState:PlayAnimation(anim_to_play, true)
 end
 
@@ -195,10 +198,16 @@ local function set_short_burnable(inst)
 end
 
 local function set_short(inst)
+    if inst.size == SHORT then
+        return
+    end
+    print("[PALMCONETREE] set_short called for ", tostring(inst))
     inst.size = SHORT
     if inst.components.workable then
         inst.components.workable:SetWorkLeft(TUNING.PALMCONETREE_CHOPS_SMALL or 5)
     end
+    inst.AnimState:SetBank("dst_palmcone_short")
+    inst.AnimState:SetBuild("dst_palmcone_short")
     set_short_burnable(inst)
     inst.components.lootdropper:SetLoot(loot_small)
     inst:AddTag("shelter")
@@ -206,6 +215,9 @@ local function set_short(inst)
 end
 
 local function grow_short(inst)
+    print("[PALMCONETREE] grow_short")
+    inst.AnimState:SetBank("dst_palmcone_short")
+    inst.AnimState:SetBuild("dst_palmcone_short")
     inst.AnimState:PlayAnimation("grow_tall_to_short")
     inst.SoundEmitter:PlaySound("dontstarve/forest/treeGrowFromWilt")
     set_short_burnable(inst)
@@ -239,10 +251,16 @@ local function set_normal_burnable(inst)
 end
 
 local function set_normal(inst)
+    if inst.size == NORMAL then
+        return
+    end
+    print("[PALMCONETREE] set_normal called for ", tostring(inst))
     inst.size = NORMAL
     if inst.components.workable then
         inst.components.workable:SetWorkLeft(TUNING.PALMCONETREE_CHOPS_NORMAL or 10)
     end
+    inst.AnimState:SetBank("dst_palmcone_nomal")
+    inst.AnimState:SetBuild("dst_palmcone_nomal")
     set_normal_burnable(inst)
     inst.components.lootdropper:SetLoot(loot_normal)
     inst:AddTag("shelter")
@@ -250,6 +268,9 @@ local function set_normal(inst)
 end
 
 local function grow_normal(inst)
+    print("[PALMCONETREE] grow_normal")
+    inst.AnimState:SetBank("dst_palmcone_nomal")
+    inst.AnimState:SetBuild("dst_palmcone_nomal")
     inst.AnimState:PlayAnimation("grow_short_to_normal")
     inst.SoundEmitter:PlaySound("dontstarve/forest/treeGrow")
     set_normal_burnable(inst)
@@ -283,10 +304,16 @@ local function set_tall_burnable(inst)
 end
 
 local function set_tall(inst)
+    if inst.size == TALL then
+        return
+    end
+    print("[PALMCONETREE] set_tall called for ", tostring(inst))
     inst.size = TALL
     if inst.components.workable then
         inst.components.workable:SetWorkLeft(TUNING.PALMCONETREE_CHOPS_TALL or 15)
     end
+    inst.AnimState:SetBank("dst_palmcone_tall")
+    inst.AnimState:SetBuild("dst_palmcone_tall")
     set_tall_burnable(inst)
     inst.components.lootdropper:SetLoot(loot_tall)
     inst:AddTag("shelter")
@@ -294,6 +321,9 @@ local function set_tall(inst)
 end
 
 local function grow_tall(inst)
+    print("[PALMCONETREE] grow_tall")
+    inst.AnimState:SetBank("dst_palmcone_tall")
+    inst.AnimState:SetBuild("dst_palmcone_tall")
     inst.AnimState:PlayAnimation("grow_normal_to_tall")
     inst.SoundEmitter:PlaySound("dontstarve/forest/treeGrow")
     set_tall_burnable(inst)
@@ -369,8 +399,6 @@ local function on_load(inst, data)
         inst.AnimState:PlayAnimation(anims[inst.size].stump)
     elseif is_burnt then
         tree_burnt_immediate_helper(inst, true)
-    else
-        sway(inst)
     end
 end
 
@@ -423,8 +451,14 @@ local function displaynamefn(inst)
     return STRINGS.NAMES.PALMCONETREE
 end
 
-local function tree(name, stage)
+-----------------------------------------------------------------
+-- 四个独立 prefab，每个简单直接（像 DS 树苗的写法）
+-- fn() 中不设 SetBank/SetBuild，由 set_* 在 SetStage 时自动切换
+-----------------------------------------------------------------
+
+local function make_short()
     local function fn()
+        print("[PALMCONETREE] Creating palmconetree_short")
         local inst = CreateEntity()
 
         inst.entity:AddTransform()
@@ -441,30 +475,7 @@ local function tree(name, stage)
         inst:AddTag("tree")
         inst:AddTag("shelter")
         inst:AddTag("palmconetree")
-
-        inst.AnimState:SetBank("palmTree")
-        inst.AnimState:SetBuild("monkey/palmcone_build")
-
         inst.displaynamefn = displaynamefn
-
-        MakeSnowCovered(inst)
-
-        -- 树冠颜色随机化
-        inst.color = 0.75 + math.random() * 0.25
-        inst.AnimState:SetMultColour(inst.color, inst.color, inst.color, 1)
-
-        inst.size = (stage == 1 and SHORT)
-                or (stage == 2 and NORMAL)
-                or (stage == 3 and TALL)
-                or nil
-
-        if inst.size == SHORT then
-            set_short_burnable(inst)
-        elseif inst.size == NORMAL then
-            set_normal_burnable(inst)
-        else
-            set_tall_burnable(inst)
-        end
 
         inst:AddComponent("inspectable")
         inst.components.inspectable.getstatus = inspect_tree
@@ -478,28 +489,214 @@ local function tree(name, stage)
 
         inst:AddComponent("growable")
         inst.components.growable.stages = growth_stages
-        inst.components.growable:SetStage(stage == 0 and math.random(1, 3) or stage)
+        inst.components.growable:SetStage(1)
         inst.components.growable.loopstages = true
         inst.components.growable.springgrowth = true
         inst.components.growable.magicgrowable = true
         inst.components.growable:StartGrowing()
+
+        inst.color = 0.75 + math.random() * 0.25
+        inst.AnimState:SetMultColour(inst.color, inst.color, inst.color, 1)
         inst.growfromseed = growfromseed_handler
 
         inst.OnSave = on_save
         inst.OnLoad = on_load
 
         inst.AnimState:SetTime(math.random() * .2)
+        inst:DoTaskInTime(1, function(inst)
+            if inst and inst:IsValid() then
+                print("[PALMCONETREE] 1s check: size=", inst.size, " bank/build OK")
+            end
+        end)
 
         inst.OnEntitySleep = on_sleep
         inst.OnEntityWake = on_wake
-
         return inst
     end
-
-    return Prefab(name, fn, assets, prefabs)
+    return Prefab("palmconetree_short", fn, assets, prefabs)
 end
 
-return  tree("palmconetree", 0),
-        tree("palmconetree_short", 1),
-        tree("palmconetree_normal", 2),
-        tree("palmconetree_tall", 3)
+local function make_normal()
+    local function fn()
+        print("[PALMCONETREE] Creating palmconetree_normal")
+        local inst = CreateEntity()
+
+        inst.entity:AddTransform()
+        inst.entity:AddAnimState()
+        inst.entity:AddSoundEmitter()
+        inst.entity:AddMiniMapEntity()
+
+        MakeObstaclePhysics(inst, .5)
+
+        inst.MiniMapEntity:SetIcon("palmcone_tree.tex")
+        inst.MiniMapEntity:SetPriority(-1)
+
+        inst:AddTag("plant")
+        inst:AddTag("tree")
+        inst:AddTag("shelter")
+        inst:AddTag("palmconetree")
+        inst.displaynamefn = displaynamefn
+
+        inst:AddComponent("inspectable")
+        inst.components.inspectable.getstatus = inspect_tree
+
+        inst:AddComponent("workable")
+        inst.components.workable:SetWorkAction(ACTIONS.CHOP)
+        inst.components.workable:SetOnWorkCallback(on_chop_tree)
+        inst.components.workable:SetOnFinishCallback(on_chop_tree_down)
+
+        inst:AddComponent("lootdropper")
+
+        inst:AddComponent("growable")
+        inst.components.growable.stages = growth_stages
+        inst.components.growable:SetStage(2)
+        inst.components.growable.loopstages = true
+        inst.components.growable.springgrowth = true
+        inst.components.growable.magicgrowable = true
+        inst.components.growable:StartGrowing()
+
+        inst.color = 0.75 + math.random() * 0.25
+        inst.AnimState:SetMultColour(inst.color, inst.color, inst.color, 1)
+        inst.growfromseed = growfromseed_handler
+
+        inst.OnSave = on_save
+        inst.OnLoad = on_load
+
+        inst.AnimState:SetTime(math.random() * .2)
+        inst:DoTaskInTime(1, function(inst)
+            if inst and inst:IsValid() then
+                print("[PALMCONETREE] 1s check: size=", inst.size, " bank/build OK")
+            end
+        end)
+
+        inst.OnEntitySleep = on_sleep
+        inst.OnEntityWake = on_wake
+        return inst
+    end
+    return Prefab("palmconetree_normal", fn, assets, prefabs)
+end
+
+local function make_tall()
+    local function fn()
+        print("[PALMCONETREE] Creating palmconetree_tall")
+        local inst = CreateEntity()
+
+        inst.entity:AddTransform()
+        inst.entity:AddAnimState()
+        inst.entity:AddSoundEmitter()
+        inst.entity:AddMiniMapEntity()
+
+        MakeObstaclePhysics(inst, .5)
+
+        inst.MiniMapEntity:SetIcon("palmcone_tree.tex")
+        inst.MiniMapEntity:SetPriority(-1)
+
+        inst:AddTag("plant")
+        inst:AddTag("tree")
+        inst:AddTag("shelter")
+        inst:AddTag("palmconetree")
+        inst.displaynamefn = displaynamefn
+
+        inst:AddComponent("inspectable")
+        inst.components.inspectable.getstatus = inspect_tree
+
+        inst:AddComponent("workable")
+        inst.components.workable:SetWorkAction(ACTIONS.CHOP)
+        inst.components.workable:SetOnWorkCallback(on_chop_tree)
+        inst.components.workable:SetOnFinishCallback(on_chop_tree_down)
+
+        inst:AddComponent("lootdropper")
+
+        inst:AddComponent("growable")
+        inst.components.growable.stages = growth_stages
+        inst.components.growable:SetStage(3)
+        inst.components.growable.loopstages = true
+        inst.components.growable.springgrowth = true
+        inst.components.growable.magicgrowable = true
+        inst.components.growable:StartGrowing()
+
+        inst.color = 0.75 + math.random() * 0.25
+        inst.AnimState:SetMultColour(inst.color, inst.color, inst.color, 1)
+        inst.growfromseed = growfromseed_handler
+
+        inst.OnSave = on_save
+        inst.OnLoad = on_load
+
+        inst.AnimState:SetTime(math.random() * .2)
+        inst:DoTaskInTime(1, function(inst)
+            if inst and inst:IsValid() then
+                print("[PALMCONETREE] 1s check: size=", inst.size, " bank/build OK")
+            end
+        end)
+
+        inst.OnEntitySleep = on_sleep
+        inst.OnEntityWake = on_wake
+        return inst
+    end
+    return Prefab("palmconetree_tall", fn, assets, prefabs)
+end
+
+local function make_generic()
+    local function fn()
+        print("[PALMCONETREE] Creating palmconetree (random)")
+        local inst = CreateEntity()
+
+        inst.entity:AddTransform()
+        inst.entity:AddAnimState()
+        inst.entity:AddSoundEmitter()
+        inst.entity:AddMiniMapEntity()
+
+        MakeObstaclePhysics(inst, .5)
+
+        inst.MiniMapEntity:SetIcon("palmcone_tree.tex")
+        inst.MiniMapEntity:SetPriority(-1)
+
+        inst:AddTag("plant")
+        inst:AddTag("tree")
+        inst:AddTag("shelter")
+        inst:AddTag("palmconetree")
+        inst.displaynamefn = displaynamefn
+
+        inst:AddComponent("inspectable")
+        inst.components.inspectable.getstatus = inspect_tree
+
+        inst:AddComponent("workable")
+        inst.components.workable:SetWorkAction(ACTIONS.CHOP)
+        inst.components.workable:SetOnWorkCallback(on_chop_tree)
+        inst.components.workable:SetOnFinishCallback(on_chop_tree_down)
+
+        inst:AddComponent("lootdropper")
+
+        inst:AddComponent("growable")
+        inst.components.growable.stages = growth_stages
+        inst.components.growable:SetStage(math.random(1, 3))
+        inst.components.growable.loopstages = true
+        inst.components.growable.springgrowth = true
+        inst.components.growable.magicgrowable = true
+        inst.components.growable:StartGrowing()
+
+        inst.color = 0.75 + math.random() * 0.25
+        inst.AnimState:SetMultColour(inst.color, inst.color, inst.color, 1)
+        inst.growfromseed = growfromseed_handler
+
+        inst.OnSave = on_save
+        inst.OnLoad = on_load
+
+        inst.AnimState:SetTime(math.random() * .2)
+        inst:DoTaskInTime(1, function(inst)
+            if inst and inst:IsValid() then
+                print("[PALMCONETREE] 1s check: size=", inst.size, " bank/build OK")
+            end
+        end)
+
+        inst.OnEntitySleep = on_sleep
+        inst.OnEntityWake = on_wake
+        return inst
+    end
+    return Prefab("palmconetree", fn, assets, prefabs)
+end
+
+return  make_generic(),
+        make_short(),
+        make_normal(),
+        make_tall()

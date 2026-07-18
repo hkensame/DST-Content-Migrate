@@ -8,7 +8,6 @@ local assets =
     Asset("ANIM", "anim/tree_rock_normal.zip"),
     Asset("ANIM", "anim/tree_rock2_short.zip"),
     Asset("ANIM", "anim/tree_rock2_normal.zip"),
-    Asset("MINIMAP_IMAGE", "tree_rock"),
     Asset("SCRIPT", "scripts/prefabs/cave/tree_rock_data.lua"),
     Asset("SOUND", "sound/rifts6.fsb"),
 }
@@ -684,7 +683,7 @@ local function MakeRockTree(name, build, stage)
 
         MakeObstaclePhysics(inst, 0.25)
 
-        inst.MiniMapEntity:SetIcon("tree_rock.png")
+        inst.MiniMapEntity:SetIcon("tree_rock.tex")
 
         inst.build = build or GetRandomKey(builds)
 

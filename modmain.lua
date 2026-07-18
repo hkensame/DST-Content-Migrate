@@ -100,38 +100,13 @@ local _inject_getworld_prefabs = {
 }
 for _, prefab_name in ipairs(_inject_getworld_prefabs) do
     AddPrefabPostInit(prefab_name, function(inst)
-        inst.GetTheWorld = function() return rawget(GLOBAL, "TheWorld") end
+        inst.GetTheWorld = function() return _cave_world end
     end)
 end
 
 -- ==================== 暴动循环注册 ====================
--- 仅挂载到 DST_CAVE 自定义层级，不影响 DS 原版洞穴
--- 原版洞穴自己有 nightmareclock 且事件名不同（phasechange vs nightmarephasechanged）
--- 注意：AddSimPostInit 回传的是 wilson（玩家），不是 TheWorld！
-AddSimPostInit(function()
-    local theWorld = rawget(GLOBAL, "TheWorld")
-    if theWorld and theWorld.meta and theWorld.meta.level_id == "DST_CAVE" then
-        if not theWorld.components.dst_nightmareclock then
-            theWorld:AddComponent("dst_nightmareclock")
-        end
-        -- DS 兼容：包装 GetNightmareClock() 全局函数
-        -- DS 原版已有此函数（simutil.lua），指向 components.nightmareclock
-        -- 需要包装它以优先返回 dst_nightmareclock
-        local orig_GetNightmareClock = GLOBAL.GetNightmareClock
-        GLOBAL.GetNightmareClock = function()
-            local w = rawget(GLOBAL, "TheWorld")
-            -- 优先检查 dst_nightmareclock（模组自定义暴动）
-            if w and w.components.dst_nightmareclock then
-                return w.components.dst_nightmareclock
-            end
-            -- 回退到原版行为
-            if orig_GetNightmareClock then
-                return orig_GetNightmareClock()
-            end
-            return nil
-        end
-    end
-end)
+-- 暴动系统注册已移至 archive_hooks.lua（AddPrefabPostInit("cave")），避免重复
+-- 梦魇疯猪生成器 daywalkerspawner 也已移至 cave postinit，见 archive_hooks.lua
 
 -- 覆写 LoadPrefabFile：确保多返回值的 prefab 文件的所有实体都被 mod.Prefabs 捕获
 -- DS 的 require() 只能拿到第一个返回值，而 LoadPrefabFile 内部用 {fn()} 捕获了全部
@@ -151,11 +126,12 @@ end
 
 -- TUNING 常量必须在 PrefabFiles 之前加载，否则 prefab fn() 执行时 TUNING 尚未定义
 modimport("scripts/dst_tuning.lua")
+-- dst_global.lua 也必须在 PrefabFiles 之前加载，确保全局兼容函数（FindPlayersInRange/MakeGiantCharacterPhysics 等）可用
+modimport("scripts/dst_global.lua")
 
 PrefabFiles = 
 {
   "dst_fx",
-  "dst_blueprint",
   "toadstool/red_mushroomhat",
   "toadstool/green_mushroomhat",
   "toadstool/blue_mushroomhat",
@@ -310,7 +286,6 @@ PrefabFiles =
   "atrium/shadowchanneler",
   "atrium/mindcontroller",
 --猴岛内容
-  "monkey/monkey",
   "monkey/monkeyhut",
   "monkey/monkeypillar",
   "monkey/monkeytail",
@@ -370,6 +345,8 @@ PrefabFiles =
   "cave/refined_dust",
   "cave/dustmothden",
   "cave/dustmoth",
+  "cave/dustmeringue",
+  "cave/thulecitebugnet",
   "cave/cave_hole", --中庭/档案馆洞穴洞
   "cave/cookpot_archive", -- 提供 archive_cookpot
   "cave/archive_lockbox", -- 提供 archive_lockbox + archive_lockbox_dispencer + archive_dispencer_sfx + archive_lockbox_dispencer_temp
@@ -394,6 +371,7 @@ PrefabFiles =
   "cave/flower_cave_withered",        -- 仅 3 种枯萎变种（普通荧光花由 DS 原版 cave/objects/flower_cave 提供）
   "cave/wormlight_plant",          -- 荧光果植物（可采集 wormlight_lesser）
   "cave/wormlight_lesser",         -- 小荧光果（荧光果植物作物）
+  "cave/batcave",                  -- 蝙蝠洞（生产蝙蝠，原版 cave/objects/batcave 隐藏版）
   -- 遗迹 respawner（ruins _spawner 系列，DS 简化版）
   "cave/ruins_spawners",
   -- 远古守卫者 spawner（已整合到 ruins_spawners）
@@ -455,6 +433,8 @@ Assets = {
   Asset("ANIM", "anim/cave/pillar_archive.zip"),
   Asset("ANIM", "anim/cave/pillar_archive_broken.zip"),
   Asset("ANIM", "anim/cave/refined_dust.zip"),
+  Asset("ANIM", "anim/cook_pot_food6.zip"),
+  Asset("ANIM", "anim/thulecitebugnet.zip"),
   Asset("ANIM", "anim/cave/spore_moon.zip"),
   Asset("ANIM", "anim/cave/turf_archives.zip"),
   Asset("ANIM", "anim/cave/turf_fungus_moon.zip"),
@@ -497,10 +477,9 @@ Assets = {
   Asset("ANIM", "anim/monkey/pillar_monkey.zip"),
   Asset("ANIM", "anim/monkey/reeds_monkeytails.zip"),
   Asset("ANIM", "anim/monkey/turf_monkey_ground.zip"),
-  Asset("ANIM", "anim/monkey/palmcone_build.zip"),
-  Asset("ANIM", "anim/monkey/palmcone_short.zip"),
-  Asset("ANIM", "anim/monkey/palmcone_normal.zip"),
-  Asset("ANIM", "anim/monkey/palmcone_tall.zip"),
+  Asset("ANIM", "anim/monkey/dst_palmcone_short.zip"),
+  Asset("ANIM", "anim/monkey/dst_palmcone_nomal.zip"),
+  Asset("ANIM", "anim/monkey/dst_palmcone_tall.zip"),
   Asset("ANIM", "anim/monkey/palmcone_seed.zip"),
   Asset("ANIM", "anim/monkey/palmcone_scale.zip"),
 
@@ -818,6 +797,28 @@ Assets = {
   Asset("ATLAS", "images/toadstool_cap_dark.xml"),
   Asset("IMAGE", "images/toadstool_hole.tex"),
   Asset("ATLAS", "images/toadstool_hole.xml"),
+
+  -- ========== NEW MINIMAP ICONS ==========
+  Asset("IMAGE", "images/beefalo_groomer.tex"),
+  Asset("ATLAS", "images/beefalo_groomer.xml"),
+  Asset("IMAGE", "images/bulb_plant_withered.tex"),
+  Asset("ATLAS", "images/bulb_plant_withered.xml"),
+  Asset("IMAGE", "images/cave_vent_rock.tex"),
+  Asset("ATLAS", "images/cave_vent_rock.xml"),
+  Asset("IMAGE", "images/daywalker_pillar.tex"),
+  Asset("ATLAS", "images/daywalker_pillar.xml"),
+  Asset("IMAGE", "images/mushtree_moon.tex"),
+  Asset("ATLAS", "images/mushtree_moon.xml"),
+  Asset("IMAGE", "images/palmcone_tree.tex"),
+  Asset("ATLAS", "images/palmcone_tree.xml"),
+  Asset("IMAGE", "images/palmcone_tree_burnt.tex"),
+  Asset("ATLAS", "images/palmcone_tree_burnt.xml"),
+  Asset("IMAGE", "images/palmcone_tree_stump.tex"),
+  Asset("ATLAS", "images/palmcone_tree_stump.xml"),
+  Asset("IMAGE", "images/support_pillar_dreadstone.tex"),
+  Asset("ATLAS", "images/support_pillar_dreadstone.xml"),
+  Asset("IMAGE", "images/tree_rock.tex"),
+  Asset("ATLAS", "images/tree_rock.xml"),
 }
 
 -- minimap atlas registration
@@ -899,6 +900,20 @@ AddMinimapAtlas("images/sculpture_rooknose.xml")
 AddMinimapAtlas("images/hotspring.xml")
 AddMinimapAtlas("images/oceantree_pillar_small.xml")
 AddMinimapAtlas("images/oceanvine.xml")
+-- NEW ICONS
+AddMinimapAtlas("images/beefalo_groomer.xml")
+AddMinimapAtlas("images/bulb_plant_withered.xml")
+-- Vent区
+AddMinimapAtlas("images/cave_vent_rock.xml")
+AddMinimapAtlas("images/tree_rock.xml")
+-- 梦魇疯猪洞穴版
+AddMinimapAtlas("images/daywalker_pillar.xml")
+AddMinimapAtlas("images/support_pillar_dreadstone.xml")
+-- 月岛
+AddMinimapAtlas("images/mushtree_moon.xml")
+AddMinimapAtlas("images/palmcone_tree.xml")
+AddMinimapAtlas("images/palmcone_tree_burnt.xml")
+AddMinimapAtlas("images/palmcone_tree_stump.xml")
 
 -- ==================== 天体制作栏标签注册 ====================
 STRINGS.TABS.DST_CELESTIAL = "天体"
@@ -909,27 +924,10 @@ AddClassPostConstruct("widgets/crafttabs", function(self)
 end)
 
 -- ==================== 科技树 + 蓝图统一管理 ====================
--- 蓝图注册表：{ prefab名 = 配方名 }
--- 有新蓝图掉落时在这里加一行
-local BLUEPRINT_RECIPES = {
-    armordreadstone_blueprint      = "armordreadstone",
-    dreadstonehat_blueprint        = "dreadstonehat",
-    wall_dreadstone_item_blueprint = "wall_dreadstone_item",
-}
-
--- 自定义科技树：{ 科技名 = { levels = { 等级名=值, ... } } }
--- 未来扩展在此添加（如 SHADOW_FORGE、LUNAR_FORGE）
-local CUSTOM_TECHS = {
-    CELESTIAL = { levels = { ONE = 1, THREE = 3 } },
-}
-
--- 启动统一管理系统
-GLOBAL.__tech_blueprints = BLUEPRINT_RECIPES
-GLOBAL.__custom_techs = CUSTOM_TECHS
 modimport("scripts/system/tech_manager.lua")
 
 modimport("scripts/dst_foods.lua")
-modimport("scripts/dst_global.lua")
+--modimport("scripts/dst_global.lua")  -- 已移至 PrefabFiles 之前
 modimport("scripts/dst_recipes.lua")
 modimport("scripts/dst_sg.lua")
 modimport("scripts/dst_strings.lua")
@@ -945,6 +943,15 @@ modimport("scripts/prefabs/enlightenment/enlightenment_hud.lua")
 require("physics")
 require("behaviourtree")
 
+-- ==================== 蝙蝠大脑覆写 ====================
+-- DS 原版蝙蝠大脑的 GoHomeAction 用 GetClock():IsDay() 判断，
+-- 洞穴环境下表面白天会导致蝙蝠立即回家消失。
+-- 用自定义大脑替换，改用 iscaveday + 支持 panic 事件处理。
+AddPrefabPostInit("bat", function(inst)
+    local DstBatBrain = require("brains/dst_batbrain")
+    inst:SetBrain(DstBatBrain)
+end)
+
 -- ==================== DST 模组功能补丁 ====================
 -- 原 modmain.lua 中的功能代码已拆分为独立文件，通过 modimport 加载
 modimport("scripts/dst_init.lua")           -- 模组初始化（信息覆盖 + Android 检查）
@@ -953,7 +960,16 @@ modimport("scripts/dst_widget_patches.lua")  -- 容器缩放（启迪之冠）
 modimport("scripts/dst_component_api.lua")   -- 所有组件 API 扩展
 modimport("scripts/dst_entity_patches.lua")  -- 实体级补丁（金丝雀/稻草人/鹿等）
 modimport("scripts/archive_hooks.lua")   -- 档案馆 prefab 运行时 Hook 注入
+modimport("scripts/dst_nightmare_postinits.lua") -- 暴动预制体延迟注册 + Colour Cube 滤镜
 modimport("scripts/dst_dlc_patch.lua")       -- DLC 兼容补丁
+
+-- ==================== DST 火焰蔓延系统 ====================
+-- DST 式蓄火→点燃火焰蔓延机制，移植自 DST Fire Spreading mod
+modimport("scripts/dst_fire_spreading.lua")
+
+-- ==================== DST 燃烧计时器 ====================
+-- 显示燃烧/营火/提灯/星杖剩余时间
+modimport("scripts/dst_burning_timer.lua")
 
 
 -- ==================== 缺失 DST prefab 虚拟实体 ====================
@@ -969,6 +985,8 @@ do
         "moonrock_pieces",
         "pillar_cave_flintless",
         "wall_ruins_2",
+        "chessjunk",
+        "brokenwall_ruins",
     }
     for _, name in ipairs(dummy_prefabs) do
         if not GLOBAL.Prefabs[name] then
@@ -988,4 +1006,3 @@ do
         end
     end
 end
-

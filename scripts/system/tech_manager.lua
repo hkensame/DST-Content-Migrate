@@ -77,13 +77,29 @@ local function MakeBlueprint(recipe_name)
     end
 end
 
--- ==================== 读取配置 ====================
-local blueprints = GLOBAL.__tech_blueprints or {}
-local custom_techs = GLOBAL.__custom_techs or {}
-print(string.format("[TECHMANAGER] 从全局读取: blueprints=%d 项, custom_techs=%d 项", table.count(blueprints), table.count(custom_techs)))
-GLOBAL.__tech_blueprints = nil
-GLOBAL.__custom_techs = nil
-print("[TECHMANAGER] 已清空 GLOBAL.__tech_blueprints / __custom_techs")
+-- ==================== 蓝图 + 科技树配置 ====================
+-- 蓝图注册表：{ prefab名 = 配方名 }
+-- 有新蓝图掉落时在这里加一行
+local blueprints = {
+    armordreadstone_blueprint      = "armordreadstone",
+    dreadstonehat_blueprint        = "dreadstonehat",
+    wall_dreadstone_item_blueprint = "wall_dreadstone_item",
+    -- 档案馆锁盒奖励（archive_lockbox）
+    turfcraftingstation_blueprint       = "turfcraftingstation",
+    archive_resonator_item_blueprint    = "archive_resonator_item",
+    refined_dust_blueprint              = "refined_dust",
+    turf_archive_blueprint              = "turf_archive",
+    thulecitebugnet_blueprint           = "thulecitebugnet",
+}
+print(string.format("[TECHMANAGER] 蓝图配置: %d 项", table.count(blueprints)))
+
+-- 自定义科技树：{ 科技名 = { levels = { 等级名=值, ... } } }
+-- 未来扩展在此添加（如 SHADOW_FORGE、LUNAR_FORGE）
+local custom_techs = {
+    CELESTIAL = { levels = { ONE = 1, THREE = 3 } },
+}
+print(string.format("[TECHMANAGER] 自定义科技: %d 项", table.count(custom_techs)))
+
 
 -- ==================== 注册蓝图 prefab ====================
 for prefab_name, recipe_name in pairs(blueprints) do

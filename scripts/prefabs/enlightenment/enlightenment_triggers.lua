@@ -210,34 +210,59 @@ local function HookSanityOverrides(sanity)
     -- 用 IsEnabled() 而非 behaviour_level > 0，确保 linger 期间和低san子阈值期间
     -- 都不暴露真实理智，从而阻止 sanitymonsterspawner 生成影怪
     local _GetPercent = sanity.GetPercent
+    local _gp_call_count = 0
     sanity.GetPercent = function(self, ...)
         local enlight = self.inst and self.inst.components.enlightenment
         if enlight and enlight:IsEnabled() then
+            _gp_call_count = _gp_call_count + 1
+            if _gp_call_count <= 5 or _gp_call_count % 60 == 0 then
+                print(string.format("[ENLIGHTEN] GetPercent: OVERRIDDEN -> 1.0 (call #%d)", _gp_call_count))
+            end
             return 1.0
         end
+        _gp_call_count = 0
         return _GetPercent(self, ...)
     end
     
     -- [B] Override IsCrazy: 启蒙期间报告 false（不疯狂）
     local _IsCrazy = sanity.IsCrazy
+    local _ic_call_count = 0
     sanity.IsCrazy = function(self, ...)
         local enlight = self.inst and self.inst.components.enlightenment
         if enlight and enlight:IsEnabled() then
+            _ic_call_count = _ic_call_count + 1
+            if _ic_call_count <= 5 or _ic_call_count % 60 == 0 then
+                print(string.format("[ENLIGHTEN] IsCrazy: OVERRIDDEN -> false (call #%d)", _ic_call_count))
+            end
             return false
         end
+        _ic_call_count = 0
         return _IsCrazy(self, ...)
     end
 
     -- [C] Override IsSane: 启蒙期间报告 true（理智）
     -- 防止低san时播放摸头动画（SGwilson idle 检查 IsSane）
     local _IsSane = sanity.IsSane
+    local _is_call_count = 0
     sanity.IsSane = function(self, ...)
         local enlight = self.inst and self.inst.components.enlightenment
         if enlight and enlight:IsEnabled() then
+            _is_call_count = _is_call_count + 1
+            if _is_call_count <= 5 or _is_call_count % 60 == 0 then
+                print(string.format("[ENLIGHTEN] IsSane: OVERRIDDEN -> true (call #%d)", _is_call_count))
+            end
             return true
         end
+        _is_call_count = 0
         return _IsSane(self, ...)
     end
+    
+    -- 诊断：保存原始函数引用，供验证用
+    sanity._GetPercent = _GetPercent
+    sanity._IsCrazy = _IsCrazy
+    sanity._IsSane = _IsSane
+    sanity._enlightenment_override_hooked = true
+    print("[ENLIGHTEN] SanityOverrides installed: GetPercent/IsCrazy/IsSane")
 end
 
 local function HookSanityOnUpdate(sanity)
@@ -249,7 +274,9 @@ local function HookSanityOnUpdate(sanity)
     
     local _SanityOnUpdate = sanity.OnUpdate
     local _pp_diag_count = 0
+    local _pp_restore_count = 0
     local _was_enlightened = false
+    local _override_check_timer = 0
     sanity.OnUpdate = function(self, dt)
         local is_enlight = self.inst and self.inst.components.enlightenment
            and self.inst.components.enlightenment:IsEnabled()
@@ -261,6 +288,24 @@ local function HookSanityOnUpdate(sanity)
         elseif not is_enlight and _was_enlightened then
             print("[ENLIGHTEN] SanityOnUpdate: transition OUT OF enlightenment")
             _was_enlightened = false
+        end
+
+        -- 每120帧(~2秒)验证一次 sanity 覆写状态
+        _override_check_timer = _override_check_timer + 1
+        if _override_check_timer >= 120 then
+            _override_check_timer = 0
+            local still_active = self._GetPercent ~= nil and self.GetPercent ~= self._GetPercent
+            local spawner = self.inst and self.inst.components.sanitymonsterspawner
+            print(string.format(
+                "[ENLIGHTEN] DIAG: is_enlight=%s overrides_active=%s spawner_pop=%d gestalts=%d sane=%s fxtime=%.3f",
+                tostring(is_enlight),
+                tostring(still_active),
+                spawner and spawner.currentpop or -1,
+                self.inst and self.inst.components.enlightenment
+                    and #self.inst.components.enlightenment.gestalts or -1,
+                tostring(self.sane),
+                self.fxtime or -1
+            ))
         end
 
         if is_enlight then
@@ -276,6 +321,9 @@ local function HookSanityOnUpdate(sanity)
 
             -- During enlightenment: 
             -- 1. Reset fxtime to prevent accumulation (否则退出时跳变)
+            if self.fxtime ~= nil and self.fxtime > 0 then
+                print(string.format("[ENLIGHTEN] SanityOnUpdate: reset fxtime %.3f -> 0", self.fxtime))
+            end
             self.fxtime = 0
             -- 2. Keep Recalc running so sanity still changes
             if self.inst.components.health.invincible ~= true
@@ -288,12 +336,44 @@ local function HookSanityOnUpdate(sanity)
                 PostProcessor:SetDistortionFactor(1)  -- 1 = 无扭曲 (0 = 最大波浪)
                 PostProcessor:SetDistortionRadii(0, 1) -- 内外半径相同 = 无波浪区域
                 _pp_diag_count = _pp_diag_count + 1
-                if _pp_diag_count <= 3 then
-                    print("[ENLIGHTEN] PostProcessor suppressed (frame " .. _pp_diag_count .. ")")
+                if _pp_diag_count <= 5 or _pp_diag_count % 60 == 0 then
+                    print(string.format("[ENLIGHTEN] PostProcessor suppressed (frame #%d)", _pp_diag_count))
                 end
             end
         else
+            -- Log PostProcessor effect restoration attempts
+            if _pp_diag_count > 0 then
+                _pp_restore_count = _pp_restore_count + 1
+                if _pp_restore_count <= 3 or _pp_restore_count % 120 == 0 then
+                    print(string.format("[ENLIGHTEN] SanityOnUpdate: else branch (original OnUpdate) pp_restore=#%d fxtime=%.3f sane=%s",
+                        _pp_restore_count, self.fxtime or -1, tostring(self.sane)))
+                end
+            end
             _SanityOnUpdate(self, dt)
+
+            -- [FIX] 退出启蒙后同步 sane/iscrazy 标志
+            -- 启蒙期间使用 Recalc 替代了完整 OnUpdate，跳过了 DoDelta 的 sanity 阈值检测
+            -- 导致 self.sane 仍卡在 true、self.iscrazy 仍卡在 false，即使实际理智已为 0
+            -- 这里在原版 OnUpdate 跑完后做一次修正
+            local pct = (self.max and self.max > 0) and (self.current / self.max) or 0
+            local insane_thresh = TUNING.BECOME_INSANE_THRESH or 0.15
+            if pct < insane_thresh then
+                if self.sane or not self.iscrazy then
+                    self.sane = false
+                    self.iscrazy = true
+                    self.inst:PushEvent("goinsane")
+                    print(string.format("[ENLIGHTEN] SANE_FIX: sane=false iscrazy=true pct=%.2f thresh=%.2f",
+                        pct, insane_thresh))
+                end
+            else
+                if not self.sane or self.iscrazy then
+                    self.sane = true
+                    self.iscrazy = false
+                    self.inst:PushEvent("gosane")
+                    print(string.format("[ENLIGHTEN] SANE_FIX: sane=true iscrazy=false pct=%.2f thresh=%.2f",
+                        pct, insane_thresh))
+                end
+            end
         end
     end
 end
@@ -324,6 +404,7 @@ AddComponentPostInit("colourcubemanager", function(self)
     local was_enlightened = false
     local cc_transition = 0   -- current override lerp value (0 = suppressed)
     local CC_FADE_SPEED = 1.0 -- 1 second to fully fade in
+    local _cc_transition_count = 0
 
     self.OnUpdate = function(self, dt)
         _CCMOnUpdate(self, dt)
@@ -346,9 +427,16 @@ AddComponentPostInit("colourcubemanager", function(self)
             cc_transition = math.min(cc_transition + dt * CC_FADE_SPEED, 1)
             local lerp_val = san * cc_transition
             PostProcessor:SetColourCubeLerp(1, lerp_val)
+            _cc_transition_count = _cc_transition_count + 1
+            if _cc_transition_count <= 10 or _cc_transition_count % 300 == 0 then
+                print(string.format("[ENLIGHTEN] CC: fading san=%.2f trans=%.3f lerp=%.3f (count=%d)",
+                    san, cc_transition, lerp_val, _cc_transition_count))
+            end
             if cc_transition >= 1 then
                 was_enlightened = false -- transition complete, let normal code handle it
-                print(string.format("[ENLIGHTEN] CC: fade complete, san_pct=%.2f", 1 - san))
+                print(string.format("[ENLIGHTEN] CC: fade complete after %d frames, san_pct=%.2f",
+                    _cc_transition_count, 1 - san))
+                _cc_transition_count = 0
             end
         end
         -- When !was_enlightened && !is_enlightened: original OnUpdate handles it
@@ -433,33 +521,16 @@ local function EnlightenmentUpdate(inst)
             rawset(inst, "_enlighten_tile_result", tile_pass)
         end
         local tile_pass = rawget(inst, "_enlighten_tile_result") or false
-        -- [FIX] 添加理智阈值守卫：低san时不因站在月岛地皮而强制激活启蒙
-        -- 否则低san退出启蒙后，下一 tick 又被 tile_density 重新激活，
-        -- 导致影怪不刷、月灵不消、低san视觉不恢复的振荡循环
-        local _san_pct = enlight:GetPercent()
-        local _spawn_thresh = TUNING.ENLIGHTENMENT_THRESH_SPAWN or 0.6
         if tile_pass then
-            if _san_pct >= _spawn_thresh then
-                enlight:Enable("tile_density")
-            else
-                enlight:Disable("tile_density")
-                print(string.format("[ENLIGHTEN] tile_density SUPPRESSED: pct=%.2f < thresh=%.2f",
-                    _san_pct, _spawn_thresh))
-            end
+            enlight:Enable("tile_density")
         else
             enlight:Disable("tile_density")
         end
 
-        -- Plan F: Moon altar 同理加理智守卫
+        -- Plan F: Moon altar proximity（无理智守卫，地形接近即触发）
         local altar_pass = IsNearMoonAltar(inst)
         if altar_pass then
-            if _san_pct >= _spawn_thresh then
-                enlight:Enable("moon_altar")
-            else
-                enlight:Disable("moon_altar")
-                print(string.format("[ENLIGHTEN] moon_altar SUPPRESSED: pct=%.2f < thresh=%.2f",
-                    _san_pct, _spawn_thresh))
-            end
+            enlight:Enable("moon_altar")
         else
             enlight:Disable("moon_altar")
         end

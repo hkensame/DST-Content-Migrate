@@ -62,7 +62,7 @@ return {
       objects = {
         {
           name = "",
-          type = "common/wall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 0,
           y = 96,
@@ -75,7 +75,7 @@ return {
         },
         {
           name = "",
-          type = "common/wall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 0,
           y = 112,
@@ -88,7 +88,7 @@ return {
         },
         {
           name = "",
-          type = "common/wall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 0,
           y = 160,
@@ -101,7 +101,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 0,
           y = 32,

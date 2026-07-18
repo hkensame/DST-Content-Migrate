@@ -154,33 +154,32 @@ AddPrefabPostInit("world", function(inst)
 end)
 
 ----------------<PPAPI> PostProcessor API 自检</PPAPI>----------------
-if GLOBAL.PostProcessor ~= nil then
-    local mt = getmetatable(GLOBAL.PostProcessor)
-    local idx = mt and mt.__index
-    if idx ~= nil then
-        print("[PPAPI] === PostProcessor API Dump ===")
-        local api_list = {}
-        for k, v in pairs(idx) do
-            table.insert(api_list, string.format("  %s: %s", k, type(v)))
-        end
+if PostProcessor ~= nil then
+    print("[PPAPI] === PostProcessor API Dump ===")
+    local api_list = {}
+    for k, v in pairs(PostProcessor) do
+        table.insert(api_list, string.format("  %s: %s", k, type(v)))
+    end
+    if #api_list > 0 then
         table.sort(api_list)
         for _, line in ipairs(api_list) do
             print(line)
         end
-        print(string.format("[PPAPI] Total %d methods", #api_list))
-
-        local key_apis = {
-            "AddUniformVariable", "AddPostProcessEffect", "SetEffectUniformVariables",
-            "AddTextureSampler", "AddSampler", "AddSamplerEffect", "EnablePostProcessEffect",
-            "SetPostProcessEffectBefore", "SetPostProcessEffectAfter", "SetBasePostProcessEffect",
-        }
-        for _, name in ipairs(key_apis) do
-            if idx[name] ~= nil then
-                print(string.format("[PPAPI] ✅ %s EXISTS", name))
-            else
-                print(string.format("[PPAPI] ❌ %s NOT FOUND", name))
-            end
-        end
-        print("[PPAPI] ==============================")
+        print(string.format("[PPAPI] Total %d methods (via pairs)", #api_list))
+    else
+        print("[PPAPI]   (C++ engine object, methods not enumerable via pairs)")
     end
+
+    local key_apis = {
+        "AddUniformVariable", "AddPostProcessEffect", "SetEffectUniformVariables",
+        "AddTextureSampler", "AddSampler", "AddSamplerEffect", "EnablePostProcessEffect",
+        "SetPostProcessEffectBefore", "SetPostProcessEffectAfter", "SetBasePostProcessEffect",
+        "SetColourCubeData", "SetColourCubeLerp", "SetColourModifier",
+        "SetDistortionFactor", "SetDistortionRadii", "SetEffectTime",
+        "SetBlurEnabled", "SetBlurParams", "SetBlurCenter",
+    }
+    for _, name in ipairs(key_apis) do
+        print(string.format("[PPAPI] %s %s", PostProcessor[name] ~= nil and "✅" or "❌", name))
+    end
+    print("[PPAPI] ==============================")
 end

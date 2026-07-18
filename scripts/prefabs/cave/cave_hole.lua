@@ -31,7 +31,7 @@ local loot =
 local loot_stacksize =
 {
     thulecite           = function() return math.random(3) end,
-    thulecite_pieces    = function() return 4 + math.random(3) end,
+    thulecite_pieces    = function() return 6 + math.random(3) end,
 }
 
 for k, _ in pairs(loot) do

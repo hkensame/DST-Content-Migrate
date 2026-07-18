@@ -19,13 +19,15 @@ AddRoom("MonkeyIsland_Beach", {
     contents = {
         countprefabs =
         {
-            ["cave/objects/monkeybarrel"] = 1 + math.random(2),
+            ["cave/objects/monkeybarrel"] = 1 + math.random(1),
         },
 
-        distributepercent = 0.20,
+        distributepercent = 0.10,
         distributeprefabs =
         {
             ["cave/cave_banana_tree"] = 0.3,
+            palmconetree_short = 0.3,
+            palmconetree_normal = 0.2,
             flint = 0.4,
             reeds = 0.5,
             grass = 0.5,
@@ -41,16 +43,19 @@ AddRoom("MonkeyIsland_Jungle", {
     contents = {
         countprefabs =
         {
-            monkeyhut = 1 + math.random(2),
+            monkeyhut = 1 + math.random(1),
         },
-        distributepercent = 0.25,
+        distributepercent = 0.15,
         distributeprefabs =
         {
-            bananabush = 0.8,
+            bananabush = 0.3,
             ["cave/cave_banana_tree"] = 0.2,
+            palmconetree_short = 0.4,
+            palmconetree_normal = 0.4,
+            palmconetree_tall = 0.3,
             monkeytail = 0.5,
             ["cave/objects/monkeybarrel"] = 0.3,
-            monkeypillar = 0.1,
+            monkeypillar = 0.05,
             grass = 0.5,
             sapling = 0.3,
             flint = 0.2,
@@ -68,16 +73,18 @@ AddRoom("MonkeyIsland_Center", {
     contents = {
         countprefabs =
         {
-            monkeyhut = 2 + math.random(3),
+            monkeyhut = 1 + math.random(2),
             ["cave/objects/monkeybarrel"] = 1 + math.random(2),
         },
-        distributepercent = 0.30,
+        distributepercent = 0.20,
         distributeprefabs =
         {
-            bananabush = 1.0,
-            monkeytail = 0.6,
+            bananabush = 0.5,
+            palmconetree_normal = 0.5,
+            palmconetree_tall = 0.5,
+            monkeytail = 0.4,
             ["cave/cave_banana_tree"] = 0.3,
-            monkeypillar = 0.2,
+            monkeypillar = 0.05,
             grass = 0.4,
             sapling = 0.2,
             flint = 0.1,

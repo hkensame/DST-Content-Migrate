@@ -61,7 +61,7 @@ local data = {
         bank = "mushroom_tree",
         build = "mutatedmushroom_tree_build",
         spore = "spore_moon",
-        icon = "mushtree_moon.png",
+        icon = "mushtree_moon.tex",
         loot = { "log", "log", "moon_cap" },
         work = TUNING.MUSHTREE_CHOPS_TALL,
         lightradius = 1.25,
@@ -256,8 +256,6 @@ function treeset(name, data, build_file_name)
     local buildasset = Asset("ANIM", build_file_name)
     local assets = {
         buildasset,
-        Asset("MINIMAP_IMAGE", data.icon),
-        Asset("MINIMAP_IMAGE", "mushroom_tree_stump"),
     }
     local prefabs = {
         data.spore, name.."_stump", name.."_burntfx",

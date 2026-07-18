@@ -42,8 +42,12 @@ return Class(function(self, inst)
     end
 
     function self:TryToRegisterSpawningPoint(spawnpoint)
-        if table.contains(self.spawnpoints, spawnpoint) then return false end
+        if table.contains(self.spawnpoints, spawnpoint) then
+            print("[DAYWALKER] TryToRegisterSpawningPoint: DUPLICATE, rejected")
+            return false
+        end
         self:RegisterDayWalkerSpawningPoint(spawnpoint)
+        print(string.format("[DAYWALKER] TryToRegisterSpawningPoint: registered, total=%d", #self.spawnpoints))
         return true
     end
 
@@ -68,6 +72,7 @@ return Class(function(self, inst)
     end
 
     function self:SpawnDayWalkerArena(x, y, z)
+        print(string.format("[DAYWALKER] SpawnDayWalkerArena at (%.1f, %.1f, %.1f)", x, y, z))
         local daywalker = SpawnPrefab("daywalker")
         daywalker.Transform:SetPosition(x, y, z)
 
@@ -106,7 +111,10 @@ return Class(function(self, inst)
         local x, y, z
         local valid = false
         local spawnpointscount = #self.spawnpoints
-        if spawnpointscount == 0 then return nil, nil, nil end
+        if spawnpointscount == 0 then
+            print("[DAYWALKER] FindBestSpawningPoint: NO spawnpoints registered!")
+            return nil, nil, nil
+        end
 
         for _, v in ipairs(self.spawnpoints) do
             x, y, z = v.Transform:GetWorldPosition()
@@ -144,17 +152,23 @@ return Class(function(self, inst)
     end
 
     function self:TryToSpawnDayWalkerArena()
+        print(string.format("[DAYWALKER] TryToSpawnDayWalkerArena: spawnpoints=%d", #self.spawnpoints))
         self.spawnpoints = shuffleArray(self.spawnpoints)
         local x, y, z = self:FindBestSpawningPoint()
         if x ~= nil then
             local theWorld = GetTheWorld()
             x, y, z = theWorld and theWorld.Map:GetTileCenterPoint(x, y, z) or x, y, z
+            print(string.format("[DAYWALKER] TryToSpawnDayWalkerArena: found point at (%.1f, %.1f, %.1f)", x, y, z))
             return self:SpawnDayWalkerArena(x, y, z)
         end
+        print("[DAYWALKER] TryToSpawnDayWalkerArena: no valid point found")
         return nil
     end
 
     function self:OnDayChange()
+        print(string.format("[DAYWALKER] OnDayChange: daywalker=%s days_to_spawn=%d spawnpoints=%d",
+            self.daywalker ~= nil and tostring(self.daywalker.GUID) or "nil",
+            self.days_to_spawn, #self.spawnpoints))
         if self.daywalker ~= nil then return end
         if self.days_to_spawn > 0 then
             self.days_to_spawn = self.days_to_spawn - 1
@@ -164,6 +178,8 @@ return Class(function(self, inst)
         if daywalker == nil then return end
         self:WatchDaywalker(daywalker)
         self.days_to_spawn = TUNING.DAYWALKER_RESPAWN_DAYS_COUNT
+        print(string.format("[DAYWALKER] OnDayChange: spawned daywalker GUID=%s, next spawn in %d days",
+            tostring(daywalker.GUID), self.days_to_spawn))
     end
 
     function self:WatchDaywalker(daywalker)
@@ -175,9 +191,20 @@ return Class(function(self, inst)
     end
 
     function self:OnPostInit()
+        print(string.format("[DAYWALKER] OnPostInit: SPAWN_DAYWALKER=%s", tostring(TUNING.SPAWN_DAYWALKER)))
         if TUNING.SPAWN_DAYWALKER then
-            self.inst:WatchWorldState("cycles", self.OnDayChange)
-            if self.days_to_spawn <= 0 then self:OnDayChange() end
+            -- DS 洞穴没有连续的 daytime 事件（时钟一直处于 day 阶段），
+            -- 改用 DoPeriodicTask 定时检测，确保生成条件和重生延迟正常工作。
+            -- 30 秒 ≈ 现实 30 秒检测一次，不会密集也不会过于稀疏。
+            self.inst:DoPeriodicTask(30, function() self:OnDayChange() end)
+            print("[DAYWALKER] OnPostInit: DoPeriodicTask(30) installed")
+            -- 延迟到下一帧再首次尝试，给 daywalkerspawningground 注册的时间
+            self.inst:DoTaskInTime(1, function()
+                print(string.format("[DAYWALKER] DoTaskInTime(1) fired: days_to_spawn=%d", self.days_to_spawn))
+                if self.days_to_spawn <= 0 then self:OnDayChange() end
+            end)
+        else
+            print("[DAYWALKER] OnPostInit: SKIPPED (SPAWN_DAYWALKER disabled)")
         end
     end
 

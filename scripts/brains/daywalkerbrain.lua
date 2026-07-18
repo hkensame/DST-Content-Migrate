@@ -10,18 +10,14 @@ local MAX_STALKING_CHASE_TIME = 4
 local RUN_AWAY_DIST = 8
 local STOP_RUN_AWAY_DIST = 13
 
-local HUNTER_PARAMS =
-{
-	tags = { "_combat" },
-	notags = { "INLIMBO", "playerghost", "invisible", "hidden", "flight", "shadowcreature" },
-	oneoftags = { "character", "monster", "largecreature", "shadowminion" },
-	fn = function(ent, inst)
-		return ent.components.combat:TargetIs(inst)
+local HUNTER_PARAMS = function(inst)
+	return FindEntity(inst, RUN_AWAY_DIST, function(ent)
+		return (ent.components.combat ~= nil and ent.components.combat:TargetIs(inst))
 			or ent:HasTag("character")
 			or ent:HasTag("monster")
 			or ent:HasTag("shadowminion")
-	end,
-}
+	end, {"_combat"}, {"INLIMBO", "playerghost", "invisible", "hidden", "flight", "shadowcreature"}, {"character", "monster", "largecreature", "shadowminion"})
+end
 
 local DaywalkerBrain = Class(Brain, function(self, inst)
 end)

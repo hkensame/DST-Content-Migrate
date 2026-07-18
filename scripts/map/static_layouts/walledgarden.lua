@@ -152,7 +152,7 @@ return {
         },
         {
           name = "",
-          type = "common/wall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 64,
           y = 80,
@@ -165,7 +165,7 @@ return {
         },
         {
           name = "",
-          type = "common/wall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 64,
           y = 96,
@@ -178,7 +178,7 @@ return {
         },
         {
           name = "",
-          type = "common/wall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 64,
           y = 112,
@@ -191,7 +191,7 @@ return {
         },
         {
           name = "",
-          type = "common/wall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 64,
           y = 160,
@@ -204,7 +204,7 @@ return {
         },
         {
           name = "",
-          type = "common/wall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 96,
           y = 64,
@@ -217,7 +217,7 @@ return {
         },
         {
           name = "",
-          type = "common/wall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 144,
           y = 64,
@@ -230,7 +230,7 @@ return {
         },
         {
           name = "",
-          type = "common/wall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 64,
           y = 208,
@@ -243,7 +243,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 64,
           y = 240,
@@ -254,7 +254,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 64,
           y = 256,
@@ -265,7 +265,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 64,
           y = 288,
@@ -276,7 +276,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 160,
           y = 64,
@@ -287,7 +287,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 192,
           y = 64,
@@ -298,7 +298,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 208,
           y = 64,

@@ -3,15 +3,18 @@
 -- 从 modmain.lua 加载
 
 -- 辅助函数：立即注入 inst.GetTheWorld()
+-- DS 中 TheWorld 不可通过 rawget(GLOBAL, "TheWorld") 可靠获取，
+-- 因此依赖 _cave_world 缓存（由 cave postinit 设置，modmain.lua 也引用此全局）
+_cave_world = nil
 local function _injectGetTheWorld(inst)
-    inst.GetTheWorld = function() return rawget(GLOBAL, "TheWorld") end
+    inst.GetTheWorld = function() return _cave_world end
 end
 
 -- archive_chandelier：注册档案馆电源事件
 AddPrefabPostInit("archive_chandelier", function(inst)
     _injectGetTheWorld(inst)
     inst:DoTaskInTime(0, function()
-        local theWorld = rawget(GLOBAL, "TheWorld")
+        local theWorld = _cave_world
         if theWorld == nil then return end
         print("[ARCHIVE] archive_chandelier listening for arhivepoweron/off")
         inst:ListenForEvent("arhivepoweron", function() print("[ARCHIVE] archive_chandelier got arhivepoweron"); inst:updatelight() end, theWorld)
@@ -23,7 +26,7 @@ end)
 AddPrefabPostInit("vault_chandelier", function(inst)
     _injectGetTheWorld(inst)
     inst:DoTaskInTime(0, function()
-        local theWorld = rawget(GLOBAL, "TheWorld")
+        local theWorld = _cave_world
         if theWorld == nil then return end
         inst:ListenForEvent("ms_vaultroom_vault_playerleft", function() inst:updatelight() end, theWorld)
         inst:ListenForEvent("ms_vaultroom_vault_playerentered", function() inst:updatelight() end, theWorld)
@@ -34,7 +37,7 @@ end)
 AddPrefabPostInit("vault_crawler_chandelier", function(inst)
     _injectGetTheWorld(inst)
     inst:DoTaskInTime(0, function()
-        local theWorld = rawget(GLOBAL, "TheWorld")
+        local theWorld = _cave_world
         if theWorld == nil then return end
         inst:ListenForEvent("ms_vaultroom_vault_playerleft", function() inst:updatelight() end, theWorld)
         inst:ListenForEvent("ms_vaultroom_vault_playerentered", function() inst:updatelight() end, theWorld)
@@ -45,7 +48,7 @@ end)
 AddPrefabPostInit("archive_switch_base", function(inst)
     _injectGetTheWorld(inst)
     inst:DoTaskInTime(0, function()
-        local theWorld = rawget(GLOBAL, "TheWorld")
+        local theWorld = _cave_world
         if theWorld == nil then return end
         print("[ARCHIVE] archive_switch_base listening for arhivepoweron/off")
         inst:ListenForEvent("arhivepoweron", function()
@@ -67,7 +70,7 @@ end)
 AddPrefabPostInit("archive_portal", function(inst)
     _injectGetTheWorld(inst)
     inst:DoTaskInTime(0, function()
-        local theWorld = rawget(GLOBAL, "TheWorld")
+        local theWorld = _cave_world
         if theWorld == nil then return end
         theWorld:PushEvent("ms_register_vault_lobby_exit_target", inst)
     end)
@@ -77,7 +80,7 @@ end)
 AddPrefabPostInit("archive_ambient_sfx", function(inst)
     _injectGetTheWorld(inst)
     inst:DoTaskInTime(0, function()
-        local theWorld = rawget(GLOBAL, "TheWorld")
+        local theWorld = _cave_world
         if theWorld == nil then return end
         inst:ListenForEvent("arhivepoweron", function()
                 inst.SoundEmitter:PlaySound("grotto/common/archive_on/"..math.random(1,4),"loop")
@@ -90,22 +93,25 @@ end)
 
 -- 将 archivemanager + nightmareclock 组件添加到 DST_CAVE 洞穴世界
 -- DS 的世界实体 prefab 名是 "cave" 或 "forest"，不是 "world"
+-- ===== 立即注册：archivemanager（电源系统） =====
+-- addcomponent 不依赖 meta，必须立即执行，让 OnLoadPostPass 能读到
+AddPrefabPostInit("cave", function(inst)
+    if not inst.components.archivemanager then
+        inst:AddComponent("archivemanager")
+        _cave_world = inst
+        print("[DST] archivemanager component ADDED to cave (immediate)")
+    end
+end)
+
+-- ===== 延迟注册：nightmareclock + daywalkerspawner =====
 -- 注意：AddPrefabPostInit 触发时 inst.meta 尚未被设置（gamelogic.lua 中 ground.meta=savedata.meta 在之后），
 -- 必须延迟到下一帧才能正确读取 meta.level_id
 AddPrefabPostInit("cave", function(inst)
     inst:DoTaskInTime(0, function()
-        print("[DST] AddPrefabPostInit cave - meta="..tostring(inst.meta).." level_id="..(inst.meta and inst.meta.level_id or "nil").." has_archivemanager="..tostring(inst.components.archivemanager))
+        print("[DST] AddPrefabPostInit cave (delayed) - meta="..tostring(inst.meta).." level_id="..(inst.meta and inst.meta.level_id or "nil").." has_archivemanager="..tostring(inst.components.archivemanager))
         if inst.meta and inst.meta.level_id == "DST_CAVE" then
-            -- 注册 archivemanager（电源系统）
-            if not inst.components.archivemanager then
-                inst:AddComponent("archivemanager")
-                print("[DST] archivemanager component ADDED to cave")
-            else
-                print("[DST] archivemanager already exists")
-            end
             
             -- 注册 dst_nightmareclock（暴动系统）
-            -- 注意：AddSimPostInit 时机太早（theWorld=nil），必须放在 AddPrefabPostInit("cave") 中
             if not inst.components.dst_nightmareclock then
                 inst:AddComponent("dst_nightmareclock")
                 print("[DST] dst_nightmareclock component ADDED to cave")
@@ -118,25 +124,21 @@ AddPrefabPostInit("cave", function(inst)
             -- 这里禁用原版时钟，并把引用指向 mod 的 dst_nightmareclock。
             local native_clock = inst.components.nightmareclock
             if native_clock then
-                -- 取消原版时钟的计时任务
                 if native_clock.task then
                     native_clock.task:Cancel()
                     native_clock.task = nil
                 end
-                -- 停止原版时钟的帧更新
                 inst:StopUpdatingComponent(native_clock)
                 print("[DST] native nightmareclock disabled and replaced with dst_nightmareclock")
             else
                 print("[DST] no native nightmareclock found on cave")
             end
-            -- 将 .components.nightmareclock 指向 mod 的时钟
-            -- 这样通过 GetWorld().components.nightmareclock 访问的原生预制体也能正确读到暴动阶段
             inst.components.nightmareclock = inst.components.dst_nightmareclock
 
             -- DS 兼容：包装 GetNightmareClock() 以优先返回 dst_nightmareclock
             local orig_GetNightmareClock = GLOBAL.GetNightmareClock
             GLOBAL.GetNightmareClock = function()
-                local w = rawget(GLOBAL, "TheWorld")
+                local w = _cave_world
                 if w and w.components.dst_nightmareclock then
                     return w.components.dst_nightmareclock
                 end
@@ -145,8 +147,16 @@ AddPrefabPostInit("cave", function(inst)
                 end
                 return nil
             end
+
+            -- 梦魇疯猪 daywalkerspawner
+            if not inst.components.daywalkerspawner then
+                inst:AddComponent("daywalkerspawner")
+                inst.components.daywalkerspawner:OnPostInit()
+                print("[DST] daywalkerspawner component ADDED to cave")
+            end
+
         else
-            print("[DST] cave level is NOT DST_CAVE, skipping archivemanager and nightmare clock")
+            print("[DST] cave level is NOT DST_CAVE, skipping nightmare clock and daywalkerspawner")
         end
     end)
 end)
@@ -160,7 +170,7 @@ AddPrefabPostInit("archive_orchestrina_small", _injectGetTheWorld)
 AddPrefabPostInit("archive_lockbox_dispencer", function(inst)
     _injectGetTheWorld(inst)
     inst:DoTaskInTime(0, function()
-        local theWorld = rawget(GLOBAL, "TheWorld")
+        local theWorld = _cave_world
         if theWorld == nil then return end
         local archive = theWorld.components.archivemanager
         local power = archive and archive:GetPowerSetting()
@@ -214,7 +224,7 @@ AddPrefabPostInit("tree_rocks", _injectGetTheWorld)
 AddPrefabPostInit("molebat", function(inst)
     _injectGetTheWorld(inst)
     inst:DoTaskInTime(0, function()
-        local theWorld = rawget(GLOBAL, "TheWorld")
+        local theWorld = _cave_world
         if theWorld == nil then return end
         inst:ListenForEvent("startquake", function()
             inst._quaking = true

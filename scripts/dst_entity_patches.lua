@@ -31,14 +31,9 @@ end
 AddPrefabPostInit("ash", _LavaePetFoods)
 AddPrefabPostInit("charcoal", _LavaePetFoods)
 
--- 无眼鹿自动长角
-AddPrefabPostInit("deer", function(inst)
-    if not inst.gem then
-        inst:DoTaskInTime(0, function()
-            inst:PushEvent("queuegrowantler")
-        end)
-    end
-end)
+-- 无眼鹿自动长角：由 deerherdspawner 在冬季通过 growantler 事件触发
+-- 见 dst_entity_patches.lua 中的 deerherdspawner QueueHerdMigration
+--AddPrefabPostInit("deer", function(inst) ... end)  -- 已移除，改为 spawner 触发
 
 -- 月蛾生成器：在光飞虫花附近生成月蛾
 AddSimPostInit(function()
@@ -87,3 +82,18 @@ AddPrefabPostInit("cave", function(inst)
     end
     inst:AddComponent("toadstoolspawner")
 end)
+
+-- 鹿群生成器（仅在地表世界）
+if GetModConfigData("klaus") == true then
+    AddPrefabPostInit("forest", function(inst)
+        if not inst.components.deerherding then
+            inst:AddComponent("deerherding")
+        end
+        if not inst.components.deerherdspawner then
+            inst:AddComponent("deerherdspawner")
+            print("[DEER] deerherdspawner 已挂载到 forest 世界")
+            inst.components.deerherdspawner:OnPostInit()
+            print("[DEER] deerherdspawner OnPostInit 完成")
+        end
+    end)
+end

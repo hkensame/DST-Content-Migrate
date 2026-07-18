@@ -51,9 +51,16 @@ end
 local function onequip(inst, owner)
 	owner.AnimState:OverrideSymbol("swap_hat", "hat_dreadstone", "swap_hat")
 	owner.AnimState:Show("HAT")
-	owner.AnimState:Hide("HAT_HAIR")
+	owner.AnimState:Show("HAIR_HAT")
 	owner.AnimState:Hide("HAIR_NOHAT")
 	owner.AnimState:Hide("HAIR")
+
+	if owner:HasTag("player") then
+		owner.AnimState:Hide("HEAD")
+		owner.AnimState:Show("HEAD_HAIR")
+		owner.AnimState:Hide("HAIRFRONT")
+	end
+
 	owner:AddTag("dreadstone_helm")
 
 	-- 套装检测 + 暗影减伤（用闭包捕获 inst）
@@ -72,9 +79,16 @@ end
 local function onunequip(inst, owner)
 	owner.AnimState:ClearOverrideSymbol("swap_hat")
 	owner.AnimState:Hide("HAT")
-	owner.AnimState:Hide("HAT_HAIR")
+	owner.AnimState:Hide("HAIR_HAT")
 	owner.AnimState:Show("HAIR_NOHAT")
 	owner.AnimState:Show("HAIR")
+
+	if owner:HasTag("player") then
+		owner.AnimState:Show("HEAD")
+		owner.AnimState:Hide("HEAD_HAIR")
+		owner.AnimState:Show("HAIRFRONT")
+	end
+
 	owner:RemoveTag("dreadstone_helm")
 	if inst._blocked_fn ~= nil then
 		inst:RemoveEventCallback("blocked", inst._blocked_fn, owner)

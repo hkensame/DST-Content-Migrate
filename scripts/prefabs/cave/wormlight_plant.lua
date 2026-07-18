@@ -6,6 +6,7 @@
 local assets =
 {
     Asset("ANIM", "anim/worm.zip"),
+    Asset("ANIM", "anim/dst_worm.zip"), -- 补充动画（idle_loop, picking, picked）
     Asset("SOUND", "sound/common.fsb"),
 }
 
@@ -49,8 +50,8 @@ local function fn()
 
     inst:AddTag("plant")
 
-    inst.AnimState:SetBank("worm")
-    inst.AnimState:SetBuild("worm")
+    inst.AnimState:SetBank("dst_worm")   -- 使用补充 anim（含 idle_loop/picking/picked）
+    inst.AnimState:SetBuild("dst_worm")   -- 使用补充 build（含 picking/picked 纹理）
     inst.AnimState:PlayAnimation("idle_loop", true)
 
     inst.Light:SetRadius(1.5)

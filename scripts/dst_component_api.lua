@@ -21,7 +21,6 @@ AddComponentPostInit("follower", function(self)
   self.keepleaderonattacked = nil
   function self:KeepLeaderOnAttacked()
     self.keepleaderonattacked = true
-    self.inst:RemoveEventCallback("attacked", onattacked)
   end
 end)
 
@@ -384,6 +383,16 @@ AddClassPostConstruct("components/sleeper", function(self, inst)
 end)
 
 AddComponentPostInit("sleeper", function(self)
+  local function WearOff(inst)
+    local sleeper = inst.components.sleeper
+    if sleeper ~= nil and sleeper.sleepiness > 0 then
+      sleeper.sleepiness = math.max(0, sleeper.sleepiness - 1)
+      if sleeper.sleepiness <= 0 and sleeper.wearofftask ~= nil then
+        sleeper.wearofftask:Cancel()
+        sleeper.wearofftask = nil
+      end
+    end
+  end
   local function OnGoToSleep(inst, sleeptime)
     if inst.components.sleeper ~= nil then inst.components.sleeper:GoToSleep(sleeptime) end
   end
@@ -439,6 +448,11 @@ end)
 
 --克劳斯
 AddComponentPostInit("burnable", function(self)
+  local function DoneBurning(inst, burnable_self)
+    if burnable_self ~= nil and burnable_self.Extinguish then
+      burnable_self:Extinguish()
+    end
+  end
   function self:ExtendBurning()
     if self.task ~= nil then self.task:Cancel() end
     self.task = self.burntime ~= nil and self.inst:DoTaskInTime(self.burntime, DoneBurning, self) or nil
@@ -579,11 +593,6 @@ AddComponentPostInit("repairable", function(self)
       if not success then return false, reason end
     end
     return old_Repair(self, doer, repair_item)
-  end
-  local old_StartNight = self.StartNight
-  function self:StartNight(instant, fromnightvision)
-    if self:GetMoonPhase() == "new" and not GetWorld():IsCave() then self.inst:PushEvent("newmoon") end
-    return old_StartNight(self, instant, fromnightvision)
   end
 end)
 

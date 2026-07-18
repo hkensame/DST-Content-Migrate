@@ -219,8 +219,23 @@ local DST_FOODS = {
         cooktime = 2,
 	},
 
+--琥珀美食（尘蛾食物）
+    dustmeringue =
+    {
+        test = function(cooker, names, tags) return names.refined_dust end,
+        priority = 100,
+        foodtype = "ELEMENTAL",
+        perishtime = nil,
+        cooktime = 2,
+        overridebuild = "cook_pot_food6",
+        health = 0,
+        hunger = TUNING.CALORIES_SMALL,
+        sanity = 0,
+    },
+
 }
 
+AddIngredientValues({"refined_dust"}, {elemental=1}, true)
 AddIngredientValues({"onion", "pepper"}, {veggie=1}, true)
 AddIngredientValues({"boneshard"}, {inedible=1})
 AddIngredientValues({"wormlight"}, {fruit=1})

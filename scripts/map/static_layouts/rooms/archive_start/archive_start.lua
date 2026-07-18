@@ -157,7 +157,7 @@ return {
         },
         {
           name = "",
-          type = "common/wall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 183,
           y = 393,
@@ -288,7 +288,7 @@ return {
         },
         {
           name = "",
-          type = "common/wall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 329,
           y = 393,

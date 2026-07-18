@@ -168,7 +168,7 @@ function MoleBatBrain:OnStart()
         WhileNode(function()
                 return self.inst.components.combat.target ~= nil and self.inst.components.combat:InCooldown()
             end, "Dodge",
-			RunAway(self.inst, { getfn = GetRunAwayTarget }, RUN_AWAY_DIST, STOP_RUN_AWAY_DIST)
+			RunAway(self.inst, GetRunAwayTarget, RUN_AWAY_DIST, STOP_RUN_AWAY_DIST)
         ),
         WhileNode(function() return self.inst._nest_needs_cleaning == true end, "Nest Needs Cleaning Up",
             DoAction(self.inst, CleanUpNest, "Clean Up Nest", true)

@@ -105,6 +105,12 @@ patch_special_layouts("archive_keyroom")
 -- 注册到 objs.Layouts，使 countstaticlayouts 可以引用这些特殊房间布局
 Layouts["ArchiveStart"] = StaticLayout.Get("map/static_layouts/rooms/archive_start/archive_start")
 Layouts["ArchiveEnd"] = StaticLayout.Get("map/static_layouts/rooms/archive_end/archive_end")
+
+-- 档案馆核心室（合并入口 + 开关，物体错开避免重叠）
+Layouts["ArchiveCore"] = StaticLayout.Get("map/static_layouts/rooms/archive_core/archive_core")
+
+-- 档案馆设施室（合并机械室 + 蒸馏室，物体 X+96 偏移避免重叠）
+Layouts["ArchiveFacility"] = StaticLayout.Get("map/static_layouts/rooms/archive_facility/archive_facility")
 Layouts["ArchiveKeyroom"] = StaticLayout.Get("map/static_layouts/rooms/archive_keyroom/keyroom_1")
 
 -- 档案馆蒸馏室布局（3色知识分配器呈等边三角形分布）

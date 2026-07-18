@@ -114,7 +114,7 @@ local function fn()
     MakeInventoryPhysics(inst)
 
     inst.AnimState:SetBank("palmcone_seed")
-    inst.AnimState:SetBuild("monkey/palmcone_seed")
+    inst.AnimState:SetBuild("palmcone_seed")
     inst.AnimState:PlayAnimation("idle")
 
     inst:AddComponent("edible")
@@ -139,6 +139,7 @@ local function fn()
     inst:AddComponent("deployable")
     inst.components.deployable.test = test_ground
     inst.components.deployable.ondeploy = ondeploy
+    inst.components.deployable.placer = "common/palmcone_seed_placer"
 
     inst.displaynamefn = displaynamefn
 
@@ -149,4 +150,4 @@ local function fn()
 end
 
 return Prefab("common/inventory/palmcone_seed", fn, assets, prefabs),
-    MakePlacer("common/palmcone_seed_placer", "palmcone_seed", "monkey/palmcone_seed", "idle_planted")
+    MakePlacer("common/palmcone_seed_placer", "palmcone_seed", "palmcone_seed", "idle_planted")

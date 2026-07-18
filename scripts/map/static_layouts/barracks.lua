@@ -86,7 +86,7 @@ return {
       objects = {
         {
           name = "",
-          type = "common/wall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 510,
           y = 414,
@@ -99,7 +99,7 @@ return {
         },
         {
           name = "",
-          type = "common/wall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 510,
           y = 430,
@@ -112,7 +112,7 @@ return {
         },
         {
           name = "",
-          type = "common/wall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 510,
           y = 446,
@@ -125,7 +125,7 @@ return {
         },
         {
           name = "",
-          type = "common/wall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 127,
           y = 128,
@@ -138,7 +138,7 @@ return {
         },
         {
           name = "",
-          type = "common/wall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 143,
           y = 128,
@@ -151,7 +151,7 @@ return {
         },
         {
           name = "",
-          type = "common/wall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 159,
           y = 128,
@@ -164,7 +164,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 127,
           y = 206,
@@ -175,7 +175,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 127,
           y = 222,
@@ -186,7 +186,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 127,
           y = 238,
@@ -197,7 +197,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 127,
           y = 254,
@@ -208,7 +208,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 175,
           y = 128,
@@ -219,7 +219,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 191,
           y = 128,
@@ -230,7 +230,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 207,
           y = 128,
@@ -241,7 +241,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 223,
           y = 128,
@@ -252,7 +252,7 @@ return {
         },
         {
           name = "",
-          type = "common/wall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 509,
           y = 159,
@@ -265,7 +265,7 @@ return {
         },
         {
           name = "",
-          type = "common/wall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 509,
           y = 175,
@@ -278,7 +278,7 @@ return {
         },
         {
           name = "",
-          type = "common/wall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 509,
           y = 191,
@@ -291,7 +291,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 178,
           y = 511,
@@ -302,7 +302,7 @@ return {
         },
         {
           name = "",
-          type = "common/wall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 162,
           y = 511,
@@ -315,7 +315,7 @@ return {
         },
         {
           name = "",
-          type = "common/wall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 146,
           y = 511,
@@ -328,7 +328,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 194,
           y = 511,
@@ -339,7 +339,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 404,
           y = 511,
@@ -350,7 +350,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 436,
           y = 511,
@@ -361,7 +361,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 452,
           y = 511,
@@ -372,7 +372,7 @@ return {
         },
         {
           name = "",
-          type = "common/brokenwall_ruins",
+          type = "wall_ruins",
           shape = "rectangle",
           x = 420,
           y = 511,
@@ -383,7 +383,7 @@ return {
         },
         {
           name = "",
-          type = "chessjunk",
+          type = "chessjunk_spawner",
           shape = "rectangle",
           x = 256,
           y = 192,
@@ -394,7 +394,7 @@ return {
         },
         {
           name = "",
-          type = "chessjunk",
+          type = "chessjunk_spawner",
           shape = "rectangle",
           x = 288,
           y = 400,
@@ -405,7 +405,7 @@ return {
         },
         {
           name = "",
-          type = "chessjunk",
+          type = "chessjunk_spawner",
           shape = "rectangle",
           x = 160,
           y = 416,
@@ -416,7 +416,7 @@ return {
         },
         {
           name = "",
-          type = "chessjunk",
+          type = "chessjunk_spawner",
           shape = "rectangle",
           x = 384,
           y = 384,
@@ -427,7 +427,7 @@ return {
         },
         {
           name = "",
-          type = "chessjunk",
+          type = "chessjunk_spawner",
           shape = "rectangle",
           x = 352,
           y = 288,
@@ -438,7 +438,7 @@ return {
         },
         {
           name = "",
-          type = "chessjunk",
+          type = "chessjunk_spawner",
           shape = "rectangle",
           x = 272,
           y = 480,

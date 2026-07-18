@@ -13,10 +13,12 @@ SetSharedLootTable('dustmoth',
     {'smallmeat',  1.0},
 })
 
-local BLUEPRINT_LOOTS = {}
+local BLUEPRINT_LOOTS =
+{
+    "thulecitebugnet",
+}
 
--- 注意：BLUEPRINT_LOOTS 目前为空，蓝图掉落逻辑已禁用
--- 如需启用，在此添加配方名并确保对应 Recipe 已注册
+-- 注意：如需添加更多蓝图，在此添加配方名并确保对应 Recipe 已注册
 
 local sounds =
 {

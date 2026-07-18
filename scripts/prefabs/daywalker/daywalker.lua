@@ -943,6 +943,24 @@ end
 
 --------------------------------------------------------------------------
 
+local function teleport_override_fn(inst)
+	if not inst.hostile then
+		-- 保持监狱范围内
+		local pos = inst.components.knownlocations:GetLocation("prison") or inst:GetPosition()
+		local offset = FindWalkableOffset(pos, TWOPI * math.random(), 4, 8, true, false)
+		return offset ~= nil and pos + offset or pos
+	end
+
+	-- 如果监狱还在则返回监狱附近，否则返回 nil（默认行为）
+	local pos = inst.components.knownlocations:GetLocation("prison")
+	if pos ~= nil then
+		local offset = FindWalkableOffset(pos, TWOPI * math.random(), 4, 8, true, false)
+		return offset ~= nil and pos + offset or pos
+	end
+end
+
+--------------------------------------------------------------------------
+
 local function LootSetupFn(lootdropper)
 	lootdropper:SetLoot(lootdropper.inst.components.knownlocations:GetLocation("prison") == nil and BONUS_PILLAR_LOOT or nil)
 	lootdropper:SetChanceLootTable("daywalker")
@@ -1042,6 +1060,14 @@ local function fn()
 	inst.components.lootdropper.y_speed = 14
 	inst.components.lootdropper.y_speed_variance = 4
 	inst.components.lootdropper.spawn_loot_inside_prefab = true
+
+	inst:AddComponent("epicscare")
+	inst.components.epicscare:SetRange(TUNING.DAYWALKER_EPICSCARE_RANGE)
+
+	inst:AddComponent("explosiveresist")
+
+	inst:AddComponent("teleportedoverride")
+	inst.components.teleportedoverride:SetDestPositionFn(teleport_override_fn)
 
 	inst.hit_recovery = TUNING.DAYWALKER_HIT_RECOVERY
 

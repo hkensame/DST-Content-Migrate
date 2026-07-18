@@ -15,9 +15,7 @@ local function onequip(inst, owner)
     owner.AnimState:Hide("HAIR")
     if owner:HasTag("player") then
         owner.AnimState:Hide("HEAD")
-        owner.AnimState:Show("HEAD_HAT")
-        owner.AnimState:Show("HEAD_HAT_NOHELM")
-        owner.AnimState:Hide("HEAD_HAT_HELM")
+        owner.AnimState:Show("HEAD_HAIR")
     end
     if inst.components.fueled ~= nil then
         inst.components.fueled:StartConsuming()
@@ -32,9 +30,7 @@ local function onunequip(inst, owner)
     owner.AnimState:Show("HAIR")
     if owner:HasTag("player") then
         owner.AnimState:Show("HEAD")
-        owner.AnimState:Hide("HEAD_HAT")
-        owner.AnimState:Hide("HEAD_HAT_NOHELM")
-        owner.AnimState:Hide("HEAD_HAT_HELM")
+        owner.AnimState:Hide("HEAD_HAIR")
     end
     if inst.components.fueled ~= nil then
         inst.components.fueled:StopConsuming()

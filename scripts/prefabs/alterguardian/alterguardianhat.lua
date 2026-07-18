@@ -17,7 +17,7 @@ local fname = "hat_alterguardian"
 		local build = fname_override or fname
 		owner.AnimState:OverrideSymbol("swap_hat", build, "swap_hat")
 		owner.AnimState:Show("HAT")
-		owner.AnimState:Show("HAT_HAIR")
+		owner.AnimState:Show("HAIR_HAT")
 		owner.AnimState:Hide("HAIR_NOHAT")
 		owner.AnimState:Hide("HAIR")
 		
@@ -33,7 +33,7 @@ local fname = "hat_alterguardian"
 
 	local function _onunequip(inst, owner)
 		owner.AnimState:Hide("HAT")
-		owner.AnimState:Hide("HAT_HAIR")
+		owner.AnimState:Hide("HAIR_HAT")
 		owner.AnimState:Show("HAIR_NOHAT")
 		owner.AnimState:Show("HAIR")
 
@@ -50,7 +50,7 @@ local fname = "hat_alterguardian"
 	local function opentop_onequip(inst, owner)
 		owner.AnimState:OverrideSymbol("swap_hat", fname, "swap_hat")
 		owner.AnimState:Show("HAT")
-		owner.AnimState:Hide("HAT_HAIR")
+		owner.AnimState:Hide("HAIR_HAT")
 		owner.AnimState:Show("HAIR_NOHAT")
 		owner.AnimState:Show("HAIR")
 		

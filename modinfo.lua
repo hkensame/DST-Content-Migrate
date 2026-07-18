@@ -161,7 +161,7 @@ configuration_options =
  },
   default = true,
   },
-  {
+ {
   name = "dstcave",
   label = "实验性地穴",
   options =
@@ -170,5 +170,81 @@ configuration_options =
   {description = "开启", data = true},
  },
   default = true,
+  },
+------------火焰蔓延系统------------
+ {
+  name = "Fire",
+  label = "========",
+  options =
+  {
+   {description = "火焰蔓延系统", data = false},
+ },
+  default = false,
+ },
+  {
+  name = "enabledByDefault",
+  label = "计时器默认启用",
+  options =
+ {
+  {description = "关闭", data = false},
+  {description = "开启", data = true},
+ },
+  default = true,
+  },
+  {
+  name = "showBurningTimer",
+  label = "燃烧计时器",
+  options =
+ {
+  {description = "关闭", data = false},
+  {description = "开启", data = true},
+ },
+  default = true,
+  },
+  {
+  name = "showCampfireTimer",
+  label = "营火计时器",
+  options =
+ {
+  {description = "关闭", data = false},
+  {description = "隐藏", data = "hidden"},
+  {description = "开启", data = true},
+ },
+  default = true,
+  },
+  {
+  name = "showLanternTimer",
+  label = "提灯计时器",
+  options =
+ {
+  {description = "关闭", data = false},
+  {description = "隐藏", data = "hidden"},
+  {description = "开启", data = true},
+ },
+  default = true,
+  },
+  {
+  name = "showStarTimer",
+  label = "星杖计时器",
+  options =
+ {
+  {description = "关闭", data = false},
+  {description = "隐藏", data = "hidden"},
+  {description = "开启", data = true},
+ },
+  default = true,
+  },
+  {
+  name = "showHiddenDuration",
+  label = "悬停显示时长",
+  options =
+ {
+  {description = "1s", data = 1.0},
+  {description = "2s", data = 2.0},
+  {description = "3s", data = 3.0},
+  {description = "5s", data = 5.0},
+  {description = "10s", data = 10.0},
+ },
+  default = 5.0,
   },
 }

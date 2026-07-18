@@ -39,7 +39,7 @@ local function commonfn(bank, build, radius)
     inst.entity:AddMiniMapEntity()
     inst.entity:AddLight()
 
-    inst.MiniMapEntity:SetIcon("bulb_plant.png")
+    inst.MiniMapEntity:SetIcon("bulb_plant_withered.tex")
 
     inst.AnimState:SetBank(bank)
     inst.AnimState:SetBuild(build)

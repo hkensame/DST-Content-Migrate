@@ -98,44 +98,50 @@ modimport "scripts/dst_worldgen_config.lua"
 
 modimport "scripts/dst_tuning.lua"
 
+-- 覆写 LoadPrefabFile：确保多返回值的 prefab 文件的所有实体都被 PREFABDEFINITIONS 捕获
+-- DS 的 worldgen 处理 PrefabFiles 时可能只捕获首返回值，导致 palmconetree_short/normal/tall 等变体丢失
+-- 注：必须用 rawget/rawset 绕过 strict.lua，因为 LoadPrefabFile 不在 __declared 白名单中
+local _orig_LoadPrefabFile = rawget(GLOBAL, "LoadPrefabFile")
+rawset(GLOBAL, "LoadPrefabFile", function(filename)
+    local ret = _orig_LoadPrefabFile(filename)
+    if ret then
+        for _, prefab in ipairs(ret) do
+            if type(prefab) == "table" and prefab.name then
+                -- print(string.format("[WG-PREFAB] registered: %s (from %s)", prefab.name, filename))
+            end
+        end
+    end
+    return ret
+end)
+
 -- 注册世界生成时需加载的 prefab（countprefabs 引用的须在这里注册）
 PrefabFiles = {
 	"daywalker/daywalkerspawningground",
+	"monkey/palmconetree",
+	"monkey/palmcone_seed",
+	"monkey/palmcone_scale",
 }
 
 ----------------<诊断：包裹 forest_map.Generate + 注入缺失的 room tags + 抑制洞穴虫洞错误 + 绕过 disconnected tiles PANIC>----------------
 do
     local fm = require "map/forest_map"
-    -- 主动加载 storygen（forest_map 的 GenerateVoro 内部才 require，此时还没加载）
-    require "map/storygen"
-    -- 注入 GetExtrasForRoom 缺失标签：当遇到 maptags 中不存在的 tag 时自动注入，避免 crash
-    local _origGetExtras = Story.GetExtrasForRoom
-    Story.GetExtrasForRoom = function(self, next_room)
-        if next_room.tags ~= nil then
-            for i,tag in ipairs(next_room.tags) do
-                if self.map_tags.Tag[tag] == nil then
-                    print("[DIAG-WG] GetExtrasForRoom auto-add missing tag: "..tostring(tag))
-                    self.map_tags.Tag[tag] = function(td) return "TAG", tag end
-                end
-            end
-        end
-        return _origGetExtras(self, next_room)
-    end
-    -- 洞穴虫洞抑制开关：DST 洞穴房间的节点结构会导致 DS 的 C++ WorldSim
-    -- 在 SwapWormholesAndRoadsExtra 中返回无效虫洞数据，使 forest_map.Generate 失败。
-    -- DST 洞穴不使用 DS 虫洞系统，直接跳过该处理。
-    -- 注意：network.lua 无 return，Graph 是全局变量，不能 require 取值。
-    local _origSwapWormholes = Graph.SwapWormholesAndRoadsExtra
+    -- 洞穴虫洞抑制（延迟到 fm.Generate 内执行，因为 Graph 在 mod 加载时未定义）
+    local _origSwapWormholes = nil
     local suppress_wormhole = false
-    Graph.SwapWormholesAndRoadsExtra = function(self, entities, width, height)
-        if suppress_wormhole then
-            -- cave 层级：跳过虫洞处理，直接初始化空表
-            if entities["wormhole"] == nil then
-                entities["wormhole"] = {}
-            end
-            return
+    local function PatchGraphWormholes()
+        if _origSwapWormholes ~= nil then
+            return  -- 只打一次补丁
         end
-        return _origSwapWormholes(self, entities, width, height)
+        _origSwapWormholes = Graph.SwapWormholesAndRoadsExtra
+        Graph.SwapWormholesAndRoadsExtra = function(self, entities, width, height)
+            if suppress_wormhole then
+                if entities["wormhole"] == nil then
+                    entities["wormhole"] = {}
+                end
+                return
+            end
+            return _origSwapWormholes(self, entities, width, height)
+        end
     end
     -- forest_map.lua 内部的 SKIP_GEN_CHECKS 是 local 变量（第2行），
     -- 外面的全局赋值无效！必须通过 debug.setupvalue 直接修改 upvalue。
@@ -155,17 +161,72 @@ do
     end
     -- 包裹 forest_map.Generate，注入洞穴 wormhole 抑制 + 跳过 disconnected tiles 检查
     local _origGen = fm.Generate
+    -- 注入缺失的 room tags 处理：在 DLC storygen 加载完毕后替换 GetExtrasForRoom
+    -- 注：不能放在 mod 顶层，因为 DLC 的 require 在 mod 初始化期间可能尚未激活
+    local function PatchGetExtrasForRoom()
+        -- 确保 DLC 版 storygen（1653 行）已加载，覆盖基础版（776 行）
+        local pkg = type(package) == "table" and package or nil
+        if pkg and type(pkg.loaded) == "table" then
+            pkg.loaded["map/storygen"] = nil
+        end
+        require "map/storygen"
+        Story.GetExtrasForRoom = function(self, next_room)
+            local extra_contents = {}
+            local extra_tags = {}
+            if next_room.tags ~= nil then
+                for i,tag in ipairs(next_room.tags) do
+                    local tagFn = self.map_tags.Tag[tag]
+                    if tagFn == nil then
+                        print("[WG-TAG] auto-register missing tag "..tostring(tag).." (room: "..tostring(next_room.type or next_room.id)..")")
+                        self.map_tags.Tag[tag] = function(td) return "TAG", tag end
+                        tagFn = self.map_tags.Tag[tag]
+                    end
+                    local typ, extra = tagFn(self.map_tags.TagData)
+                    if typ == "STATIC" then
+                        if extra_contents.static_layouts == nil then
+                            extra_contents.static_layouts = {}
+                        end
+                        table.insert(extra_contents.static_layouts, extra)
+                    end
+                    if typ == "ITEM" then
+                        if extra_contents.prefabs == nil then
+                            extra_contents.prefabs = {}
+                        end
+                        table.insert(extra_contents.prefabs, extra)
+                    end
+                    if typ == "TAG" then
+                        table.insert(extra_tags, extra)
+                    end
+                    if typ == "GLOBALTAG" then
+                        if self.GlobalTags[extra] == nil then
+                            self.GlobalTags[extra] = {}
+                        end
+                        if self.GlobalTags[extra][next_room.task] == nil then
+                            self.GlobalTags[extra][next_room.task] = {}
+                        end
+                        table.insert(self.GlobalTags[extra][next_room.task], next_room.id)
+                    end
+                end
+            end
+            return extra_contents, extra_tags
+        end
+    end
+
     fm.Generate = function(prefab, w, h, tasks, wgc, lt, level)
-        suppress_wormhole = (prefab == "cave")
-        if prefab == "cave" and _skip_idx then
+        local isCave = (lt == "cave")  -- prefab 始终是 "forest"（即使洞穴），用 lt 判断层级类型
+        suppress_wormhole = isCave
+        if isCave and _skip_idx then
             -- DST 洞穴房间产生大量不连通区块（遗迹/档案馆/中庭等独立区域），DS 默认检查会拒绝。
             -- 这些区域在 DST 中通过虫洞连接，DS 模式不需要连通性。
             -- 使用 debug.setupvalue 绕过 forest_map.lua 内部的 local SKIP_GEN_CHECKS
             debug.setupvalue(_origGen, _skip_idx, true)
         end
+        -- 先加载 storygen（内含 require "map/network"，定义 Graph），再打其他补丁
+        PatchGetExtrasForRoom()
+        PatchGraphWormholes()
         print("[DIAG-WG] GenerateVoro START prefab="..tostring(prefab).." w="..tostring(w).." h="..tostring(h).." tasks="..tostring(#(tasks or {})))
         local ok, result = pcall(_origGen, prefab, w, h, tasks, wgc, lt, level)
-        if prefab == "cave" and _skip_idx then
+        if isCave and _skip_idx then
             debug.setupvalue(_origGen, _skip_idx, false)
         end
         suppress_wormhole = false

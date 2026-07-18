@@ -13,9 +13,14 @@ local imagename = "hat_green_mushroom"
 local function OnEquip(inst, owner)
     owner.AnimState:OverrideSymbol("swap_hat", fname, "swap_hat")
     owner.AnimState:Show("HAT")
-    owner.AnimState:Hide("HAT_HAIR")
+    owner.AnimState:Hide("HAIR_HAT")
     owner.AnimState:Show("HAIR_NOHAT")
     owner.AnimState:Show("HAIR")
+
+	if owner:HasTag("player") then
+		owner.AnimState:Show("HEAD")
+		owner.AnimState:Hide("HEAD_HAIR")
+	end
 
     owner:AddTag("spoiler")
 
@@ -29,9 +34,14 @@ end
 local function OnUnequip(inst, owner)
     owner.AnimState:ClearOverrideSymbol("swap_hat")
     owner.AnimState:Hide("HAT")
-    owner.AnimState:Hide("HAT_HAIR")
+    owner.AnimState:Hide("HAIR_HAT")
     owner.AnimState:Show("HAIR_NOHAT")
     owner.AnimState:Show("HAIR")
+
+	if owner:HasTag("player") then
+		owner.AnimState:Show("HEAD")
+		owner.AnimState:Hide("HEAD_HAIR")
+	end
 
     owner:RemoveTag("spoiler")
     inst.components.periodicspawner:Stop()

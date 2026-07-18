@@ -757,7 +757,10 @@ local function checkforgems(inst)
         end
     end
 
-    local theWorld = GetWorld()
+    -- 注意：不能使用 GetWorld()，DS 中它会缓存第一次找到的 ground 实体（森林），
+    -- 进入洞穴后仍然返回森林，导致 archivemanager 始终为 nil。
+    -- 此处 inst 为 archive_switch，已通过 archive_hooks.lua 注入了 GetTheWorld
+    local theWorld = inst:GetTheWorld()
     local archive = theWorld ~= nil and theWorld.components.archivemanager
     print("[ARCHIVE] checkforgems: gems_with_gems="..tostring(#ents).." archive="..tostring(archive).." power="..tostring(archive and archive:GetPowerSetting()).." theWorld="..tostring(theWorld))
     if archive and #ents >= 3  then
@@ -853,11 +856,9 @@ end
 
 local function OnLoadPostPassSwitch(inst, newents, data)
     print("[ARCHIVE] OnLoadPostPassSwitch: data="..tostring(data).." spawnopal="..tostring(data and data.spawnopal).." gem="..tostring(data and data.gem))
-    if data and data.spawnopal then
-        print("[ARCHIVE] OnLoadPostPassSwitch: spawnopal=true, creating opal")
-        local opal = SpawnPrefab("opalpreciousgem")
-        inst.components.trader:AcceptGift(nil, opal)
-    end
+    -- DS 中静态布局的 spawnopal 属性不会传递给实体，由 archive_hooks.lua 的 auto-insert 替代
+    -- DS 静态布局 properties 在 worldgen 时不会注入到 data 中，此判断无效
+    -- 保留日志观察，但不再处理 spawnopal
 
     -- 从存档数据恢复宝石状态，因为 pickable.caninteractwith 不会自动存档
     if data and data.gem then

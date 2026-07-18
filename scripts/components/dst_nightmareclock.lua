@@ -68,7 +68,7 @@ self.inst = inst
 -- 使用 inst（= cave 实体 = TheWorld）而不是 GetTheWorld()
 -- 原因：模块加载时 TheWorld 还不存在，但 inst 在 AddComponent 时已经传入
 local _world = inst
-local _phasedirty = true
+local _phasedirty = false
 local _oldphase = 1  -- 用于 DS 兼容的 phasechange 事件
 
 --Phase state（纯 Lua 变量，替代 DST 的 net_*）
@@ -184,52 +184,42 @@ end, _world)
 --[[ Update ]]
 
 function self:OnUpdate(dt)
-    --print("[DST] nightmareclock OnUpdate dt=", dt) -- uncomment for heartbeat debug
-    local remainingtimeinphase = _remainingtimeinphase - dt
+    local remaining = _remainingtimeinphase - dt
 
-    if remainingtimeinphase > 0 then
-        -- 在当前阶段推进时间
-        _remainingtimeinphase = remainingtimeinphase
-    else
-        -- 进入下一阶段
-        print("[DST_NMCLOCK] phase transition: "..PHASE_NAMES[_phase].." remaining=".._remainingtimeinphase.." dt="..dt)
-        _remainingtimeinphase = 0
-
-        if _lockedphase == nil then
-            while _remainingtimeinphase <= 0 do
-                _phase = (_phase % #PHASE_NAMES) + 1
-                print("[DST_NMCLOCK] advancing to phase ".._phase.."="..PHASE_NAMES[_phase])
-                _phasedirty = true
-                local resulttime = _segs[_phase] * TUNING.SEG_TIME + math.random() * TUNING.NIGHTMARE_SEG_VARIATION * TUNING.SEG_TIME
-                _totaltimeinphase = resulttime
-                _remainingtimeinphase = _totaltimeinphase
-            end
-
-            if remainingtimeinphase < 0 then
-                self:OnUpdate(-remainingtimeinphase)
-                return
-            end
-        else
-            print("[DST_NMCLOCK] phase locked at "..PHASE_NAMES[_lockedphase]..", skipping advance")
-        end
+    -- 阶段推进循环：一次推进所有超时的阶段，无递归调用
+    while remaining <= 0 and _lockedphase == nil do
+        _phase = (_phase % #PHASE_NAMES) + 1
+        print("[DST_NMCLOCK] phase advancing to: "..PHASE_NAMES[_phase])
+        _phasedirty = true
+        local resulttime = _segs[_phase] * TUNING.SEG_TIME + math.random() * TUNING.NIGHTMARE_SEG_VARIATION * TUNING.SEG_TIME
+        _totaltimeinphase = resulttime
+        remaining = remaining + resulttime
     end
 
-    -- 相位变更时推送事件 + 更新音效
+    _remainingtimeinphase = math.max(0, remaining)
+
+    -- 相位变更时统一推送事件（只执行一次，无论跳过了几个阶段）
     if _phasedirty then
         update_public_phase()
         _world:PushEvent("nightmarephasechanged", PHASE_NAMES[_phase])
         print("[DST] nightmareclock phase changed to: "..PHASE_NAMES[_phase])
         -- DS 兼容：同时推送 phasechange 事件
-        -- DS 用 "nightmare" 对应模组的 "wild"，需要映射
         local ds_newphase = PHASE_NAMES[_phase] == "wild" and "nightmare" or PHASE_NAMES[_phase]
         local ds_oldphase = PHASE_NAMES[_oldphase] == "wild" and "nightmare" or PHASE_NAMES[_oldphase]
         _world:PushEvent("phasechange", { oldphase = ds_oldphase, newphase = ds_newphase })
+        -- DS 原版预制体兼容：推送 calmstart/nightmarestart 事件
+        -- DS 原版 monkey 监听这些事件进行噩梦态切换
+        if PHASE_NAMES[_phase] == "calm" then
+            _world:PushEvent("calmstart")
+        elseif PHASE_NAMES[_phase] == "wild" or PHASE_NAMES[_phase] == "dawn" then
+            _world:PushEvent("nightmarestart")
+        end
         OnPhaseChanged()
         _phasedirty = false
         _oldphase = _phase
     end
 
-    -- 每帧推送进度事件供其他组件监听
+    -- 每帧推送进度事件
     local elapsedtime = 0
     local normtimeinphase = 0
     for i, v in ipairs(_segs) do

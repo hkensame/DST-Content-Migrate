@@ -15,7 +15,7 @@ local function fn()
     inst.entity:AddSoundEmitter()
     inst.entity:AddMiniMapEntity()
 
-    inst.MiniMapEntity:SetIcon("support_pillar_dreadstone.png")
+    inst.MiniMapEntity:SetIcon("support_pillar_dreadstone.tex")
 
     MakeObstaclePhysics(inst, 1.6, 6)
 

@@ -37,6 +37,16 @@ Layouts["DSTCaveSpawn"] = StaticLayout.Get("map/static_layouts/dst_cave_spawn")
 Layouts["GrottoPoolBig"] = StaticLayout.Get("map/static_layouts/grotto_pool_large")
 Layouts["GrottoPoolSmall"] = StaticLayout.Get("map/static_layouts/grotto_pool_small")
 
+----------------<梦魇疯猪生成点（daywalkerspawningground）>----------------
+Layouts["DaywalkerSpawnGround"] = {
+    type = LAYOUT.STATIC,
+    layout = {
+        daywalkerspawningground = {{x=0, y=0}},
+    },
+    ground_types = {GROUND.MUD},
+    ground = {{1}},
+}
+
 ----------------<DST 洞穴 Task 定义>----------------
 
 --===========================================================
@@ -133,6 +143,7 @@ AddTask("DST_RockyLand",{
     keys_given={ KEYS.CAVE, KEYS.TIER3, KEYS.ROCKY },
     room_choices={
         ["DST_SlurtleCanyon"] = 1,
+        
         ["DST_BatsAndSlurtles"] = 1,
         ["DST_RockyPlains"] = 2,
         ["DST_RockyHatchingGrounds"] = 1,
@@ -232,11 +243,8 @@ AddTask("DST_ArchiveArea", {
     room_tags = {"nocavein"},
     required_prefabs = {"archive_orchestrina_main", "archive_lockbox_dispencer"},
     room_choices = {
-        ["DST_ArchiveStart"] = 1,
-        ["DST_ArchiveEnd"] = 1,
-        ["DST_ArchiveKeyroom"] = 1,
-        ["DST_ArchiveSupplyRoom"] = 2,
-        ["DST_ArchiveDistillery"] = 1,
+        ["DST_ArchiveCore"] = 1,
+        ["DST_ArchiveSub"] = 1,
     },
     room_bg = GROUND.ARCHIVE,
     cove_room_chance = 0,
@@ -800,6 +808,10 @@ AddLevel(LEVELTYPE.CAVE, {
     set_pieces = {
         DSTCaveSpawn = {
             tasks = {"DST_EntranceTask"},
+            count = 1,
+        },
+        DaywalkerSpawnGround = {
+            tasks = {"DST_MudWorld", "DST_MudCave", "DST_MudLights", "DST_MudPit"},
             count = 1,
         },
     },

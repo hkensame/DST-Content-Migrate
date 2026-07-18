@@ -5,6 +5,7 @@
 
 local assets =
 {
+    Asset("ANIM", "anim/monkey_projectile.zip"),
 }
 
 local prefabs =

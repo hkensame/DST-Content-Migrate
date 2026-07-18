@@ -122,7 +122,7 @@ local turfcraftingstation = Recipe(
         Ingredient("cutstone", 3),
         Ingredient("wetgoop", 1),
     },
-    RECIPETABS.SCIENCE, TECH.LOST, nil, "turfcraftingstation_placer"
+    RECIPETABS.TOWN, TECH.LOST, nil, "turfcraftingstation_placer"
 )
 turfcraftingstation.image = "turfcraftingstation.tex"
 turfcraftingstation.atlas = "images/turfcraftingstation.xml"
@@ -608,7 +608,14 @@ local wall_dreadstone_item_recipe = Recipe("wall_dreadstone_item", {
 -- 毁灭之种 + 铥矿 → 远古钥匙
 local atrium_key_recipe = Recipe("atrium_key", {
     Ingredient("cave_regenerator", 1),
-    Ingredient("thulecite", 3, "images/dst_boss.xml"),
+    Ingredient("thulecite", 3),
 }, RECIPETABS.ANCIENT, TECH.ANCIENT_TWO)
     atrium_key_recipe.image = "atrium_key.tex"
     atrium_key_recipe.atlas = "images/dst_boss.xml"
+
+----------------<铥矿捕虫网配方（蓝图解锁）>----------------
+local thulecitebugnet_recipe = Recipe("thulecitebugnet", {
+    Ingredient("thulecite", 3),
+    Ingredient("thulecite_pieces", 2),
+}, RECIPETABS.ANCIENT, TECH.ANCIENT_TWO)
+    thulecitebugnet_recipe.nounlock = true

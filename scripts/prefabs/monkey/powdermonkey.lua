@@ -1,7 +1,7 @@
 -- 火药猴 (powder_monkey)
 -- 移植自 DST，适配 DS 单机模式
 -- 移除：AddNetwork, SetPristine, ismastersim
--- 适配：FOODTYPE.VEGGIE → SetOmnivore(), MakeHauntablePanic 注释
+-- 适配：SetVegetarian() 替代 DST 的 SetDiet({ FOODTYPE.VEGGIE }), MakeHauntablePanic 注释
 --       CraftMonkeySpeech 移除, crewmember/boat 系统移除
 --       drownable/embarker 注释(DS无海洋系统), ms_seamlesscharacterspawned 移除
 
@@ -239,7 +239,7 @@ local function fn()
     inst.components.lootdropper:SetChanceLootTable('powdermonkey')
 
     inst:AddComponent("eater")
-    inst.components.eater:SetOmnivore()
+    inst.components.eater:SetVegetarian()
     inst.components.eater:SetOnEatFn(oneat)
 
     inst:AddComponent("sleeper")

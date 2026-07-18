@@ -7,7 +7,6 @@ local assets =
 {
     Asset("ANIM", "anim/cave_vent.zip"),
     Asset("ANIM", "anim/cave_vent_fx.zip"),
-    Asset("MINIMAP_IMAGE", "cave_vent_rock"),
 }
 
 local prefabs =
@@ -235,7 +234,7 @@ local function rock_fn()
     inst.entity:AddSoundEmitter()
     inst.entity:AddMiniMapEntity()
 
-    inst.MiniMapEntity:SetIcon("cave_vent_rock.png")
+    inst.MiniMapEntity:SetIcon("cave_vent_rock.tex")
 
     MakeObstaclePhysics(inst, 1)
     inst:SetPhysicsRadiusOverride(1)

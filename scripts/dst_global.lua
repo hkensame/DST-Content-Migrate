@@ -177,6 +177,41 @@ GLOBAL.IsAnyPlayerInRangeSq = function(x, y, z, rangesq, isalive)
     return false
 end
 
+-- 单机版 FindPlayersInRange（DST 使用 AllPlayers，单机改用 GetPlayer）
+GLOBAL.FindPlayersInRangeSq = function(x, y, z, rangesq, isalive)
+    local players = {}
+    local v = GetPlayer()
+    if v ~= nil and
+        (isalive == nil or isalive ~= v.components.health:IsDead()) and
+        v.entity:IsVisible() and
+        v:GetDistanceSqToPoint(x, y, z) < rangesq then
+        table.insert(players, v)
+    end
+    return players
+end
+
+GLOBAL.FindPlayersInRange = function(x, y, z, range, isalive)
+    return FindPlayersInRangeSq(x, y, z, range * range, isalive)
+end
+
+GLOBAL.FindPlayersInRangeSqSortedByDistance = function(x, y, z, rangesq, isalive)
+    local players = {}
+    local v = GetPlayer()
+    if v ~= nil and
+        (isalive == nil or isalive ~= v.components.health:IsDead()) and
+        v.entity:IsVisible() then
+        local distsq = v:GetDistanceSqToPoint(x, y, z)
+        if distsq < rangesq then
+            table.insert(players, v)
+        end
+    end
+    return players
+end
+
+GLOBAL.FindPlayersInRangeSortedByDistance = function(x, y, z, range, isalive)
+    return FindPlayersInRangeSqSortedByDistance(x, y, z, range * range, isalive)
+end
+
 GLOBAL.IsAnyPlayerInRange = function(x, y, z, range, isalive)
     return IsAnyPlayerInRangeSq(x, y, z, range * range, isalive)
 end

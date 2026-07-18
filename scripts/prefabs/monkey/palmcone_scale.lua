@@ -15,7 +15,7 @@ local function fn()
     MakeInventoryPhysics(inst)
 
     inst.AnimState:SetBank("palmcone_scale")
-    inst.AnimState:SetBuild("monkey/palmcone_scale")
+    inst.AnimState:SetBuild("palmcone_scale")
     inst.AnimState:PlayAnimation("idle")
 
     inst:AddComponent("inventoryitem")

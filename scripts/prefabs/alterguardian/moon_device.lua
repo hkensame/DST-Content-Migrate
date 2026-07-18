@@ -284,8 +284,10 @@ local function fn2()
     inst:ListenForEvent("onbuilt", function(inst)
         GetPlayer().components.talker:Say("长按激活月亮虹吸器！")
         
-        local ix, _, iz = inst.Transform:GetWorldPosition()
-        SpawnPrefab("moon_device").Transform:SetPosition(ix, 0, iz)
+        snap_to_moon_altar_link(inst) -- 吸附到 moon_altar_link
+        
+        local nx, _, nz = inst.Transform:GetWorldPosition()
+        SpawnPrefab("moon_device").Transform:SetPosition(nx, 0, nz)
         inst:Remove()
     end)
 
@@ -334,63 +336,41 @@ local function topfn()
     return inst
 end
 
-----建造限制
-local function placer_onupdatetransform(inst)
-    local pos = inst:GetPosition()
-    local ents = TheSim:FindEntities(pos.x, 0, pos.z, PLACER_SNAP_DISTANCE, { "moon_altar_link" })
-
+----吸附到 moon_altar_link（从 placer 移至 onbuilt，兼容 Geometric Placement 网格）
+local function snap_to_moon_altar_link(inst)
+    local x, y, z = inst.Transform:GetWorldPosition()
+    local ents = TheSim:FindEntities(x, y, z, PLACER_SNAP_DISTANCE, { "moon_altar_link" })
     if #ents > 0 then
-        local targetpos = ents[1]:GetPosition()
-        inst.Transform:SetPosition(targetpos.x, 0, targetpos.z)
-
-        inst.accept_placement = ents[1]:HasTag("can_build_moon_device")
-    else
-        inst.accept_placement = false
+        local link_x, _, link_z = ents[1].Transform:GetWorldPosition()
+        inst.Transform:SetPosition(link_x, 0, link_z)
     end
-end
-
-local function placer_override_build_point(inst)
-    -- Gamepad defaults to this behavior, but mouse input normally takes
-    -- mouse position over placer position, ignoring the placer snapping
-    -- to a nearby moon geyser
-    return inst:GetPosition()
-end
-
-local function placer_override_testfn(inst)
-    local can_build, mouse_blocked = true, false
-
-    if inst.components.placer.testfn ~= nil then
-        can_build, mouse_blocked = inst.components.placer.testfn(inst:GetPosition(), inst:GetRotation())
-    end
-
-    -- can_build = can_build and inst.accept_placement
-
-    -- testfn just checks Map:CanDeployRecipeAtPoint(). If there is a valid geyser but the build
-    -- position doesn't pass this check it's either because
-    --      1.  The area is blocked by an item that can exist on top of the device, so building under it is fine
-    --      2.  The area is blocked by a structure; it doesn't really matter if we allow building under it
-    --      3.  The area is invalid (over water or something); shouldn't really be hitting this since the
-    --          moon_altar_link wouldn't be valid at that point, but if something goes wrong it's better to
-    --          just allow building on it than locking all further progress
-
-    -- Better to just override can_build.
-
-    can_build = inst.accept_placement
-
-    return can_build, mouse_blocked
-end
-
-local function placer_postinit_fn(inst)
-	inst.Transform:SetEightFaced()
-
-    inst.components.placer.onupdatetransform = placer_onupdatetransform
-    inst.components.placer.override_build_point_fn = placer_override_build_point
-
-    inst.components.placer.override_testfn = placer_override_testfn
-
-    inst.accept_placement = false
 end
 ----------------
+
+-- 简单 placer（无 placeTestFn，兼容 Geometric Placement 网格）
+local function make_moon_device_placer(name)
+    local function fn(Sim)
+        local inst = CreateEntity()
+        inst.entity:AddTransform()
+        inst.entity:AddAnimState()
+        inst.AnimState:SetBank("moon_device_stages")
+        inst.AnimState:SetBuild("moon_device")
+        inst.AnimState:PlayAnimation("stage1_idle", true)
+        inst.AnimState:SetLightOverride(1)
+
+        inst.Transform:SetEightFaced()
+
+        inst:AddTag("placer")
+
+        inst:AddComponent("placer")
+        inst.persists = false
+
+        inst.AnimState:SetOrientation(ANIM_ORIENTATION.OnGround)
+
+        return inst
+    end
+    return Prefab(name, fn)
+end
 
 local function break_stage1_fn()
     local inst = CreateEntity()
@@ -484,5 +464,5 @@ return Prefab("moon_device", fn, assets, prefabs),
        Prefab("moon_device_break_stage1", break_stage1_fn, assets, prefabs),
        Prefab("moon_device_meteor_spawner", meteor_spawner_fn, assets, prefabs),
        --Prefab("moon_altar_link_contained", contained_fn, assets, prefabs),
-       MakePlacer("moon_device_placer", "moon_device_stages", "moon_device", "stage1_idle", true, nil, nil, nil, nil, nil, nil, nil, nil, placer_postinit_fn),
-       MakePlacer("moon_device_construction1_placer", "moon_device_stages", "moon_device", "stage1_idle", true, nil, nil, nil, nil, nil, nil, nil, nil, placer_postinit_fn)
+       make_moon_device_placer("moon_device_placer"),
+       make_moon_device_placer("moon_device_construction1_placer")

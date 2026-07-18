@@ -112,11 +112,6 @@ local RuinsRespawner = {Inst = MakeRuinsRespawnerInst, WorldGen = MakeRuinsRespa
 package.loaded["prefabs/cave/ruinsrespawner"] = RuinsRespawner
 
 -- ========== 原 ruins_spawners.lua 内容 ==========
-
-local function GetTheWorld()
-    return rawget(_G, "TheWorld")
-end
-
 local function removearrayvalue(tbl, val)
     for i, v in ipairs(tbl) do
         if v == val then
@@ -130,19 +125,35 @@ end
 -- ==================== chessjunk 特殊处理 ====================
 -- DS 没有 `chessjunk` prefab（只有 chessjunk1/2/3），
 -- 所以需要自定义 spawner 随机选变种 + 手动管理重生
+-- 注意：使用标准的 DoTaskInTime(0, tryspawn) 延迟生成模式，
+--       避免在 factory function 中立即生成导致位置为 (0,0,0)
+
 local chessjunk_assets =
 {
     Asset("ANIM", "anim/chessmonster_ruins.zip"),
 }
 
+local CHESSJUNK_VARIANTS = { "common/objects/chessjunk1", "common/objects/chessjunk2", "common/objects/chessjunk3" }
+
+local function chessjunk_tryspawn(inst)
+    if #inst.components.objectspawner.objects <= 0 then
+        local x, y, z = inst.Transform:GetWorldPosition()
+        local style = math.random(3)
+        local obj = SpawnPrefab(CHESSJUNK_VARIANTS[style])
+        if obj then
+            obj.Transform:SetPosition(x, y, z)
+            inst.components.objectspawner:TakeOwnership(obj)
+        end
+    end
+end
+
 local function MakeChessJunkSpawner()
-    -- WorldGen: 生成时创建一个持久 respawner，立即 spawn 随机变种
+    -- WorldGen: 生成时创建一个持久 respawner，延迟 spawn
     local function worldgenfn()
         local inst = CreateEntity()
         inst.entity:AddTransform()
         inst:AddTag("CLASSIFIED")
 
-        inst.spawnprefab = nil  -- 不用默认 spawnprefab，手动处理
         inst:AddComponent("objectspawner")
         inst.components.objectspawner.onnewobjectfn = function(spawner, obj)
             spawner:ListenForEvent("onremove", function(obj)
@@ -150,29 +161,19 @@ local function MakeChessJunkSpawner()
             end, obj)
         end
 
-        -- 立即生成一个随机 chessjunk
-        local x, y, z = inst.Transform:GetWorldPosition()
-        local style = math.random(3)
-        local target = SpawnPrefab("common/objects/chessjunk" .. style)
-        if target then
-            target.Transform:SetPosition(x, y, z)
-            inst.components.objectspawner:TakeOwnership(target)
-        end
+        -- 延迟 spawn：等引擎把 spawner 放到正确位置后再生成 chessjunk
+        inst:DoTaskInTime(0, chessjunk_tryspawn)
 
         -- 监听 resetruins 重生
         inst:ListenForEvent("resetruins", function()
-            if #inst.components.objectspawner.objects <= 0 then
-                local px, py, pz = inst.Transform:GetWorldPosition()
-                local style = math.random(3)
-                local obj = SpawnPrefab("common/objects/chessjunk" .. style)
-                if obj then
-                    obj.Transform:SetPosition(px, py, pz)
-                    inst.components.objectspawner:TakeOwnership(obj)
-                end
-            end
-        end, GetTheWorld())
+            chessjunk_tryspawn(inst)
+        end, GetWorld())
 
         inst:SetPrefabName("chessjunk_ruinsrespawner_inst")
+
+        inst.OnSave = onsave
+        inst.OnLoad = onload
+        inst.OnLoadPostPass = OnLoadPostPass
 
         return inst
     end
@@ -186,8 +187,8 @@ local function MakeChessJunkSpawner()
         return inst
     end
 
-    return Prefab("chessjunk_spawner", worldgenfn, chessjunk_assets, { "common/objects/chessjunk1", "common/objects/chessjunk2", "common/objects/chessjunk3" }),
-           Prefab("chessjunk_ruinsrespawner_inst", instfn, nil, { "common/objects/chessjunk1", "common/objects/chessjunk2", "common/objects/chessjunk3" })
+    return Prefab("chessjunk_spawner", worldgenfn, chessjunk_assets, CHESSJUNK_VARIANTS),
+           Prefab("chessjunk_ruinsrespawner_inst", instfn, nil, CHESSJUNK_VARIANTS)
 end
 
 -- ==================== 标准 1:1 映射 ====================

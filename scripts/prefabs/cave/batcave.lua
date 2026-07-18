@@ -40,7 +40,27 @@ local function OnEntityWake(inst)
 end
 
 local function OnEntitySleep(inst)
+    inst.AnimState:PlayAnimation("idle")
     inst.SoundEmitter:KillSound("full")
+end
+
+local function onfar(inst)
+    ReturnChildren(inst)
+    inst.components.childspawner:StopSpawning()
+    inst.components.childspawner:StartRegen()
+end
+
+local function onaddchild(inst, count)
+    if inst.components.childspawner.childreninside == inst.components.childspawner.maxchildren then
+        inst.AnimState:PlayAnimation("eyes", true)
+        inst.SoundEmitter:PlaySound("dontstarve/cave/bat_cave_warning", "full")
+    end
+end
+
+local function onspawnchild(inst, child)
+    inst.AnimState:PlayAnimation("idle", true)
+    inst.SoundEmitter:KillSound("full")
+    inst.SoundEmitter:PlaySound("dontstarve/cave/bat_cave_bat_spawn")
 end
 
 local function onisday(inst, isday)
@@ -73,19 +93,39 @@ local function fn()
         inst.components.childspawner.childreninside = 0
     end
 	inst.components.childspawner.childname = "bat"
-    inst.components.childspawner:StartSpawning()
-    inst.components.childspawner:StartRegen()
-    -- initialize with no children
+    -- 初始化时没有孩子
     inst.components.childspawner.childreninside = 0
+    inst.components.childspawner:StartRegen()
+    inst.components.childspawner:SetOnAddChildFn(onaddchild)
+    inst.components.childspawner:SetSpawnedFn(onspawnchild)
 
     inst:AddComponent("inspectable")
 
     inst:AddComponent("playerprox")
     inst.components.playerprox:SetOnPlayerNear(onnear)
+    inst.components.playerprox:SetOnPlayerFar(onfar)
     inst.components.playerprox:SetDist(6, 40)
+
+    inst:ListenForEvent("entitywake", OnEntityWake)
+    inst:ListenForEvent("entitysleep", OnEntitySleep)
+
+    -- 洞口日夜监听（DST 风格）
+    local world = rawget(_G, "TheWorld")
+    onisday(inst, world and world.state.iscaveday)
+    if inst.WatchWorldState then
+        inst:WatchWorldState("iscaveday", onisday)
+    else
+        -- DS 降级：周期检查代替 WatchWorldState
+        inst:DoPeriodicTask(5, function()
+            local w = rawget(_G, "TheWorld")
+            if w then
+                onisday(inst, w.state.iscaveday)
+            end
+        end)
+    end
 
 	return inst
 end
 
--- 改短名，方便 room_defs 中直接用 batcave 引用
-return Prefab( "batcave", fn, assets, prefabs)
+-- 唯一注册名，避免与 DS 原版 cave/objects/batcave 冲突
+return Prefab("dst_batcave", fn, assets, prefabs)
