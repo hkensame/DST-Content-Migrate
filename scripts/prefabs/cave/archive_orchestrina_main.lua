@@ -394,7 +394,7 @@ local function mainfn()
         base.Transform:SetPosition(x,y,z)
     end)
 
-    inst.task = inst:DoPeriodicTask(0.10, function()
+    inst.task = inst:DoPeriodicTask(1.0, function()
         local theWorld = inst:GetTheWorld()
         local archive = theWorld ~= nil and theWorld.components.archivemanager or nil
         if not archive or archive:GetPowerSetting() then

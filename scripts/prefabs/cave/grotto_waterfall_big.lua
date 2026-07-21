@@ -14,6 +14,7 @@ local function fn()
 
     inst.entity:AddTransform()
     inst.entity:AddAnimState()
+    inst.entity:AddSoundEmitter()
     -- 🔴 DS 不需要 AddNetwork
 
     inst.Transform:SetTwoFaced()
@@ -32,6 +33,11 @@ local function fn()
     -- 🔴 DS 不需要 SetPristine / ismastersim 守卫
 
     inst.AnimState:SetFrame(math.random(inst.AnimState:GetCurrentAnimationNumFrames()) - 1)
+
+    -- 🟡 瀑布流水音效
+    inst:DoTaskInTime(0, function()
+        inst.SoundEmitter:PlaySound("grotto/common/waterfall_LP", "waterfall_loop")
+    end)
 
     return inst
 end

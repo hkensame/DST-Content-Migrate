@@ -64,7 +64,10 @@ function BatBrain:OnStart()
         AttackWall(self.inst),
         ChaseAndAttack(self.inst, MAX_CHASE_TIME, MAX_CHASE_DIST),
         -- 洞穴环境下改用 iscaveday 判断，避免表面白天导致蝙蝠立即回家
-        WhileNode(function() return TheWorld.state.iscaveday end, "IsCaveDay",
+        WhileNode(function()
+                local world = rawget(_G, "TheWorld")
+                return world ~= nil and world.state.iscaveday
+            end, "IsCaveDay",
             DoAction(self.inst, GoHomeAction)), 
         WhileNode(function() return self.inst.components.teamattacker.teamleader == nil end, "No Leader Eat Action",
             DoAction(self.inst, EatFoodAction)),

@@ -685,7 +685,10 @@ local function testbetweenpoints(pt1,pt2)
     local z = z1 + zdiff
 
     local theWorld = pt1:GetTheWorld()
-    return theWorld ~= nil and theWorld.Map:IsVisualGroundAtPoint(x,0,z)
+    if theWorld ~= nil and theWorld.Map ~= nil and theWorld.Map.IsVisualGroundAtPoint ~= nil then
+        return theWorld.Map:IsVisualGroundAtPoint(x,0,z)
+    end
+    return true -- DS 没有 IsVisualGroundAtPoint，默认通过
 end
 
 local WAYPOINT_RANGE = 34
@@ -745,15 +748,15 @@ local CHANDELIER_MUST_TAGS = {"archive_chandelier"}
 local function checkforgems(inst)
     local x,y,z = inst.Transform:GetWorldPosition()
     local ents = TheSim:FindEntities(x, y, z, 6, GEM_SOCKET_MUST_TAGS )
-    print("[ARCHIVE] checkforgems: caller="..tostring(inst).." found="..tostring(#ents).." switches within range 6")
+    -- checkforgems diagnostics removed
 
     for i=#ents,1,-1 do
         local ent = ents[i]
         if not ent.gem then
-            print("[ARCHIVE] checkforgems: removing switch "..tostring(ent).." (no gem)")
+            -- removing switch (no gem)
             table.remove(ents,i)
         else
-            print("[ARCHIVE] checkforgems: keeping switch "..tostring(ent).." (has gem)")
+            -- keeping switch (has gem)
         end
     end
 
@@ -762,14 +765,14 @@ local function checkforgems(inst)
     -- 此处 inst 为 archive_switch，已通过 archive_hooks.lua 注入了 GetTheWorld
     local theWorld = inst:GetTheWorld()
     local archive = theWorld ~= nil and theWorld.components.archivemanager
-    print("[ARCHIVE] checkforgems: gems_with_gems="..tostring(#ents).." archive="..tostring(archive).." power="..tostring(archive and archive:GetPowerSetting()).." theWorld="..tostring(theWorld))
-    if archive and #ents >= 3  then
-        print("[ARCHIVE] checkforgems: ACTIVATING POWER! calling SwitchPowerOn(true)")
+    -- checkforgems status diagnostics removed
+    if archive and #ents >= 3 then
+        -- ACTIVATING POWER!
         local success, err = pcall(archive.SwitchPowerOn, archive, true)
         if not success then
-            print("[ARCHIVE] checkforgems: ARCHIVE CRASHED! SwitchPowerOn error: "..tostring(err))
+            -- ARCHIVE CRASHED! SwitchPowerOn error
         else
-            print("[ARCHIVE] checkforgems: SwitchPowerOn returned OK")
+            -- SwitchPowerOn returned OK
         end
         startpowersound(inst)
         startshadowwar(inst)
@@ -780,19 +783,19 @@ local function checkforgems(inst)
             end
         end
     else
-        print("[ARCHIVE] checkforgems: power NOT activated (need "..tostring(3 - (#ents or 0)).." more gems)")
+        -- power NOT activated (need more gems)
     end
 end
 
 local function OnGemGiven(inst, giver, item)
-    print("[ARCHIVE] OnGemGiven: switch="..tostring(inst).." giver="..tostring(giver).." item="..tostring(item and item.prefab))
+    -- OnGemGiven: switch diagnostics removed
     inst.SoundEmitter:PlaySound("dontstarve/common/telebase_gemplace")
 
     inst.components.trader:Disable()
     inst.components.pickable:SetUp("opalpreciousgem", 1000000)
     inst.components.pickable.caninteractwith = true
     inst.gem = true
-    print("[ARCHIVE] OnGemGiven: gem=true set, calling checkforgems")
+    -- OnGemGiven: gem=true set
     checkforgems(inst)  -- 始终检查，无论动画状态
 
     if not inst.AnimState:IsCurrentAnimation("idle_full") and not inst.AnimState:IsCurrentAnimation("activate") then
@@ -855,7 +858,7 @@ local function OnSaveSwitch(inst, data)
 end
 
 local function OnLoadPostPassSwitch(inst, newents, data)
-    print("[ARCHIVE] OnLoadPostPassSwitch: data="..tostring(data).." spawnopal="..tostring(data and data.spawnopal).." gem="..tostring(data and data.gem))
+    -- OnLoadPostPassSwitch diagnostics removed
     -- DS 中静态布局的 spawnopal 属性不会传递给实体，由 archive_hooks.lua 的 auto-insert 替代
     -- DS 静态布局 properties 在 worldgen 时不会注入到 data 中，此判断无效
     -- 保留日志观察，但不再处理 spawnopal
@@ -915,7 +918,7 @@ local function switchfn()
     inst:ListenForEvent("animover", function()
         if inst.AnimState:IsCurrentAnimation("activate") then
             inst.AnimState:PlayAnimation("idle_full")
-            print("[ARCHIVE] animover: activate complete, calling checkforgems")
+            -- activate complete, calling checkforgems
             checkforgems(inst)
         end
         if inst.AnimState:IsCurrentAnimation("deactivate") then

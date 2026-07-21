@@ -384,14 +384,14 @@ local function AtriumSetEngaged(inst, engaged)
         inst.engaged = engaged
         inst.components.timer:StopTimer("snare_cd")
         inst.components.timer:StopTimer("spikes_cd")
-        inst.components.timer:StopTimer("channelers_cd")
-        inst.components.timer:StopTimer("minions_cd")
+        --inst.components.timer:StopTimer("channelers_cd")
+        --inst.components.timer:StopTimer("minions_cd")
         inst.components.timer:StopTimer("mindcontrol_cd")
         if engaged then
             inst.components.timer:StartTimer("snare_cd", TUNING.STALKER_FIRST_SNARE_CD)
             inst.components.timer:StartTimer("spikes_cd", TUNING.STALKER_FIRST_SPIKES_CD)
-            inst.components.timer:StartTimer("channelers_cd", TUNING.STALKER_FIRST_CHANNELERS_CD)
-            inst.components.timer:StartTimer("minions_cd", TUNING.STALKER_FIRST_MINIONS_CD)
+			--inst.components.timer:StartTimer("channelers_cd", TUNING.STALKER_FIRST_CHANNELERS_CD)
+			--inst.components.timer:StartTimer("minions_cd", TUNING.STALKER_FIRST_MINIONS_CD)
             inst.components.timer:StartTimer("mindcontrol_cd", TUNING.STALKER_FIRST_MINDCONTROL_CD)
             inst:RemoveEventCallback("newcombattarget", OnNewTarget)
         else
@@ -1429,7 +1429,7 @@ local function atrium_fn()
 
     inst:AddComponent("commander")
 
-    --改，用这个会无敌inst.components.health.redirect = nodmgshielded
+    inst.components.health.redirect = nodmgshielded
 
     inst.EnableCameraFocus = EnableCameraFocus
     inst.BattleChatter = AtriumBattleChatter

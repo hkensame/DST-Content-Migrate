@@ -212,7 +212,15 @@ local function oncollide(inst, other)
         or Vector3(inst.Physics:GetVelocity()):LengthSq() < 42 then
         return
     end
-    ShakeAllCameras(CAMERASHAKE.SIDE, .5, .05, .1, inst, 40)
+    -- DS 兼容：优先 DST ShakeAllCameras，回退 DS ShakeCamera
+    if rawget(_G, 'ShakeAllCameras') then
+        ShakeAllCameras(CAMERASHAKE.SIDE, .5, .05, .1, inst, 40)
+    else
+        local player = GetPlayer()
+        if player ~= nil and player.components.playercontroller ~= nil then
+            player.components.playercontroller:ShakeCamera(inst, "SIDE", .5, .05, .1, 40)
+        end
+    end
     inst:DoTaskInTime(2 * FRAMES, onothercollide, other)
 end
 

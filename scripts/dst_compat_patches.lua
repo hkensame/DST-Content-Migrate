@@ -1,26 +1,46 @@
--- ==================== DST 实体级补丁 ====================
--- 单个 prefab/实体的补丁（AddPrefabPostInit / AddSimPostInit）
--- 通过 modimport("scripts/dst_entity_patches.lua") 从 modmain.lua 加载
+-- ===============================
+-- DST 兼容补丁合集 (dst_compat_patches)
+-- ===============================
+-- 统一管理所有 DST→DS 移植的兼容性补丁，按类别分组
+-- 通过 modimport("scripts/dst_compat_patches.lua") 从 modmain.lua 加载
 
---蚁狮交易暖石
+-- ==================== 1. DLC 层全局补丁 ====================
+-- DLC0003 getworldgenoptions 洞穴安全补丁
+-- 洞穴世界中 inst.topology.overrides 为 nil，导致 getworldgenoptions 返回 nil，
+-- childspawner/spawner 调用 IsWorldGenOptionNever 时崩溃
+-- 注意：不能用 AddSimPostInit，它在 PopulateWorld 之后才触发（gamelogic.lua:893 vs 855）
+-- AddPrefabPostInitAny 在 prefab 初始化瞬间执行，远早于世界生成
+AddPrefabPostInitAny(function(inst)
+    if inst.getworldgenoptions ~= nil then
+        local old = inst.getworldgenoptions
+        inst.getworldgenoptions = function(...)
+            local result = old(...)
+            return result or {}
+        end
+    end
+end)
+
+-- ==================== 2. 实体级补丁 (AddPrefabPostInit / AddSimPostInit) ====================
+
+-- 2.1 蚁狮交易暖石
 AddPrefabPostInit("heatrock", function(inst)
     inst:AddComponent("tradable")
     inst.components.tradable.rocktribute = 6
 end)
 
---邪天翁生成
+-- 2.2 邪天翁生成
 if GetModConfigData("malbatross") == true then
-  AddPrefabPostInit("octopusking", function(inst)
-   inst:AddComponent("childspawner")
-   inst.components.childspawner.childname = "malbatross"
-   inst.components.childspawner:SetRegenPeriod(TUNING.TOTAL_DAY_TIME*20)
-   inst.components.childspawner:SetSpawnPeriod(TUNING.TOTAL_DAY_TIME/16)
-   inst.components.childspawner:SetMaxChildren(1)
-   inst.components.childspawner:StartSpawning()
-  end)
+    AddPrefabPostInit("octopusking", function(inst)
+        inst:AddComponent("childspawner")
+        inst.components.childspawner.childname = "malbatross"
+        inst.components.childspawner:SetRegenPeriod(TUNING.TOTAL_DAY_TIME*20)
+        inst.components.childspawner:SetSpawnPeriod(TUNING.TOTAL_DAY_TIME/16)
+        inst.components.childspawner:SetMaxChildren(1)
+        inst.components.childspawner:StartSpawning()
+    end)
 end
 
---LavaePet food sources
+-- 2.3 LavaePet food sources
 local function _LavaePetFoods(inst)
     inst:AddComponent("edible")
     inst.components.edible.foodtype = "BURNT"
@@ -31,11 +51,7 @@ end
 AddPrefabPostInit("ash", _LavaePetFoods)
 AddPrefabPostInit("charcoal", _LavaePetFoods)
 
--- 无眼鹿自动长角：由 deerherdspawner 在冬季通过 growantler 事件触发
--- 见 dst_entity_patches.lua 中的 deerherdspawner QueueHerdMigration
---AddPrefabPostInit("deer", function(inst) ... end)  -- 已移除，改为 spawner 触发
-
--- 月蛾生成器：在光飞虫花附近生成月蛾
+-- 2.4 月蛾生成器：在光飞虫花附近生成月蛾
 AddSimPostInit(function()
     local theWorld = rawget(GLOBAL, "TheWorld")
     if theWorld and theWorld.ismastersim and not theWorld.components.moonbutterflyspawner then
@@ -43,7 +59,7 @@ AddSimPostInit(function()
     end
 end)
 
--- 金丝雀→中毒金丝雀：鸟笼处理鸟中毒事件
+-- 2.5 金丝雀→中毒金丝雀：鸟笼处理鸟中毒事件
 AddPrefabPostInit("birdcage", function(inst)
     if inst.components.occupier ~= nil then
         inst:ListenForEvent("birdpoisoned", function(inst, data)
@@ -58,7 +74,7 @@ AddPrefabPostInit("birdcage", function(inst)
     end
 end)
 
--- 稻草人吸引金丝雀：附近有稻草人时，鸟生成器把乌鸦替换成金丝雀
+-- 2.6 稻草人吸引金丝雀：附近有稻草人时，鸟生成器把乌鸦替换成金丝雀
 local SCARECROW_TAGS = { "scarecrow" }
 AddComponentPostInit("birdspawner", function(self)
     local _OldPickBird = self.PickBird
@@ -75,7 +91,7 @@ AddComponentPostInit("birdspawner", function(self)
     end
 end)
 
--- 毒菌蛤蟆重生管理器（仅在洞穴世界）
+-- 2.7 毒菌蛤蟆重生管理器（仅在洞穴世界）
 AddPrefabPostInit("cave", function(inst)
     if not inst.components.worldsettingstimer then
         inst:AddComponent("worldsettingstimer")
@@ -83,7 +99,7 @@ AddPrefabPostInit("cave", function(inst)
     inst:AddComponent("toadstoolspawner")
 end)
 
--- 鹿群生成器（仅在地表世界）
+-- 2.8 鹿群生成器（仅在地表世界）
 if GetModConfigData("klaus") == true then
     AddPrefabPostInit("forest", function(inst)
         if not inst.components.deerherding then
@@ -97,3 +113,17 @@ if GetModConfigData("klaus") == true then
         end
     end)
 end
+
+-- ==================== 3. Widget 层补丁 (AddClassPostConstruct) ====================
+
+-- 3.1 启迪之冠格子缩放
+AddClassPostConstruct("widgets/containerwidget",function(self)
+    local self_Open=self.Open
+    function self:Open(container, doer)
+        self_Open(self, container, doer)
+        if self.container and self.container.prefab=="alterguardianhat" then
+            self:SetScale(0.5, 0.5, 0.5)
+            self:MoveToFront()
+        end
+    end
+end)

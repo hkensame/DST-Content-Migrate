@@ -23,7 +23,7 @@ local function InitMoonTiles()
     -- 诊断：打印所有注册的月亮地皮 ID
     local ids = {}
     for k, v in pairs(MOON_TILES) do table.insert(ids, k) end
-    print("[ENLIGHTEN] InitMoonTiles: registered tile IDs = [" .. table.concat(ids, ",") .. "]")
+    -- registered tile IDs
 end
 
 local function ScanMoonTileDensity(inst)
@@ -60,8 +60,7 @@ local function ScanMoonTileDensity(inst)
     -- 诊断：首次扫描或比率变化时打印
     if _scan_diag.last_ratio == nil or math.abs(ratio - _scan_diag.last_ratio) > 0.05 then
         _scan_diag.last_ratio = ratio
-        print(string.format("[ENLIGHTEN] TileScan: moon=%d/%d ratio=%.2f thresh=%.2f pass=%s latched=%s",
-            moon_count, total, ratio, threshold, tostring(ratio >= threshold), tostring(is_latched)))
+        -- moon tile scan result
     end
     return ratio >= threshold
 end
@@ -81,10 +80,10 @@ local function OnPlayerAttacked(inst, data)
             local pct = inst.components.enlightenment:GetPercent()
             local min_thresh = TUNING.ENLIGHTENMENT_THRESH_SPAWN or 0.6
             if pct < min_thresh then
-                print(string.format("[ENLIGHTEN] LunarCombat SUPPRESSED: pct=%.2f < min_thresh=%.2f", pct, min_thresh))
+                -- SUPPRESSED
                 return
             end
-            print(string.format("[ENLIGHTEN] LunarCombat: attacked by '%s' (tag=%s) pct=%.2f", tostring(attacker.prefab), tag, pct))
+            -- attacked
             inst.components.enlightenment:Enable("lunar_combat", TUNING.ENLIGHTENMENT_COMBAT_DURATION or 10)
             return
         end
@@ -107,10 +106,10 @@ local function OnPlayerEat(inst, data)
         local pct = inst.components.enlightenment:GetPercent()
         local min_thresh = TUNING.ENLIGHTENMENT_THRESH_SPAWN or 0.6
         if pct < min_thresh then
-            print(string.format("[ENLIGHTEN] MoonFood SUPPRESSED: pct=%.2f < min_thresh=%.2f", pct, min_thresh))
+            -- SUPPRESSED
             return
         end
-        print(string.format("[ENLIGHTEN] MoonFood: ate '%s' pct=%.2f", tostring(food.prefab), pct))
+        -- ate
         inst.components.enlightenment:Enable("moon_food", TUNING.ENLIGHTENMENT_FOOD_DURATION or 30)
     end
 end
@@ -147,7 +146,7 @@ end
 local function EnableEnlightenmentRegen(inst)
     local sanity = inst.components.sanity
     if not sanity then
-        print("[ENLIGHTEN] EnableRegen: no sanity component!")
+        -- no sanity component
         return
     end
     -- 固定回复 6/60 san/s，加在原生 rate 之上（不替换光照/装备/天气等因素）
@@ -158,18 +157,18 @@ local function EnableEnlightenmentRegen(inst)
         local base = inst._saved_custom_rate_fn and inst._saved_custom_rate_fn(inst) or 0
         return base + regen
     end
-    print(string.format("[ENLIGHTEN] EnableRegen: +%.4f/s sanity regen installed (had_prev_custom=%s)", regen, tostring(had_prev)))
+    -- sanity regen installed
 end
 
 local function DisableEnlightenmentRegen(inst)
     local sanity = inst.components.sanity
     if not sanity then
-        print("[ENLIGHTEN] DisableRegen: no sanity component!")
+        -- no sanity component
         return
     end
     sanity.custom_rate_fn = inst._saved_custom_rate_fn
     inst._saved_custom_rate_fn = nil
-    print("[ENLIGHTEN] DisableRegen: custom_rate_fn restored")
+    -- custom_rate_fn restored
 end
 
 ----------------------<Shadow Monster Suppression (Correct)>----------------------
@@ -216,14 +215,13 @@ local function HookSanityOverrides(sanity)
         if enlight and enlight:IsEnabled() then
             _gp_call_count = _gp_call_count + 1
             if _gp_call_count <= 5 or _gp_call_count % 60 == 0 then
-                print(string.format("[ENLIGHTEN] GetPercent: OVERRIDDEN -> 1.0 (call #%d)", _gp_call_count))
+                -- GetPercent: OVERRIDDEN -> 1.0
             end
             return 1.0
         end
         _gp_call_count = 0
         return _GetPercent(self, ...)
     end
-    
     -- [B] Override IsCrazy: 启蒙期间报告 false（不疯狂）
     local _IsCrazy = sanity.IsCrazy
     local _ic_call_count = 0
@@ -232,7 +230,7 @@ local function HookSanityOverrides(sanity)
         if enlight and enlight:IsEnabled() then
             _ic_call_count = _ic_call_count + 1
             if _ic_call_count <= 5 or _ic_call_count % 60 == 0 then
-                print(string.format("[ENLIGHTEN] IsCrazy: OVERRIDDEN -> false (call #%d)", _ic_call_count))
+                -- IsCrazy: OVERRIDDEN -> false
             end
             return false
         end
@@ -249,7 +247,7 @@ local function HookSanityOverrides(sanity)
         if enlight and enlight:IsEnabled() then
             _is_call_count = _is_call_count + 1
             if _is_call_count <= 5 or _is_call_count % 60 == 0 then
-                print(string.format("[ENLIGHTEN] IsSane: OVERRIDDEN -> true (call #%d)", _is_call_count))
+                -- IsSane: OVERRIDDEN -> true
             end
             return true
         end
@@ -257,12 +255,12 @@ local function HookSanityOverrides(sanity)
         return _IsSane(self, ...)
     end
     
-    -- 诊断：保存原始函数引用，供验证用
+    -- 保存原始函数引用，供验证用
     sanity._GetPercent = _GetPercent
     sanity._IsCrazy = _IsCrazy
     sanity._IsSane = _IsSane
     sanity._enlightenment_override_hooked = true
-    print("[ENLIGHTEN] SanityOverrides installed: GetPercent/IsCrazy/IsSane")
+    -- SanityOverrides installed
 end
 
 local function HookSanityOnUpdate(sanity)
@@ -283,10 +281,8 @@ local function HookSanityOnUpdate(sanity)
 
         -- Log state transitions
         if is_enlight and not _was_enlightened then
-            print("[ENLIGHTEN] SanityOnUpdate: transition INTO enlightenment")
             _was_enlightened = true
         elseif not is_enlight and _was_enlightened then
-            print("[ENLIGHTEN] SanityOnUpdate: transition OUT OF enlightenment")
             _was_enlightened = false
         end
 
@@ -294,18 +290,6 @@ local function HookSanityOnUpdate(sanity)
         _override_check_timer = _override_check_timer + 1
         if _override_check_timer >= 120 then
             _override_check_timer = 0
-            local still_active = self._GetPercent ~= nil and self.GetPercent ~= self._GetPercent
-            local spawner = self.inst and self.inst.components.sanitymonsterspawner
-            print(string.format(
-                "[ENLIGHTEN] DIAG: is_enlight=%s overrides_active=%s spawner_pop=%d gestalts=%d sane=%s fxtime=%.3f",
-                tostring(is_enlight),
-                tostring(still_active),
-                spawner and spawner.currentpop or -1,
-                self.inst and self.inst.components.enlightenment
-                    and #self.inst.components.enlightenment.gestalts or -1,
-                tostring(self.sane),
-                self.fxtime or -1
-            ))
         end
 
         if is_enlight then
@@ -316,13 +300,13 @@ local function HookSanityOnUpdate(sanity)
             if not self.sane then
                 self.sane = true
                 self.inst:PushEvent("gosane")
-                print("[ENLIGHTEN] SanityOnUpdate: forced sane=true + gosane")
+                -- SanityOnUpdate: forced sane=true + gosane
             end
 
             -- During enlightenment: 
             -- 1. Reset fxtime to prevent accumulation (否则退出时跳变)
             if self.fxtime ~= nil and self.fxtime > 0 then
-                print(string.format("[ENLIGHTEN] SanityOnUpdate: reset fxtime %.3f -> 0", self.fxtime))
+                -- SanityOnUpdate: reset fxtime -> 0
             end
             self.fxtime = 0
             -- 2. Keep Recalc running so sanity still changes
@@ -337,7 +321,7 @@ local function HookSanityOnUpdate(sanity)
                 PostProcessor:SetDistortionRadii(0, 1) -- 内外半径相同 = 无波浪区域
                 _pp_diag_count = _pp_diag_count + 1
                 if _pp_diag_count <= 5 or _pp_diag_count % 60 == 0 then
-                    print(string.format("[ENLIGHTEN] PostProcessor suppressed (frame #%d)", _pp_diag_count))
+                    -- PostProcessor suppressed
                 end
             end
         else
@@ -345,8 +329,7 @@ local function HookSanityOnUpdate(sanity)
             if _pp_diag_count > 0 then
                 _pp_restore_count = _pp_restore_count + 1
                 if _pp_restore_count <= 3 or _pp_restore_count % 120 == 0 then
-                    print(string.format("[ENLIGHTEN] SanityOnUpdate: else branch (original OnUpdate) pp_restore=#%d fxtime=%.3f sane=%s",
-                        _pp_restore_count, self.fxtime or -1, tostring(self.sane)))
+                    -- SanityOnUpdate: else branch (original OnUpdate)
                 end
             end
             _SanityOnUpdate(self, dt)
@@ -362,16 +345,14 @@ local function HookSanityOnUpdate(sanity)
                     self.sane = false
                     self.iscrazy = true
                     self.inst:PushEvent("goinsane")
-                    print(string.format("[ENLIGHTEN] SANE_FIX: sane=false iscrazy=true pct=%.2f thresh=%.2f",
-                        pct, insane_thresh))
+                    -- SANE_FIX: sane=false iscrazy=true
                 end
             else
                 if not self.sane or self.iscrazy then
                     self.sane = true
                     self.iscrazy = false
                     self.inst:PushEvent("gosane")
-                    print(string.format("[ENLIGHTEN] SANE_FIX: sane=true iscrazy=false pct=%.2f thresh=%.2f",
-                        pct, insane_thresh))
+                    -- SANE_FIX: sane=true iscrazy=false
                 end
             end
         end
@@ -418,7 +399,7 @@ AddComponentPostInit("colourcubemanager", function(self)
             PostProcessor:SetColourCubeLerp(1, 0)
             cc_transition = 0
             if not was_enlightened then
-                print("[ENLIGHTEN] CC: suppressing insanity colour cube")
+                -- CC: suppressing insanity colour cube
             end
             was_enlightened = true
         elseif was_enlightened then
@@ -429,13 +410,11 @@ AddComponentPostInit("colourcubemanager", function(self)
             PostProcessor:SetColourCubeLerp(1, lerp_val)
             _cc_transition_count = _cc_transition_count + 1
             if _cc_transition_count <= 10 or _cc_transition_count % 300 == 0 then
-                print(string.format("[ENLIGHTEN] CC: fading san=%.2f trans=%.3f lerp=%.3f (count=%d)",
-                    san, cc_transition, lerp_val, _cc_transition_count))
+                -- CC: fading
             end
             if cc_transition >= 1 then
                 was_enlightened = false -- transition complete, let normal code handle it
-                print(string.format("[ENLIGHTEN] CC: fade complete after %d frames, san_pct=%.2f",
-                    _cc_transition_count, 1 - san))
+                -- CC: fade complete
                 _cc_transition_count = 0
             end
         end
@@ -459,7 +438,7 @@ local _last_dreadstone = false
 
 ----------------------<Main Update Loop>----------------------
 
-print("[ENLIGHTEN] enlightenment_triggers.lua loaded successfully")
+--[[ 启蒙诊断日志已移除（原 tick / error / install 等打印） ]]--
 
 local SCAN_INTERVAL = 1.0
 local _enlighten_diag_tick = 0
@@ -467,10 +446,6 @@ local _enlighten_diag_tick = 0
 local function EnlightenmentUpdate(inst)
     local enlight = inst.components.enlightenment
     if not enlight then
-        if _enlighten_diag_tick < 5 then
-            print("[ENLIGHTEN] EnlightenmentUpdate: no enlightenment component!")
-            _enlighten_diag_tick = _enlighten_diag_tick + 1
-        end
         return
     end
 
@@ -478,11 +453,6 @@ local function EnlightenmentUpdate(inst)
 	local dreadstone_on = IsDreadstoneSetEquipped(inst)
 	if dreadstone_on ~= _last_dreadstone then
 		_last_dreadstone = dreadstone_on
-		if dreadstone_on then
-			print("[ENLIGHTEN] Dreadstone set equipped — enlightenment suppressed")
-		else
-			print("[ENLIGHTEN] Dreadstone set removed — enlightenment resumed")
-		end
 	end
 	if dreadstone_on then
 		-- 强制禁用所有激活中的源
@@ -494,17 +464,7 @@ local function EnlightenmentUpdate(inst)
 		return
 	end
 
-    -- 诊断日志（每 10 秒打印一次，避免刷屏）
-    _enlighten_diag_tick = _enlighten_diag_tick + SCAN_INTERVAL
-    if _enlighten_diag_tick >= 10 then
-        _enlighten_diag_tick = 0
-        local pct = enlight:GetPercent()
-        local enabled = enlight:IsEnabled()
-        local sources = ""
-        for k, v in pairs(enlight.sources) do sources = sources .. k .. "," end
-        print(string.format("[ENLIGHTEN] tick: enabled=%s pct=%.2f gestalts=%d sources=[%s]",
-            tostring(enabled), pct, #enlight.gestalts, sources))
-    end
+    -- 启蒙定期诊断已移除
 
     local ok, err = pcall(function()
         enlight:CleanupExpiredSources()
@@ -535,11 +495,9 @@ local function EnlightenmentUpdate(inst)
             enlight:Disable("moon_altar")
         end
 
-        -- 只在状态变化时打印 tick 日志
         local _tile_prev, _altar_prev = rawget(inst, "_enlighten_tile_prev"), rawget(inst, "_enlighten_altar_prev")
         if tile_pass ~= _tile_prev or altar_pass ~= _altar_prev then
-            print(string.format("[ENLIGHTEN] tick: tile=%s altar=%s enabled=%s gestalts=%d",
-                tostring(tile_pass), tostring(altar_pass), tostring(enlight:IsEnabled()), #enlight.gestalts))
+            -- tick: state change diagnostics removed
             rawset(inst, "_enlighten_tile_prev", tile_pass)
             rawset(inst, "_enlighten_altar_prev", altar_pass)
         end
@@ -547,40 +505,38 @@ local function EnlightenmentUpdate(inst)
         enlight:CheckThresholds()
     end)
     if not ok then
-        print("[ENLIGHTEN] EnlightenmentUpdate ERROR: " .. tostring(err))
+        -- EnlightenmentUpdate ERROR (diagnostic removed)
     end
 end
 
 ----------------------<Install to Player>----------------------
 
 local function InstallEnlightenment(inst)
-    print("[ENLIGHTEN] InstallEnlightenment called for " .. tostring(inst.prefab))
+    -- InstallEnlightenment called
     if inst.components.enlightenment then
-        print("[ENLIGHTEN] enlightenment component already exists, skipping")
+        -- enlightenment component already exists, skipping
         return
     end
 
     InitMoonTiles()
-    local count = 0
-    for k, v in pairs(MOON_TILES) do count = count + 1 end
-    print("[ENLIGHTEN] MoonTiles initialized, count=" .. tostring(count))
+    -- MoonTiles initialized
 
     local ok, err = pcall(function()
         inst:AddComponent("enlightenment")
     end)
     if not ok then
-        print("[ENLIGHTEN] AddComponent('enlightenment') FAILED: " .. tostring(err))
+        -- AddComponent('enlightenment') FAILED
         return
     end
-    print("[ENLIGHTEN] enlightenment component added successfully")
+    -- enlightenment component added successfully
 
     -- Directly hook the player's sanity OnUpdate to suppress PostProcessor distortion
     -- (AddComponentPostInit may not fire for already-existing components)
     if inst.components.sanity then
         HookSanityOnUpdate(inst.components.sanity)
-        print("[ENLIGHTEN] Sanity OnUpdate hooked")
+        -- Sanity OnUpdate hooked
     else
-        print("[ENLIGHTEN] WARNING: player has no sanity component!")
+        -- WARNING: player has no sanity component!
     end
 
     inst:ListenForEvent("enlightenment_enabled", function()
@@ -595,22 +551,17 @@ local function InstallEnlightenment(inst)
     inst:ListenForEvent("oneat", OnPlayerEat)
     inst:ListenForEvent("oneatsomething", OnPlayerEat)
 
-    -- 诊断：跟踪启蒙使能/禁能状态变化
-    local _enlight_enable_trace = false
+    -- 启蒙使能/禁能状态跟踪（诊断已移除）
     inst:ListenForEvent("enlightenment_enabled", function()
-        _enlight_enable_trace = true
-        local pct = inst.components.enlightenment and inst.components.enlightenment:GetPercent() or -1
-        print(string.format("[ENLIGHTEN] EVENT enlightenment_enabled fired (sanity_pct=%.2f)", pct))
+        -- EVENT enlightenment_enabled fired
     end)
     inst:ListenForEvent("enlightenment_disabled", function()
-        _enlight_enable_trace = false
-        local pct = inst.components.enlightenment and inst.components.enlightenment:GetPercent() or -1
-        print(string.format("[ENLIGHTEN] EVENT enlightenment_disabled fired (sanity_pct=%.2f)", pct))
+        -- EVENT enlightenment_disabled fired
     end)
 
     inst:DoPeriodicTask(SCAN_INTERVAL, EnlightenmentUpdate)
-    print("[ENLIGHTEN] Periodic task installed, system ready")
+    -- Periodic task installed, system ready
 end
 
 AddPlayerPostInit(InstallEnlightenment)
-print("[ENLIGHTEN] AddPlayerPostInit registered")
+-- AddPlayerPostInit registered

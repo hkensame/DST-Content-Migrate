@@ -27,7 +27,8 @@ local BLUEPRINT_ASSETS = {
 }
 
 local function GetBlueprintItemName(recipe_name)
-    local recipe = GetValidRecipe(recipe_name)
+    -- DS 没有 GetValidRecipe，改用 GetRecipe（双端通用）
+    local recipe = GetRecipe(recipe_name)
     return recipe and (STRINGS.NAMES[string.upper(recipe_name)] or STRINGS.NAMES.UNKNOWN) or STRINGS.NAMES.UNKNOWN
 end
 
@@ -66,7 +67,10 @@ local function MakeBlueprint(recipe_name)
                 learner.components.builder.inst:PushEvent("unlockrecipe", {recipe = recipe_name})
             end
         end
-        inst.components.teacher:SetRecipe(recipe_name)
+        -- DS 兼容：SetRecipe 可能 DST-only
+        if inst.components.teacher.SetRecipe then
+            inst.components.teacher:SetRecipe(recipe_name)
+        end
 
         local item_name = GetBlueprintItemName(recipe_name)
         inst.components.named:SetName(item_name .. "蓝图")
@@ -103,7 +107,10 @@ print(string.format("[TECHMANAGER] 自定义科技: %d 项", table.count(custom_
 
 -- ==================== 注册蓝图 prefab ====================
 for prefab_name, recipe_name in pairs(blueprints) do
-    GLOBAL.Prefabs[prefab_name] = GLOBAL.Prefab(prefab_name, MakeBlueprint(recipe_name), BLUEPRINT_ASSETS)
+    -- DS 的 SpawnPrefabFromSim 需要 prefab.modfns（为空表也可）
+    local prefab_obj = GLOBAL.Prefab(prefab_name, MakeBlueprint(recipe_name), BLUEPRINT_ASSETS)
+    prefab_obj.modfns = {}
+    GLOBAL.Prefabs[prefab_name] = prefab_obj
     print(string.format("[TECHMANAGER] 注册蓝图 prefab: %s → 配方 %s", prefab_name, recipe_name))
 end
 if next(blueprints) then
@@ -121,7 +128,7 @@ if custom_techs and next(custom_techs) then
     AddComponentPostInit("prototyper", function(self)
         local _GetTechTrees = self.GetTechTrees
         if not _GetTechTrees then
-            print("[TECHMANAGER_DIAG] prototyper PostInit but no GetTechTrees! inst=" .. tostring(self.inst))
+            -- prototyper PostInit but no GetTechTrees
             return
         end
         local _gt_call_count = 0
@@ -147,13 +154,6 @@ if custom_techs and next(custom_techs) then
                     end
                 end
 
-                -- 每 60 次调用输出一次日志
-                if _gt_call_count % 60 == 0 then
-                    local proto_name = pself and pself.inst and pself.inst.prefab or "unknown"
-                    local stack_info = pcall(debug.traceback) and debug.traceback() or "N/A"
-                    print(string.format("[TECH_DIAG] GetTechTrees call #%d: proto=%s\n%s",
-                        _gt_call_count, proto_name, stack_info))
-                end
                 return copy
             end
             return trees
@@ -246,21 +246,8 @@ AddComponentPostInit("builder", function(self)
         end
         return _KnowsRecipe(kself, recname)
     end
-    -- 每次 techtreechange 输出一份详细报告
+    -- 重置计数器
     self.inst:ListenForEvent("techtreechange", function()
-        local top_recipes = {}
-        local total = _diag_kr_counter
-        -- 找出调用最多的 5 个配方
-        for rname, count in pairs(_diag_kr_recipe_counts) do
-            table.insert(top_recipes, {name=rname, cnt=count})
-        end
-        table.sort(top_recipes, function(a, b) return a.cnt > b.cnt end)
-        local top_str = ""
-        for i = 1, math.min(5, #top_recipes) do
-            top_str = top_str .. string.format(" %s=%d", top_recipes[i].name, top_recipes[i].cnt)
-        end
-        print(string.format("[TECH_DIAG] KR report: total=%d | fallback=%d | top5:%s", total, _diag_kr_fallback or 0, top_str))
-        -- 重置计数器
         _diag_kr_counter = 0
         _diag_kr_recipe_counts = {}
         _diag_kr_fallback = 0
@@ -288,15 +275,8 @@ AddComponentPostInit("builder", function(self)
     end
 
     -- 5. EvaluateTechTrees — 轻量 hook，仅同步自定义科技字段
-    -- 诊断计数器：跟踪 EvaluateTechTrees 调用频率和事件触发
-    if not _diag_ett_frame then _diag_ett_frame = 0 end
-    if not _diag_ett_fire_count then _diag_ett_fire_count = 0 end
-
     local _old_ett = self.EvaluateTechTrees
     self.EvaluateTechTrees = function(bself)
-        local ett_start = GetTime()
-        _diag_ett_frame = _diag_ett_frame + 1
-
         -- 保存旧状态用于变化检测（完整快照，不依赖 deepcopy）
         local old_trees = {}
         if bself.accessible_tech_trees then
@@ -398,29 +378,9 @@ AddComponentPostInit("builder", function(self)
         end
 
         if trees_changed then
-            _diag_ett_fire_count = (_diag_ett_fire_count or 0) + 1
             bself.inst:PushEvent("techtreechange", {level = bself.accessible_tech_trees})
         end
-
-        -- ========== 7. 心跳（每 60 帧） ==========
-        if _diag_ett_frame % 60 == 0 then
-            local ett_elapsed = GetTime() - ett_start
-            local att = bself.accessible_tech_trees or {}
-            local tech_vals = {}
-            if custom_techs then
-                for tn in pairs(custom_techs) do
-                    table.insert(tech_vals, tn .. "=" .. tostring(att[tn]))
-                end
-            end
-            local proto_name = bself.current_prototyper and bself.current_prototyper.prefab or "nil"
-            print(string.format("[TECH_DIAG] ETT heartbeat frame=%d proto=%s %s| fire=%d| kr=%d| ett_time=%.4f",
-                _diag_ett_frame, proto_name, table.concat(tech_vals, " "),
-                _diag_ett_fire_count or 0, _diag_kr_counter or 0, ett_elapsed))
-            _diag_ett_fire_count = 0
-        end
-    end
-
-    print("[TECH_DIAG] EvaluateTechTrees 诊断日志已启用（每秒输出一次心跳）")
+    end   -- end EvaluateTechTrees
 
     -- 5. 初始补齐：确保 accessible_tech_trees 包含自定义科技字段
     --    原版初始化为 TECH.NONE，不包含 CELESTIAL，需要手动添加。

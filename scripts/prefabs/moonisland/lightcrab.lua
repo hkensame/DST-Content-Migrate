@@ -8,7 +8,7 @@ local assets =
 
 local prefabs =
 {
-    "fishmeat_small",
+    "fish_raw",
     "lightbulb",
     "slurtle_shellpieces",
 }
@@ -77,14 +77,14 @@ local function fn()
     inst.components.inventoryitem.atlasname = "images/dst_boss.xml"
 
     inst:AddComponent("cookable")
-    inst.components.cookable.product = "fishmeat_small_cooked"
+    inst.components.cookable.product = "fish_raw_small_cooked"
 
     inst:AddComponent("health")
     inst.components.health:SetMaxHealth(TUNING.LIGHTCRAB_HEALTH or 15)
 
     inst:AddComponent("lootdropper")
     inst.components.lootdropper.numrandomloot = 1
-    inst.components.lootdropper:AddRandomLoot("fishmeat_small", .25)
+    inst.components.lootdropper:AddRandomLoot("fish_raw", .25)
     inst.components.lootdropper:AddRandomLoot("lightbulb", .25)
     inst.components.lootdropper:AddRandomLoot("slurtle_shellpieces", .5)
 

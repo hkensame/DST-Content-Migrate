@@ -136,13 +136,15 @@ local function FindBlueprintLootsIndex(x, y, z)
 end
 
 local function TryToDropBlueprint(inst)
-    local player = inst:GetNearestPlayer(true)
+    local player = GetPlayer() --inst:GetNearestPlayer(true)
     if player == nil then
+        print("[DUSTMOTH] TryToDropBlueprint FAIL: GetPlayer() returned nil")
         return false
     end
 
     local builder = player.components.builder
     if builder == nil then
+        print("[DUSTMOTH] TryToDropBlueprint FAIL: player.builder is nil (player=" .. tostring(player) .. ")")
         return false
     end
 
@@ -155,18 +157,28 @@ local function TryToDropBlueprint(inst)
             if builder == nil or not builder:KnowsRecipe(recipename) then
                 lootname = recipename
                 break
+            else
+                print("[DUSTMOTH] TryToDropBlueprint: player already knows " .. recipename)
             end
         end
     end
 
     if not lootname then
+        print("[DUSTMOTH] TryToDropBlueprint: all recipes known, trying repeat chance")
         if math.random() > TUNING.DUSTMOTH.BLUEPRINT_DROP_CHANCE_REPEAT then
+            print("[DUSTMOTH] TryToDropBlueprint FAIL: repeat chance not lucky")
             return false
         end
         lootname = BLUEPRINT_LOOTS[math.random(#BLUEPRINT_LOOTS)]
+        print("[DUSTMOTH] TryToDropBlueprint: repeat drop, lootname=" .. tostring(lootname))
     end
 
     local loot = SpawnPrefab(lootname .. "_blueprint")
+    if loot == nil then
+        print("[DUSTMOTH] TryToDropBlueprint FAIL: SpawnPrefab(\"" .. lootname .. "_blueprint\") returned nil!")
+        return false
+    end
+    print("[DUSTMOTH] TryToDropBlueprint SUCCESS: dropping " .. lootname .. "_blueprint")
     inst.components.lootdropper:FlingItem(loot)
     return true
 end

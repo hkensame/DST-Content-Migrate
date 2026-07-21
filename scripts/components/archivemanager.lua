@@ -20,26 +20,18 @@ local _power_enabled = false
 --[[ Public member functions ]]
 
 function self:SwitchPowerOn(setting)
-    print("[ARCHIVE] SwitchPowerOn: setting="..tostring(setting).." current_power="..tostring(_power_enabled).." inst="..tostring(self.inst))
     if _power_enabled ~= true and setting == true then
         _power_enabled = true
-        print("[ARCHIVE] SwitchPowerOn: POWER ON! Pushing arhivepoweron")
-        -- WORLDSTATETAGS 是 DST 专有，DS 中不存在，跳过
-        print("[ARCHIVE] SwitchPowerOn: pushing arhivepoweron event to "..tostring(self.inst))
+        -- POWER ON - pushing arhivepoweron
         self.inst:PushEvent("arhivepoweron")
-        print("[ARCHIVE] SwitchPowerOn: POWER ON complete")
     elseif _power_enabled ~= false and setting == false then
         _power_enabled = false
-        print("[ARCHIVE] SwitchPowerOn: POWER OFF! Pushing arhivepoweroff")
-        -- WORLDSTATETAGS 是 DST 专有，DS 中不存在，跳过
+        -- POWER OFF - pushing arhivepoweroff
         self.inst:PushEvent("arhivepoweroff")
-    else
-        print("[ARCHIVE] SwitchPowerOn: no change needed (already "..tostring(_power_enabled)..")")
     end
 end
 
 function self:GetPowerSetting()
-    print("[ARCHIVE] GetPowerSetting: returning "..tostring(_power_enabled))
     return _power_enabled
 end
 

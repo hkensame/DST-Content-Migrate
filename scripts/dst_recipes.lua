@@ -150,6 +150,17 @@ local refined_dust = Recipe(
 refined_dust.image = "rf_dust.tex"
 refined_dust.atlas = "images/rf_dust.xml"
 
+local dustmeringue = Recipe(
+    "dustmeringue",
+    { 
+        Ingredient("refined_dust", 1),
+        Ingredient("berries", 3),
+    },
+    RECIPETABS.REFINE, TECH.LOST
+)
+dustmeringue.image = "dustmeringue.tex"
+dustmeringue.atlas = "images/dustmeringue.xml"
+
 local malbatross_feathered_weave = Recipe(
     "malbatross_feathered_weave",
     { 
@@ -312,206 +323,9 @@ blowdart_yellow.atlas = "images/blowdart_yellow.xml"
 --帝王蟹掉落的
   local moon_altar_crown = Recipe("moon_altar_crown",{ }, RECIPETABS.SCIENCE, {SCIENCE=0})
   --]]
---------------------------<用于旧档的测试功能>--------------------------
-if GetModConfigData("beta") == true then
-    local klaus_sack = Recipe(
-        "klaus_sack",
-        { },
-        RECIPETABS.REFINE, { SCIENCE = 0 }
-    )
-    klaus_sack.image = "klaus_sack.tex"
-        klaus_sack.atlas = "images/dst_boss.xml"
-
-    local deer_antler1 = Recipe(
-        "deer_antler1",
-        { },
-        RECIPETABS.REFINE, { SCIENCE = 0 }
-    )
-    deer_antler1.image = "deer_antler1.tex"
-        deer_antler1.atlas = "images/dst_boss.xml"
-
-    local klaussackkey = Recipe(
-        "klaussackkey",
-        { },
-        RECIPETABS.REFINE, { SCIENCE = 0 }
-    )
-    klaussackkey.image = "klaussackkey.tex"
-        klaussackkey.atlas = "images/dst_boss.xml"
-
-    local moon_device = Recipe(
-        "moon_device",
-        { 
-            Ingredient("cutstone", 2),
-            Ingredient("boards", 2),
-        },
-        RECIPETABS.REFINE, { SCIENCE = 0 }, RECIPE_GAME_TYPE.COMMON, "moon_device_placer", 1.5
-    )
-    moon_device.image = "moon_device.tex"
-        moon_device.atlas = "images/dst_boss.xml"
-
-    local hotspring = Recipe(
-        "hotspring",
-        { },
-        RECIPETABS.REFINE, { SCIENCE = 0 }, RECIPE_GAME_TYPE.COMMON, "hotspring_placer", 1.5
-    )
-    hotspring.image = "hotspring.tex"
-        hotspring.atlas = "images/dst_boss.xml"
-
-    local oasislake = Recipe(
-        "oasislake",
-        { },
-        RECIPETABS.REFINE, { SCIENCE = 0 }, RECIPE_GAME_TYPE.COMMON, "oasislake_placer", 1.5
-    )
-    oasislake.image = "oasislake.tex"
-        oasislake.atlas = "images/dst_boss.xml"
-
-    local moonbase = Recipe(
-        "moonbase",
-        { },
-        RECIPETABS.REFINE, { SCIENCE = 0 }
-    )
-    moonbase.image = "moonbase.tex"
-        moonbase.atlas = "images/dst_boss.xml"
-
-    local shadowheart = Recipe(
-        "shadowheart",
-        { },
-        RECIPETABS.REFINE, { SCIENCE = 0 }
-    )
-    shadowheart.image = "shadowheart.tex"
-        shadowheart.atlas = "images/dst_boss.xml"
-
-    local sculpture_rooknose = Recipe(
-        "sculpture_rooknose",
-        { },
-        RECIPETABS.REFINE, { SCIENCE = 0 }
-    )
-    sculpture_rooknose.image = "sculpture_rooknose.tex"
-        sculpture_rooknose.atlas = "images/dst_boss.xml"
-
-    local sculpture_knighthead = Recipe(
-        "sculpture_knighthead",
-        { },
-        RECIPETABS.REFINE, { SCIENCE = 0 }
-    )
-    sculpture_knighthead.image = "sculpture_knighthead.tex"
-        sculpture_knighthead.atlas = "images/dst_boss.xml"
-
-    local sculpture_bishophead = Recipe(
-        "sculpture_bishophead",
-        { },
-        RECIPETABS.REFINE, { SCIENCE = 0 }
-    )
-    sculpture_bishophead.image = "sculpture_bishophead.tex"
-        sculpture_bishophead.atlas = "images/dst_boss.xml"
-
-    -- 食物buff
-    local pepper = Recipe(
-        "pepper",
-        { },
-        RECIPETABS.TOWN, { SCIENCE = 0 }
-    )
-    pepper.image = "pepper.tex"
-        pepper.atlas = "images/dst_boss.xml"
-
-    local onion = Recipe(
-        "onion",
-        { },
-        RECIPETABS.TOWN, { SCIENCE = 0 }
-    )
-    onion.image = "onion.tex"
-        onion.atlas = "images/dst_boss.xml"
-
-    local jellybean = Recipe(
-        "jellybean",
-        { },
-        RECIPETABS.TOWN, { SCIENCE = 0 }
-    )
-    jellybean.image = "jellybean.tex"
-        jellybean.atlas = "images/dst_boss.xml"
-
-    local bonesoup = Recipe(
-        "bonesoup",
-        { },
-        RECIPETABS.TOWN, { SCIENCE = 0 }
-    )
-    bonesoup.image = "bonesoup.tex"
-        bonesoup.atlas = "images/dst_boss.xml"
-
-    local frogfishbowl = Recipe(
-        "frogfishbowl",
-        { },
-        RECIPETABS.TOWN, { SCIENCE = 0 }
-    )
-    frogfishbowl.image = "frogfishbowl.tex"
-        frogfishbowl.atlas = "images/dst_boss.xml"
-
-    local pepperpopper = Recipe(
-        "pepperpopper",
-        { },
-        RECIPETABS.TOWN, { SCIENCE = 0 }
-    )
-    pepperpopper.image = "pepperpopper.tex"
-        pepperpopper.atlas = "images/dst_boss.xml"
-
-    local dragonchilisalad = Recipe(
-        "dragonchilisalad",
-        { },
-        RECIPETABS.TOWN, { SCIENCE = 0 }
-    )
-    dragonchilisalad.image = "dragonchilisalad.tex"
-        dragonchilisalad.atlas = "images/dst_boss.xml"
-
-    local glowberrymousse = Recipe(
-        "glowberrymousse",
-        { },
-        RECIPETABS.TOWN, { SCIENCE = 0 }
-    )
-    glowberrymousse.image = "glowberrymousse.tex"
-        glowberrymousse.atlas = "images/dst_boss.xml"
-
-    local freshfruitcrepes = Recipe(
-        "freshfruitcrepes",
-        { },
-        RECIPETABS.TOWN, { SCIENCE = 0 }
-    )
-    freshfruitcrepes.image = "freshfruitcrepes.tex"
-        freshfruitcrepes.atlas = "images/dst_boss.xml"
-
-    local voltgoatjelly = Recipe(
-        "voltgoatjelly",
-        { },
-        RECIPETABS.TOWN, { SCIENCE = 0 }
-    )
-    voltgoatjelly.image = "voltgoatjelly.tex"
-        voltgoatjelly.atlas = "images/dst_boss.xml"
-
-    -- 稻草人：南瓜 + 木板 + 草
-    local scarecrow = Recipe(
-        "scarecrow",
-        {
-            Ingredient("pumpkin", 1),
-            Ingredient("boards", 3),
-            Ingredient("cutgrass", 3),
-        },
-        RECIPETABS.TOWN, TECH.SCIENCE_ONE, nil, "scarecrow_placer", 1.5
-    )
-    scarecrow.image = "scarecrow.tex"
-    scarecrow.atlas = "images/scarecrow.xml"
-
-    --[[
-    local sculpture_bishop = Recipe("sculpture_bishop",{ }, RECIPETABS.REFINE, {SCIENCE=0})
-      sculpture_bishop.atlas = "images/dst_boss.xml"
-    local sculpture_knight = Recipe("sculpture_knight",{ }, RECIPETABS.REFINE, {SCIENCE=0})
-      sculpture_knight.atlas = "images/dst_boss.xml"
-    local sculpture_rook = Recipe("sculpture_rook",{ }, RECIPETABS.REFINE, {SCIENCE=0})
-      sculpture_rook.atlas = "images/dst_boss.xml"
-
-      local  = Recipe("",{ }, RECIPETABS.REFINE, {SCIENCE=0})
-        .atlas = "images/dst_boss.xml"
-
     --]]
-end
+
+-- 月岛科技6大碎片
 
 -- 月岛科技6大碎片（测试用，固定放在建筑栏 RECIPETABS.TOWN）
 for _, name in ipairs({"idol", "glass", "seed", "crown", "ward", "icon"}) do
@@ -617,5 +431,23 @@ local atrium_key_recipe = Recipe("atrium_key", {
 local thulecitebugnet_recipe = Recipe("thulecitebugnet", {
     Ingredient("thulecite", 3),
     Ingredient("thulecite_pieces", 2),
-}, RECIPETABS.ANCIENT, TECH.ANCIENT_TWO)
+}, RECIPETABS.SURVIVAL, TECH.SCIENCE_ONE)
+    thulecitebugnet_recipe.image = "thulecitebugnet.tex"
+    thulecitebugnet_recipe.atlas = "images/thulecitebugnet.xml"
     thulecitebugnet_recipe.nounlock = true
+
+
+----------------<测试配方：化石碎片（魔法栏）>----------------
+local fossil_piece_recipe = Recipe("fossil_piece", {
+    Ingredient("cutstone", 1),
+}, RECIPETABS.MAGIC, TECH.MAGIC_TWO)
+fossil_piece_recipe.image = "fossil_piece.tex"
+fossil_piece_recipe.atlas = "images/dst_boss.xml"
+
+----------------<测试配方：暗影心脏（魔法栏）>----------------
+local shadowheart_recipe = Recipe("shadowheart", {
+    Ingredient("redgem", 1),
+}, RECIPETABS.MAGIC, TECH.MAGIC_TWO)
+
+shadowheart_recipe.image = "shadowheart.tex"
+thulecitebugnet_recipe.atlas = "images/dst_boss.xml"

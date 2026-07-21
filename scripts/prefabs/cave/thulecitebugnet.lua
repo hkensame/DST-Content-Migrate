@@ -29,7 +29,7 @@ local function fn()
     inst:AddTag("tool")
     inst:AddTag("weapon")
 
-    MakeInventoryFloatable(inst, "med", 0.09, {0.9, 0.4, 0.9}, true, -14.5)
+    MakeInventoryFloatable(inst, "idle", "idle")
 
     inst:AddComponent("weapon")
     inst.components.weapon:SetDamage(4)
@@ -47,12 +47,12 @@ local function fn()
     inst:AddComponent("inspectable")
 
     inst:AddComponent("inventoryitem")
+    inst.components.inventoryitem.imagename = "thulecitebugnet"
+    inst.components.inventoryitem.atlasname = "images/thulecitebugnet.xml"
 
     inst:AddComponent("equippable")
     inst.components.equippable:SetOnEquip(onequip)
     inst.components.equippable:SetOnUnequip(onunequip)
-
-    MakeHauntableLaunch(inst)
 
     return inst
 end

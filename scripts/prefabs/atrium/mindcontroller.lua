@@ -48,7 +48,7 @@ local function fn()
 
     inst._level = 0 --net_byte(inst.GUID, "mindcontroller._level")
 
-    inst:DoPeriodicTask(0, OnUpdate) --, nil, TheWorld.ismastersim)
+    inst:DoPeriodicTask(0, OnUpdate, nil, TheWorld.ismastersim)
 --[[
     inst.entity:SetPristine()
 

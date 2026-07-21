@@ -1,27 +1,33 @@
 -- DST 移植熟食制作：通过数据表批量生成 DST 专属烹饪食物
 local function MakePreparedFood(data)
 
+	local anim_build = data.overridebuild or data.name
+	local anim_bank = data.overridebank or data.name
+
 	local assets=
 	{
-		Asset("ANIM", "anim/foods/"..data.name..".zip"),
-	
+		Asset("ANIM", "anim/"..(data.overridebuild and (data.overridebuild..".zip") or ("foods/"..data.name..".zip"))),
 	}
-	
-	local prefabs = 
+
+	local prefabs =
 	{
 		"spoiled_food",
 	}
-	
+
 	local function fn(Sim)
 		local inst = CreateEntity()
 		inst.entity:AddTransform()
 		inst.entity:AddAnimState()
 		MakeInventoryPhysics(inst)
-		
-		inst.AnimState:SetBank(data.name)
-		inst.AnimState:SetBuild(data.name)
+
+		inst.AnimState:SetBank(anim_bank)
+		inst.AnimState:SetBuild(anim_build)
 		inst.AnimState:PlayAnimation("idle", false)
-	    
+
+		if data.overridesymbol then
+			inst.AnimState:OverrideSymbol(data.overridesymbol[1], data.overridesymbol[2], data.overridesymbol[3])
+		end
+
 	    inst:AddTag("preparedfood")
 
 		inst:AddComponent("edible")
@@ -39,7 +45,7 @@ local function MakePreparedFood(data)
 
 		if data.boost_surf then
 			inst.components.edible.surferdelta = TUNING.HYDRO_FOOD_BONUS_SURF
-			inst.components.edible.surferduration = TUNING.FOOD_SPEED_AVERAGE		
+			inst.components.edible.surferduration = TUNING.FOOD_SPEED_AVERAGE
 		end
 		if data.boost_dry then
 			inst.components.edible.autodrydelta = TUNING.HYDRO_FOOD_BONUS_DRY
@@ -55,9 +61,9 @@ local function MakePreparedFood(data)
 		inst:AddComponent("inventoryitem")
 		if data.name ~= "taffy" then
   		inst.components.inventoryitem.imagename = data.name
-    	inst.components.inventoryitem.atlasname = "images/dst_boss.xml"
+    	inst.components.inventoryitem.atlasname = data.atlasname or "images/dst_boss.xml"
   	end
-		
+
 		inst:AddComponent("stackable")
 		inst.components.stackable.maxsize = TUNING.STACK_SIZE_SMALLITEM
 
@@ -73,22 +79,26 @@ local function MakePreparedFood(data)
 				inst:AddTag(v)
 			end
 		end
-		
-	    
+
         MakeSmallBurnable(inst)
 		MakeSmallPropagator(inst)
 		if rawget(_G, 'MakeInventoryFloatable') then
-			MakeInventoryFloatable(inst, "idle_water", "idle")
+			if data.floatable then
+				MakeInventoryFloatable(inst, unpack(data.floatable))
+			else
+				MakeInventoryFloatable(inst, "idle_water", "idle")
+			end
 		end
 
 		inst:AddComponent("bait")
-	 
+
 		inst:AddComponent("tradable")
-	    
+
 		return inst
 	end
 
-	return Prefab( "common/inventory/"..data.name, fn, assets, prefabs)
+	local prefab_name = data.prefab_name or ("common/inventory/"..data.name)
+	return Prefab(prefab_name, fn, assets, prefabs)
 end
 
 

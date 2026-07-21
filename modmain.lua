@@ -1,4 +1,3 @@
-
 GLOBAL.setmetatable(env,{
     __index=function(t,k) return GLOBAL.rawget(GLOBAL,k) end,
     __newindex=function(t,k,v) GLOBAL.rawset(GLOBAL,k,v) rawset(t,k,v) end
@@ -11,8 +10,6 @@ if GLOBAL.PLATFORM == "Android" then GLOBAL.SJ = true else GLOBAL.SJ = false end
 if rawget(GLOBAL, "EntityScript") and not GLOBAL.EntityScript.SetPhysicsRadiusOverride then
     GLOBAL.EntityScript.SetPhysicsRadiusOverride = function() end
 end
-
-modimport("scripts/debug_ppapi.lua") -- 调试：PostProcessor API 自检
 
 -- ==================== 天体制作栏 ====================
 RECIPETABS.DST_CELESTIAL = {
@@ -345,7 +342,6 @@ PrefabFiles =
   "cave/refined_dust",
   "cave/dustmothden",
   "cave/dustmoth",
-  "cave/dustmeringue",
   "cave/thulecitebugnet",
   "cave/cave_hole", --中庭/档案馆洞穴洞
   "cave/cookpot_archive", -- 提供 archive_cookpot
@@ -433,7 +429,6 @@ Assets = {
   Asset("ANIM", "anim/cave/pillar_archive.zip"),
   Asset("ANIM", "anim/cave/pillar_archive_broken.zip"),
   Asset("ANIM", "anim/cave/refined_dust.zip"),
-  Asset("ANIM", "anim/cook_pot_food6.zip"),
   Asset("ANIM", "anim/thulecitebugnet.zip"),
   Asset("ANIM", "anim/cave/spore_moon.zip"),
   Asset("ANIM", "anim/cave/turf_archives.zip"),
@@ -578,6 +573,7 @@ Assets = {
   Asset("SOUND", "sound/waterlogged2_amb.fsb"),
   Asset("SOUND", "sound/hookline.fsb"),
   Asset("SOUND", "sound/hookline_2.fsb"),
+  Asset("SOUND", "sound/mushroom_light.fsb"),
 
   -- ========== SOUNDPACKAGE ==========
   Asset("SOUNDPACKAGE", "sound/antlion.fev"),
@@ -593,6 +589,7 @@ Assets = {
   Asset("SOUNDPACKAGE", "sound/waterlogged2.fev"),
   Asset("SOUNDPACKAGE", "sound/hookline.fev"),
   Asset("SOUNDPACKAGE", "sound/hookline_2.fev"),
+  Asset("SOUNDPACKAGE", "sound/mushroom_light.fev"),
 
   Asset("IMAGE", "images/tab_celestial.tex"),
   Asset("ATLAS", "images/tab_celestial.xml"),
@@ -650,6 +647,10 @@ Assets = {
   Asset("ATLAS", "images/hat_red_mushroom.xml"),
   Asset("IMAGE", "images/mushroom_light.tex"),
   Asset("ATLAS", "images/mushroom_light.xml"),
+  Asset("IMAGE", "images/dustmeringue.tex"),
+  Asset("ATLAS", "images/dustmeringue.xml"),
+  Asset("IMAGE", "images/thulecitebugnet.tex"),
+  Asset("ATLAS", "images/thulecitebugnet.xml"),
   Asset("IMAGE", "images/mushroom_light2.tex"),
   Asset("ATLAS", "images/mushroom_light2.xml"),
   Asset("IMAGE", "images/shroom_skin.tex"),
@@ -821,6 +822,61 @@ Assets = {
   Asset("ATLAS", "images/tree_rock.xml"),
 }
 
+-- ==================== DS 音效兼容：强制预加载所有自定义 FEV ====================
+-- DS 仅靠 Asset("SOUNDPACKAGE") 可能不加载 FEV，需要显式预加载
+TheSim:PreloadFile("sound/antlion.fev")
+TheSim:PreloadFile("sound/grotto.fev")
+TheSim:PreloadFile("sound/monkeyisland.fev")
+TheSim:PreloadFile("sound/moonstorm.fev")
+TheSim:PreloadFile("sound/rifts.fev")
+TheSim:PreloadFile("sound/rifts6.fev")
+TheSim:PreloadFile("sound/toadstool.fev")
+TheSim:PreloadFile("sound/turf_crafting_station.fev")
+TheSim:PreloadFile("sound/turnoftides.fev")
+TheSim:PreloadFile("sound/daywalker.fev")
+TheSim:PreloadFile("sound/saltydog.fev")
+TheSim:PreloadFile("sound/waterlogged2.fev")
+TheSim:PreloadFile("sound/hookline.fev")
+TheSim:PreloadFile("sound/hookline_2.fev")
+TheSim:PreloadFile("sound/mushroom_light.fev")
+
+-- ==================== 事件路径重映射（DST→DS 兼容）====================
+-- dontstarve/AMB/caves/main 已在 dst_turf_registration.lua 中直接改用 dontstarve/cave/caveAMB
+-- grotto.fev 中没有 _small/_large 脚步变体，回退到基础事件
+RemapSoundEvent("grotto/movement/grotto_footstep_small", "grotto/movement/grotto_footstep")
+RemapSoundEvent("grotto/movement/grotto_footstep_large", "grotto/movement/grotto_footstep")
+
+-- ==================== mushroom_light（独立 FEV，需重映射路径）====================
+-- 代码使用 dontstarve/common/together/mushroom_lamp/xxxx 但 mushroom_light.fev 事件名不同
+RemapSoundEvent("dontstarve/common/together/mushroom_lamp/lantern_1_on", "mushroom_light/mushroom_lamp_1_on")
+RemapSoundEvent("dontstarve/common/together/mushroom_lamp/lantern_2_on", "mushroom_light/mushroom_lamp_2_on")
+RemapSoundEvent("dontstarve/common/together/mushroom_lamp/craft_1", "mushroom_light/mushlamp__craft_1")
+RemapSoundEvent("dontstarve/common/together/mushroom_lamp/craft_2", "mushroom_light/mushlamp__craft_2")
+RemapSoundEvent("dontstarve/common/together/mushroom_lamp/change_colour", "mushroom_light/mushlamp_change_colour_2")
+
+-- ==================== Alter Guardian Boss 音效重映射（DST→DS 兼容）====================
+-- moonstorm.fev 中的事件路径和代码路径一致，不需要重映射。
+-- 之前错误地将有效事件映射到 SoundDef 内部名，导致所有声音失效。
+
+-- ==================== turnoftides 额外重映射 ====================
+-- fruit_dragon 组没有 footstep 事件，回退到 stretch（移动声）
+RemapSoundEvent("turnoftides/creatures/together/fruit_dragon/footstep", "turnoftides/creatures/together/fruit_dragon/stretch")
+
+-- ==================== 蘑菇地精（mushgnome）路径修正 ====================
+-- grotto.fev 中 mushgnome 是顶层事件组，且 taunt 事件不存在
+RemapSoundEvent("grotto/creatures/mushgnome/taunt", "grotto/mushgnome/surpise")
+
+-- ==================== DS 原版脚步变体修正 ====================
+-- DS 原版 dontstarve.fev 没有 _small 变体脚步，回退到基础事件
+RemapSoundEvent("walk_dirt_small", "dontstarve/movement/walk_dirt")
+RemapSoundEvent("walk_moss_small", "dontstarve/movement/walk_dirt")
+
+-- ==================== mushtree_tall_spore 孢子弹射 ====================
+RemapSoundEvent("dontstarve/cave/mushtree_tall_spore_fart", "toadstool/DST_spor_shoot_1")
+RemapSoundEvent("dontstarve/cave/mushtree_tall_spore_land", "toadstool/DST_spore_explode_1")
+
+-- ==================== 地皮环境音已在 dst_turf_registration.lua 中直接改用有效事件路径 ====================
+
 -- minimap atlas registration
 AddMinimapAtlas("images/turfcraftingstation.xml")
 AddMinimapAtlas("images/dst_boss.xml")
@@ -956,12 +1012,11 @@ end)
 -- 原 modmain.lua 中的功能代码已拆分为独立文件，通过 modimport 加载
 modimport("scripts/dst_init.lua")           -- 模组初始化（信息覆盖 + Android 检查）
 modimport("scripts/dst_player.lua")         -- 玩家初始化（grogginess + 标签注入）
-modimport("scripts/dst_widget_patches.lua")  -- 容器缩放（启迪之冠）
+modimport("scripts/dst_compat_patches.lua")  -- 兼容补丁合集（实体/Widget/DLC）
 modimport("scripts/dst_component_api.lua")   -- 所有组件 API 扩展
-modimport("scripts/dst_entity_patches.lua")  -- 实体级补丁（金丝雀/稻草人/鹿等）
 modimport("scripts/archive_hooks.lua")   -- 档案馆 prefab 运行时 Hook 注入
+modimport("scripts/dst_nightmare_init.lua")     -- 暴动时钟 + daywalkerspawner 初始化（从 archive_hooks 拆分）
 modimport("scripts/dst_nightmare_postinits.lua") -- 暴动预制体延迟注册 + Colour Cube 滤镜
-modimport("scripts/dst_dlc_patch.lua")       -- DLC 兼容补丁
 
 -- ==================== DST 火焰蔓延系统 ====================
 -- DST 式蓄火→点燃火焰蔓延机制，移植自 DST Fire Spreading mod

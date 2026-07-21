@@ -36,8 +36,8 @@ return {
       properties = {},
       encoding = "lua",
       data = {
-        43, 43,
-        43, 43
+        0, 0,
+        0, 0
       }
     },
     {

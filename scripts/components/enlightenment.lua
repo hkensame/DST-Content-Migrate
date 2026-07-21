@@ -71,7 +71,7 @@ function Enlightenment:_DespawnShadowMonsters()
         end
     end
     if killed > 0 then
-        print(string.format("[ENLIGHTEN] DespawnShadowMonsters: killed %d shadow monsters", killed))
+        -- DespawnShadowMonsters diagnostics removed
     end
 end
 
@@ -80,8 +80,7 @@ function Enlightenment:Enable(source, duration)
     -- 振荡检测：如果同源刚被 Disable 不到 2 秒就又被 Enable，阻止重新激活
     if source and self._last_disable_time and GetTime() - self._last_disable_time < 2
        and source == self._last_disable_source then
-        print(string.format("[ENLIGHTEN] OSCILLATION GUARD: blocked Enable('%s') %.1fs after Disable",
-            source, GetTime() - self._last_disable_time))
+        -- OSCILLATION GUARD: blocked Enable
         return
     end
 
@@ -90,7 +89,7 @@ function Enlightenment:Enable(source, duration)
         -- 刷新 timed 源的过期时间
         if duration and duration > 0 then
             self.sources[source] = GetTime() + duration
-            print(string.format("[ENLIGHTEN] Enable: refreshed '%s' timer -> %.1fs", source, self.sources[source]))
+            -- refreshed timer (diagnostic removed)
         end
         return -- 无实际状态变化
     end
@@ -99,54 +98,50 @@ function Enlightenment:Enable(source, duration)
     if source then
         if duration and duration > 0 then
             self.sources[source] = GetTime() + duration
-            print(string.format("[ENLIGHTEN] Enable: source='%s' duration=%.1fs (timed)", source, duration))
+            -- source='..duration=.. (timed)
         else
             self.sources[source] = true -- true = 永久源（不会被 pairs 跳过）
-            print(string.format("[ENLIGHTEN] Enable: source='%s' duration=permanent", source))
+            -- source='..duration=permanent
         end
     end
 
-    -- 打印当前所有源
+    -- 打印当前所有源（诊断已移除）
     local src_list = ""
     for k, v in pairs(self.sources) do
         if v == true then src_list = src_list .. k .. "(perm),"
         else src_list = src_list .. k .. "(exp=" .. string.format("%.1f", v) .. "),"
         end
     end
-    print("[ENLIGHTEN] Enable: sources=[" .. src_list .. "]")
+    -- Enable: sources diagnostic removed
 
     -- 取消脱离延续计时
     if self.linger_task then
         self.linger_task:Cancel()
         self.linger_task = nil
-        print("[ENLIGHTEN] Enable: cancelled linger_task")
+        -- Enable: cancelled linger_task
     end
 
     -- 恢复 behaviour_level（可能在 Disable 中被设为 0，即使没有 linger_task 也需要恢复）
     -- 限制在 source ~= nil 时，避免意外恢复
     if source and self.behaviour_level <= 0 then
         self.behaviour_level = 1
-        print(string.format("[ENLIGHTEN] Enable: restored behaviour_level to %d", self.behaviour_level))
+        -- Enable: restored behaviour_level
     end
 
     if self.enabled then
-        print("[ENLIGHTEN] Enable: already enabled, skip (just refreshed source)")
+        -- Enable: already enabled, skip (just refreshed source)
         return
     end
     self.enabled = true
 
     local sanity = self.inst.components.sanity
-    print(string.format("[ENLIGHTEN] >>> ENABLED <<< source=%s sanity=%.0f/%.0f (%.0f%%)",
-        tostring(source),
-        sanity and sanity.current or 0,
-        sanity and sanity.max or 0,
-        sanity and (sanity.current/sanity.max*100) or 0))
+    -- >>> ENABLED <<< diagnostics removed
 
     -- 清空已有暗影生物（启蒙状态下不应有影怪）
     self:_DespawnShadowMonsters()
 
     self.inst:PushEvent("enlightenment_enabled")
-    print("[ENLIGHTEN] Enable: pushed 'enlightenment_enabled' event")
+    -- Enable: pushed event (diagnostic removed)
 
     -- 文字提示
     if self.inst.components.talker then
@@ -161,19 +156,17 @@ function Enlightenment:Disable(source)
         return
     end
 
-    print(string.format("[ENLIGHTEN] Disable: source='%s' enabled=%s linger=%s",
-        tostring(source), tostring(self.enabled), tostring(self.linger_task ~= nil)))
+    -- Disable: diagnostics removed
     self._last_disable_time = GetTime()  -- 振荡检测用
     self._last_disable_source = source  -- 记录源名称，用于振荡检测
     if source then
         self.sources[source] = nil
-        print(string.format("[ENLIGHTEN] Disable: removed source '%s'", source))
+        -- Disable: removed source (diagnostic removed)
     end
 
     -- 已完全退出，忽略后续 Disable 调用（防止 _DoDisable 后循环创建 linger）
     if not self.enabled then
-        print(string.format("[ENLIGHTEN] Disable: already not enabled, skip (still has linger=%s)",
-            tostring(self.linger_task ~= nil)))
+        -- Disable: already not enabled, skip
         return
     end
 
@@ -191,12 +184,12 @@ function Enlightenment:Disable(source)
             has_source = true
         end
     end
-    print("[ENLIGHTEN] Disable: remaining_sources=[" .. src_list .. "] has_source=" .. tostring(has_source))
+    -- Disable: remaining_sources diagnostic removed
 
     -- 清理过期源
     for k, expiry in pairs(self.sources) do
         if expiry ~= true and expiry ~= nil and expiry <= now then
-            print(string.format("[ENLIGHTEN] Disable: cleaning expired source '%s'", k))
+            -- Disable: cleaning expired source (diagnostic removed)
             self.sources[k] = nil
         end
     end
@@ -204,13 +197,13 @@ function Enlightenment:Disable(source)
     -- 无论是否还有其他源（如 lunar_combat），只要有一个源被移除就立即停止月灵生成
     -- 否则 gestalt 继续攻击 → 刷新 lunar_combat → 死循环永远不退出
     if #self.gestalts > 0 then
-        print("[ENLIGHTEN] Disable: immediately despawning " .. #self.gestalts .. " gestalts")
+        -- Disable: immediately despawning gestalts
         self:_DespawnAllGestalts()
     end
-    self.behaviour_level = 0 -- 阻止 CheckThresholds 生成新月灵
+    self.behaviour_level = 0
 
     if has_source then
-        print("[ENLIGHTEN] Disable: still has active source, not fully disabling (gestalts already despawned)")
+        -- Disable: still has active source, not fully disabling
         return
     end
 
@@ -220,21 +213,20 @@ function Enlightenment:Disable(source)
         local start_time = GetTime()
         self.linger_task = self.inst:DoTaskInTime(linger, function()
             local elapsed = GetTime() - start_time
-            print(string.format("[ENLIGHTEN] Linger expired: elapsed=%.2fs (configured=%.1fs) enabled=%s",
-                elapsed, linger, tostring(self.enabled)))
+            -- Linger expired diagnostics removed
             self:_DoDisable()
         end)
-        print(string.format("[ENLIGHTEN] Disable: no sources, started linger timer (%.1fs) at t=%.1f", linger, start_time))
+        -- Disable: no sources, started linger timer
     else
-        print(string.format("[ENLIGHTEN] Disable: linger_task already active (cancelled by earlier Enable?), NOT creating new one"))
+        -- Disable: linger_task already active, NOT creating new one
     end
 end
 
 function Enlightenment:_DoDisable()
-    print("[ENLIGHTEN] _DoDisable: linger expired, attempting to disable...")
+    -- _DoDisable: linger expired, attempting to disable...
     self.linger_task = nil
     if not self.enabled then
-        print("[ENLIGHTEN] _DoDisable: already disabled, skip")
+        -- _DoDisable: already disabled, skip
         return
     end
     self.enabled = false
@@ -242,13 +234,10 @@ function Enlightenment:_DoDisable()
     self.speed_penalty = 0
 
     local sanity = self.inst.components.sanity
-    print(string.format("[ENLIGHTEN] >>> DISABLED <<< sanity=%.0f/%.0f (%.0f%%)",
-        sanity and sanity.current or 0,
-        sanity and sanity.max or 0,
-        sanity and (sanity.current/sanity.max*100) or 0))
+    -- >>> DISABLED <<< diagnostics removed
 
     -- 清除所有月灵
-    print("[ENLIGHTEN] _DoDisable: despawning " .. #self.gestalts .. " gestalts")
+    -- _DoDisable: despawning gestalts
     self:_DespawnAllGestalts()
 
     -- 立即停止 sanity regen（在推送事件之前停止，避免事件处理器再次添加）
@@ -256,7 +245,7 @@ function Enlightenment:_DoDisable()
         local had_custom_rate = sanity.custom_rate_fn ~= nil
         sanity.custom_rate_fn = self.inst._saved_custom_rate_fn
         self.inst._saved_custom_rate_fn = nil
-        print("[ENLIGHTEN] _DoDisable: restored custom_rate_fn (had_custom=" .. tostring(had_custom_rate) .. ")")
+        -- _DoDisable: restored custom_rate_fn
     end
 
     -- 强制 sanitymonsterspawner 立即按实际理智重新评估
@@ -264,26 +253,24 @@ function Enlightenment:_DoDisable()
     if spawner then
         spawner.popchangetimer = 0
         spawner.spawntimer = 0
-        -- 不重置 currenttargetpop，让 UpdateMonsters 按真实理智自行决定目标数量
         spawner:UpdateMonsters(0)
-        print(string.format("[ENLIGHTEN] _DoDisable: spawner force-updated (pop=%d target=%d)",
-            spawner.currentpop or 0, spawner.currenttargetpop or 0))
+        -- _DoDisable: spawner force-updated
     end
 
     -- 不推 goinsane/gosane 事件，避免退出启蒙后图标永久变红
     self.inst:PushEvent("enlightenment_disabled")
-    print("[ENLIGHTEN] _DoDisable: pushed 'enlightenment_disabled' event")
+    -- _DoDisable: pushed event (diagnostic removed)
 
     -- 验证：检查 sanity 覆写是否仍处于激活状态
     if self.inst and self.inst.components.sanity then
         local san = self.inst.components.sanity
         local still_overridden = (san.GetPercent ~= nil and san._GetPercent ~= nil and san.GetPercent ~= san._GetPercent)
             or (san.IsCrazy ~= nil and san._IsCrazy ~= nil and san.IsCrazy ~= san._IsCrazy)
-        print(string.format("[ENLIGHTEN] _DoDisable: sanity overrides still active=%s", tostring(still_overridden)))
+        -- _DoDisable: sanity overrides diagnostic removed
     end
 
     -- 验证：月灵是否完全清除
-    print(string.format("[ENLIGHTEN] _DoDisable: gestalt count after cleanup=%d", #self.gestalts))
+    -- _DoDisable: gestalt count diagnostic removed
 
     -- 文字提示
     if self.inst.components.talker then
@@ -297,8 +284,7 @@ function Enlightenment:CheckThresholds()
     if not self.enabled then
         _ct_diag_counter = _ct_diag_counter + 1
         if _ct_diag_counter % 30 == 1 then
-            print(string.format("[ENLIGHTEN] CheckThresholds: SKIP (not enabled) gestalts=%d linger=%s",
-                #self.gestalts, tostring(self.linger_task ~= nil)))
+            -- CheckThresholds: SKIP (not enabled)
         end
         return
     end
@@ -306,17 +292,15 @@ function Enlightenment:CheckThresholds()
     if self.behaviour_level <= 0 then
         _ct_diag_counter = _ct_diag_counter + 1
         if _ct_diag_counter % 15 == 1 then
-            print(string.format("[ENLIGHTEN] CheckThresholds: SKIP (behaviour_level=%d, linger mode) gestalts=%d",
-                self.behaviour_level, #self.gestalts))
+            -- CheckThresholds: SKIP (behaviour_level=0, linger mode)
         end
         return
     end
     local pct = self:GetPercent()
     _ct_diag_counter = _ct_diag_counter + 1
-    -- 每 5 秒打印一次状态摘要
+    -- 每 5 秒打印一次状态摘要（诊断已移除）
     if _ct_diag_counter % 5 == 1 then
-        print(string.format("[ENLIGHTEN] CheckThresholds: pct=%.2f level=%d gestalts=%d linger=%s",
-            pct, self.behaviour_level, #self.gestalts, tostring(self.linger_task ~= nil)))
+        -- CheckThresholds: pct/level/gestalts diagnostic removed
     end
 
     local new_level = 0
@@ -330,10 +314,7 @@ function Enlightenment:CheckThresholds()
 
     -- 更新月灵行为等级
     if new_level ~= self.behaviour_level then
-        print(string.format("[ENLIGHTEN] CheckThresholds: level changed %d -> %d, speed_penalty=%.2f",
-            self.behaviour_level, new_level,
-            new_level >= 3 and (TUNING.ENLIGHTENMENT_SPEED_PENALTY_L3 or 0.2)
-            or new_level >= 2 and (TUNING.ENLIGHTENMENT_SPEED_PENALTY_L2 or 0.1) or 0))
+        -- CheckThresholds: level changed diagnostic removed
         self.behaviour_level = new_level
         -- 同步所有现存月灵的行为等级 + 强制 brain 刷新
         for _, g in ipairs(self.gestalts) do
@@ -354,17 +335,13 @@ function Enlightenment:CheckThresholds()
     -- 生成月灵
     local spawn_thresh = TUNING.ENLIGHTENMENT_THRESH_SPAWN or 0.6
     if pct >= spawn_thresh and #self.gestalts < (TUNING.ENLIGHTENMENT_MAX_GESTALTS or 3) then
-        print(string.format("[ENLIGHTEN] SPAWN gestalt: pct=%.2f >= thresh=%.2f gestalts=%d/%d enabled=%s linger=%s",
-            pct, spawn_thresh, #self.gestalts, TUNING.ENLIGHTENMENT_MAX_GESTALTS or 3,
-            tostring(self.enabled), tostring(self.linger_task ~= nil)))
+        -- SPAWN gestalt diagnostic removed
         self:_TrySpawnGestalt()
     end
 
     -- 低于生成阈值时清除月灵
     if pct < spawn_thresh and #self.gestalts > 0 then
-        print(string.format("[ENLIGHTEN] DESPAWN gestalts: pct=%.2f < thresh=%.2f gestalts=%d enabled=%s linger=%s",
-            pct, spawn_thresh, #self.gestalts,
-            tostring(self.enabled), tostring(self.linger_task ~= nil)))
+        -- DESPAWN gestalts diagnostic removed
         self:_DespawnAllGestalts()
     end
 end
@@ -392,9 +369,9 @@ function Enlightenment:_TrySpawnGestalt()
         gestalt:ListenForEvent("onremove", function(g)
             self:_OnGestaltRemoved(g)
         end)
-        print("[ENLIGHTEN] Gestalt spawned successfully! total=" .. #self.gestalts)
+        -- Gestalt spawned successfully (diagnostic removed)
     else
-        print("[ENLIGHTEN] SpawnPrefab('gestalt') FAILED: " .. tostring(gestalt_or_err or "returned nil"))
+        -- SpawnPrefab('gestalt') FAILED (diagnostic removed)
     end
 end
 
@@ -406,7 +383,7 @@ function Enlightenment:_OnGestaltRemoved(g)
             break
         end
     end
-    print(string.format("[ENLIGHTEN] GestaltRemoved: %d -> %d (prefab=%s)", before, #self.gestalts, tostring(g.prefab)))
+    -- GestaltRemoved: diagnostic removed
 end
 
 function Enlightenment:_DespawnAllGestalts()
@@ -418,7 +395,7 @@ function Enlightenment:_DespawnAllGestalts()
     end
     self.gestalts = {}
     if count > 0 then
-        print("[ENLIGHTEN] DespawnAllGestalts: cleared " .. count .. " gestalts")
+        -- DespawnAllGestalts: cleared
     end
 end
 
@@ -427,7 +404,7 @@ function Enlightenment:CleanupExpiredSources()
     local now = GetTime()
     for k, expiry in pairs(self.sources) do
         if expiry ~= true and expiry ~= nil and expiry <= now then
-            print(string.format("[ENLIGHTEN] CleanupExpiredSources: source '%s' expired (was=%.1f now=%.1f)", k, expiry, now))
+            -- CleanupExpiredSources: source expired
             self.sources[k] = nil
             self:Disable(k)
         end
@@ -446,15 +423,13 @@ function Enlightenment:OnSave()
     end
     -- 保存 lingering 状态（如果 linger_task 存在说明正在退出过程中）
     data.was_lingering = self.linger_task ~= nil
-    print("[ENLIGHTEN] OnSave: enabled=" .. tostring(self.enabled)
-        .. " sources=" .. (function() local s="" for k,v in pairs(data.sources) do s=s..k.."," end return s end)()
-        .. " level=" .. tostring(self.behaviour_level))
+    -- OnSave: diagnostics removed
     return data
 end
 
 function Enlightenment:OnLoad(data)
     if not data then return end
-    print("[ENLIGHTEN] OnLoad: enabled=" .. tostring(data.enabled))
+    -- OnLoad: enabled diagnostic removed
 
     -- 恢复 sources
     if data.sources then
@@ -481,11 +456,11 @@ function Enlightenment:OnLoad(data)
 
         -- 推迟到下一帧再推事件和设置 regen，此时所有组件都已加载完毕
         self.inst:DoTaskInTime(0, function()
-            print("[ENLIGHTEN] OnLoad: deferred enable - pushing events")
+            -- OnLoad: deferred enable - pushing events
             self.inst:PushEvent("enlightenment_enabled")
         end)
 
-        print("[ENLIGHTEN] OnLoad: restored enlightenment state (deferred event push)")
+        -- OnLoad: restored enlightenment state (deferred event push)
     end
 end
 

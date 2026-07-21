@@ -139,7 +139,7 @@ local TURF_DEFS = {
     { name = "PEBBLEBEACH",   sound = "rocky",              noise = "noise_pebblebeach",         mini = "mini_pebblebeach",         mini_name = "map_edge", run = "turnoftides/movement/run_pebblebeach", walk = "turnoftides/movement/run_pebblebeach",       turf = "turf_pebblebeach" },
 
     --------------------<DST 移植地皮>--------------------
-    { name = "ARCHIVE",       sound = "blocky",             noise = "Ground_noise_archive",      mini = "Ground_noise_archive_mini",  mini_name = "map_edge", run = "dontstarve/movement/run_marble", walk = "dontstarve/movement/run_marble",  hard = true, turf = "turf_archive" },
+    { name = "ARCHIVE",       sound = "blocky",             noise = "Ground_noise_archive",      mini = "Ground_noise_archive_mini",  mini_name = "map_edge", run = "dontstarve/movement/run_marble", walk = "dontstarve/movement/walk_marble",  hard = true, turf = "turf_archive" },
     { name = "FUNGUSMOON",    sound = "cave",                noise = "Ground_noise_moon_fungus",  mini = "Ground_noise_moon_fungus_mini", mini_name = "map_edge", run = "grotto/movement/grotto_footstep", walk = "grotto/movement/grotto_footstep",       turf = "turf_fungus_moon" },
     { name = "MONKEY_GROUND", sound = "cave",                noise = "ground_noise_monkeyisland", mini = "mini_pebblebeach",            mini_name = "map_edge", run = "turnoftides/movement/run_pebblebeach", walk = "turnoftides/movement/run_pebblebeach",       turf = "turf_monkey_ground" },
 
@@ -229,24 +229,24 @@ GLOBAL.DST_TURFS = DST_TURFS
 AddComponentPostInit("ambientsoundmixer", function(self)
     local G = GLOBAL
 
-    -- 月岛区域
-    self.ambient_sounds[G.GROUND.METEOR] = { sound = "turnoftides/together_amb/moon_island/fall" }
-    self.ambient_sounds[G.GROUND.PEBBLEBEACH] = { sound = "turnoftides/together_amb/moon_island/fall" }
+    -- 月岛区域（turnoftides.fev 中 fall 事件无音频，改用 Hamlet monkeyisland）
+    self.ambient_sounds[G.GROUND.METEOR] = { sound = "monkeyisland/amb/island_amb" }
+    self.ambient_sounds[G.GROUND.PEBBLEBEACH] = { sound = "monkeyisland/amb/island_amb" }
     self.ambient_sounds[G.GROUND.SHELLBEACH] = { sound = "hookline_2/amb/hermit_island" }
 
     -- 猴岛区域
     self.ambient_sounds[G.GROUND.MONKEY_GROUND] = { sound = "monkeyisland/amb/island_amb" }
 
-    -- 档案馆区域
-    self.ambient_sounds[G.GROUND.ARCHIVE] = { sound = "grotto/amb/archive" }
-    self.ambient_sounds[G.GROUND.VAULT] = { sound = "grotto/amb/archive" }
-    self.ambient_sounds[G.GROUND.VAULT_CLEAN] = { sound = "grotto/amb/archive" }
+    -- 档案馆区域（grotto.fev 中 archive 事件无音频，改用 DS 洞穴 ruins 环境音）
+    self.ambient_sounds[G.GROUND.ARCHIVE] = { sound = "dontstarve/cave/ruinsAMB" }
+    self.ambient_sounds[G.GROUND.VAULT] = { sound = "dontstarve/cave/ruinsAMB" }
+    self.ambient_sounds[G.GROUND.VAULT_CLEAN] = { sound = "dontstarve/cave/ruinsAMB" }
 
-    -- 月蘑菇林
-    self.ambient_sounds[G.GROUND.FUNGUSMOON] = { sound = "grotto/amb/grotto" }
+    -- 月蘑菇林（grotto.fev 中 grotto 事件无音频，改用 DS 原生蘑菇林环境音）
+    self.ambient_sounds[G.GROUND.FUNGUSMOON] = { sound = "dontstarve/cave/fungusforestAMB" }
 
-    -- Vent 区（使用 DS 原生洞穴环境音）
-    self.ambient_sounds[G.GROUND.VENT] = { sound = "dontstarve/AMB/caves/main" }
+    -- Vent 区
+    self.ambient_sounds[G.GROUND.VENT] = { sound = "dontstarve/cave/caveAMB" }
 
     -- 兼容地皮
     self.ambient_sounds[G.GROUND.BRICK] = { sound = "dontstarve/cave/ruinsAMB" }
@@ -269,4 +269,100 @@ AddComponentPostInit("ambientsoundmixer", function(self)
         end
     end
 end)
+
+----------------<PlayFootstep 补丁：兼容完整 event path 和 DLC3 短名>----------------
+-- DLC3（Hamlet）的 PlayFootstep 会给所有音效路径加 "dontstarve/movement/" 前缀，
+-- 导致 mod 定义的完整 event path（如 "turnoftides/movement/run_pebblebeach"）变成
+-- "dontstarve/movement/turnoftides/movement/run_pebblebeach" 而无声。
+-- 此补丁判断音效路径是否已是完整 event path（含 /），是则直接播放，否则按原逻辑加前缀。
+local function PatchPlayFootstep()
+    local G = GLOBAL
+    local CREATURE_SIZE = G.CREATURE_SIZE
+
+    -- Web 音效名（DLC3 风格短名，始终需要 footstep_path 前缀）
+    local WEB_SOUNDS = {
+        [CREATURE_SIZE.SMALL]  = { runsound = "run_web_small" },
+        [CREATURE_SIZE.MEDIUM] = { runsound = "run_web" },
+        [CREATURE_SIZE.LARGE]  = { runsound = "run_web_large" },
+    }
+
+    local function get_creature_size(inst)
+        if inst:HasTag("smallcreature") then return CREATURE_SIZE.SMALL end
+        if inst:HasTag("largecreature") then return CREATURE_SIZE.LARGE end
+        return CREATURE_SIZE.MEDIUM
+    end
+
+    -- 路径解析：完整 event path 直接播，短名加 footstep_path 前缀
+    local function resolve_path(path, footstep_path, size_affix)
+        if path and path:find("/") then
+            return path .. size_affix
+        end
+        return footstep_path .. (path or "") .. size_affix
+    end
+
+    G.PlayFootstep = function(inst, volume)
+        volume = volume or 1
+
+        local sound = inst.SoundEmitter
+        if not sound then return end
+
+        local tile, tileinfo = inst:GetCurrentTileType()
+        if not tile or not tileinfo then return end
+
+        local x, y, z = inst.Transform:GetWorldPosition()
+        local ontar = inst.slowing_objects and next(inst.slowing_objects)
+        local oncreep = G.GetWorld().GroundCreep:OnCreep(x, y, z)
+        local onflood = G.GetWorld().Flooding and G.GetWorld().Flooding:OnFlood(x, y, z)
+        local onsnow = G.GetSeasonManager() and G.GetSeasonManager():GetSnowPercent() > 0.15
+        local onmud = G.GetWorld().components.moisturemanager:GetWorldMoisture() > 15
+        local ininterior = tile == G.GROUND.INTERIOR
+        local onroad = inst:HasTag("player") and G.RoadManager ~= nil and G.RoadManager:IsOnRoad(x, 0, z)
+
+        if onroad then
+            tile = G.GROUND.ROAD
+            tileinfo = G.GetTileInfo(G.GROUND.ROAD)
+        end
+
+        local footstep_path = inst.footstep_path_override or "dontstarve/movement/"
+        local size_affix = ""
+        if inst:HasTag("smallcreature") then
+            size_affix = "_small"
+        elseif inst:HasTag("largecreature") then
+            size_affix = "_large"
+        end
+
+        if ininterior then
+            local interiorSpawner = G.GetWorld().components.interiorspawner
+            if interiorSpawner.current_interior then
+                tileinfo = G.GetTileInfo(interiorSpawner.current_interior.groundsound)
+                if not tileinfo then
+                    tileinfo = G.GetTileInfo("DIRT")
+                end
+            end
+        end
+
+        if onsnow then
+            sound:PlaySound(resolve_path(tileinfo.snowsound, footstep_path, size_affix), nil, volume)
+        elseif onmud then
+            sound:PlaySound(resolve_path(tileinfo.mudsound, footstep_path, size_affix), nil, volume)
+        else
+            local running = inst.sg and inst.sg:HasStateTag("running")
+            if running then
+                sound:PlaySound(resolve_path(tileinfo.runsound, footstep_path, size_affix), nil, volume)
+            else
+                sound:PlaySound(resolve_path(tileinfo.walksound, footstep_path, size_affix), nil, volume)
+            end
+        end
+
+        if oncreep or onflood then
+            local size = get_creature_size(inst)
+            sound:PlaySound(footstep_path .. WEB_SOUNDS[size].runsound, nil, volume)
+        end
+        if ontar then
+            sound:PlaySound(resolve_path(tileinfo.mudsound, footstep_path, size_affix), nil, volume)
+        end
+    end
+end
+
+PatchPlayFootstep()
 

@@ -80,10 +80,10 @@ local LIGHT_PARAMS_VAULT =
 }
 
 local FLAMEDATA = {
-    "flame1",
-    "flame2",
-    "flame3",
-    "flame4",
+    flame1 = "flame1",
+    flame2 = "flame2",
+    flame3 = "flame3",
+    flame4 = "flame4",
 }
 
 
@@ -206,7 +206,7 @@ local function UpdateFlames(inst)
 				if fx == nil then
 					fx = CreateFireFx()
 					fx.entity:SetParent(inst.entity)
-					fx.Follower:FollowSymbol(inst.GUID, v)
+					fx.Follower:FollowSymbol(inst.GUID, inst.AnimState.GetSymbolID and inst.AnimState:GetSymbolID(v) or v, 0, 0, 0)
 					inst[v] = fx
 				end
 				fx.AnimState:SetLightOverride(val)

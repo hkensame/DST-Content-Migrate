@@ -134,7 +134,7 @@ end
 local function GetLootWeightedTable(inst)
     local x, y, z = inst.Transform:GetWorldPosition()
     local theWorld = inst:GetTheWorld()
-    local id, index = theWorld and theWorld.Map:GetTopologyIDAtPoint(x, y, z)
+    local id, index = theWorld and theWorld.Map.GetTopologyIDAtPoint and theWorld.Map:GetTopologyIDAtPoint(x, y, z)
     if id then
         local loot_key = GetLootKey(id)
         if loot_key then

@@ -66,7 +66,7 @@ return {
         42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,
         42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,
         42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,
-        42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42
+        42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,
       }
     },
     {
@@ -76,14 +76,14 @@ return {
       opacity = 1,
       properties = {},
       objects = {
-        ---- 上半区（y=0~255）：传送门入口 ----
-        -- 月亮雕像（可挖掘资源）
+        ---- 月亮雕像（每条边3个，角共享=总计8个）----
+        -- 上边
         {
           name = "",
           type = "archive_moon_statue",
           shape = "rectangle",
-          x = 96,
-          y = 64,
+          x = 32,
+          y = 32,
           width = 0,
           height = 0,
           visible = true,
@@ -93,56 +93,66 @@ return {
           name = "",
           type = "archive_moon_statue",
           shape = "rectangle",
-          x = 400,
-          y = 64,
+          x = 256,
+          y = 32,
           width = 0,
           height = 0,
           visible = true,
           properties = {}
         },
-        -- 吊灯
         {
           name = "",
-          type = "archive_chandelier",
+          type = "archive_moon_statue",
+          shape = "rectangle",
+          x = 480,
+          y = 32,
+          width = 0,
+          height = 0,
+          visible = true,
+          properties = {}
+        },
+        -- 右边
+        {
+          name = "",
+          type = "archive_moon_statue",
+          shape = "rectangle",
+          x = 480,
+          y = 256,
+          width = 0,
+          height = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          name = "",
+          type = "archive_moon_statue",
+          shape = "rectangle",
+          x = 480,
+          y = 480,
+          width = 0,
+          height = 0,
+          visible = true,
+          properties = {}
+        },
+        -- 下边
+        {
+          name = "",
+          type = "archive_moon_statue",
           shape = "rectangle",
           x = 256,
-          y = 112,
+          y = 480,
           width = 0,
           height = 0,
           visible = true,
           properties = {}
         },
-        -- 传送门
+        -- 左边
         {
           name = "",
-          type = "archive_portal",
+          type = "archive_moon_statue",
           shape = "rectangle",
-          x = 256,
-          y = 160,
-          width = 0,
-          height = 0,
-          visible = true,
-          properties = {}
-        },
-        -- 声效区域
-        {
-          name = "",
-          type = "archive_sound_area",
-          shape = "rectangle",
-          x = 48,
-          y = 80,
-          width = 80,
-          height = 144,
-          visible = true,
-          properties = {}
-        },
-        -- 柱子
-        {
-          name = "",
-          type = "archive_pillar",
-          shape = "rectangle",
-          x = 64,
-          y = 224,
+          x = 32,
+          y = 480,
           width = 0,
           height = 0,
           visible = true,
@@ -150,138 +160,23 @@ return {
         },
         {
           name = "",
-          type = "archive_pillar",
+          type = "archive_moon_statue",
           shape = "rectangle",
-          x = 448,
-          y = 224,
+          x = 32,
+          y = 256,
           width = 0,
           height = 0,
           visible = true,
           properties = {}
-        },
-        -- 残骸墙装饰
-        {
-          name = "",
-          type = "wall_ruins",
-          shape = "rectangle",
-          x = 128,
-          y = 208,
-          width = 0,
-          height = 0,
-          visible = true,
-          properties = {
-            ["data.gridnudge"] = "true",
-            ["data.health.percent"] = "1"
-          }
-        },
-        {
-          name = "",
-          type = "wall_ruins",
-          shape = "rectangle",
-          x = 368,
-          y = 208,
-          width = 0,
-          height = 0,
-          visible = true,
-          properties = {
-            ["data.gridnudge"] = "true",
-            ["data.health.percent"] = "1"
-          }
-        },
-        {
-          name = "",
-          type = "wall_stone",
-          shape = "rectangle",
-          x = 160,
-          y = 224,
-          width = 0,
-          height = 0,
-          visible = true,
-          properties = {
-            ["data.gridnudge"] = "true"
-          }
-        },
-        {
-          name = "",
-          type = "wall_stone",
-          shape = "rectangle",
-          x = 192,
-          y = 224,
-          width = 0,
-          height = 0,
-          visible = true,
-          properties = {
-            ["data.gridnudge"] = "true"
-          }
-        },
-        {
-          name = "",
-          type = "wall_stone",
-          shape = "rectangle",
-          x = 304,
-          y = 224,
-          width = 0,
-          height = 0,
-          visible = true,
-          properties = {
-            ["data.gridnudge"] = "true"
-          }
-        },
-        {
-          name = "",
-          type = "wall_stone",
-          shape = "rectangle",
-          x = 336,
-          y = 224,
-          width = 0,
-          height = 0,
-          visible = true,
-          properties = {
-            ["data.gridnudge"] = "true"
-          }
         },
 
-        ---- 下半区新增物件 ----
-        -- 装饰符文雕像
-        {
-          name = "",
-          type = "archive_rune_statue",
-          shape = "rectangle",
-          x = 192,
-          y = 384,
-          width = 0,
-          height = 0,
-          visible = true,
-          properties = {}
-        },
-        {
-          name = "",
-          type = "archive_rune_statue",
-          shape = "rectangle",
-          x = 320,
-          y = 384,
-          width = 0,
-          height = 0,
-          visible = true,
-          properties = {}
-        },
-        {
-          name = "",
-          type = "archive_security_desk",
-          shape = "rectangle",
-          x = 256,
-          y = 448,
-          width = 0,
-          height = 0,
-          visible = true,
-          properties = {}
-        },
+        ---- 中央烹饪锅 + 尘蛾巢（对称） ----
         {
           name = "",
           type = "archive_cookpot",
           shape = "rectangle",
-          x = 144,
-          y = 296,
+          x = 224,
+          y = 256,
           width = 0,
           height = 0,
           visible = true,
@@ -291,8 +186,21 @@ return {
           name = "",
           type = "dustmothden",
           shape = "rectangle",
-          x = 368,
-          y = 296,
+          x = 288,
+          y = 256,
+          width = 0,
+          height = 0,
+          visible = true,
+          properties = {}
+        },
+
+        ---- 安保桌 ----
+        {
+          name = "",
+          type = "archive_security_desk",
+          shape = "rectangle",
+          x = 256,
+          y = 380,
           width = 0,
           height = 0,
           visible = true,

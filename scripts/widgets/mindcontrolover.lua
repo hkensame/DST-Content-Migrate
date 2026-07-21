@@ -8,7 +8,9 @@ local OFFSET_LEVEL = 1 / MAX_LEVEL
 local MindControlOver = Class(UIAnim, function(self, owner)
     self.owner = owner
     UIAnim._ctor(self)
-    --改，暂时禁用self:UpdateWhilePaused(false)
+    if self.UpdateWhilePaused ~= nil then
+        self:UpdateWhilePaused(false)
+    end
 
     self:SetClickable(false)
 
@@ -19,7 +21,9 @@ local MindControlOver = Class(UIAnim, function(self, owner)
     self:GetAnimState():SetBank("mind_control_overlay")
     self:GetAnimState():SetBuild("mind_control_overlay")
     self:GetAnimState():PlayAnimation("empty")
-    --改self:GetAnimState():AnimateWhilePaused(false)
+    if self.GetAnimState().AnimateWhilePaused ~= nil then
+        self:GetAnimState():AnimateWhilePaused(false)
+    end
     self:Hide()
 
     self.level = 0
@@ -78,7 +82,7 @@ function MindControlOver:PushLevel(level)
 end
 
 function MindControlOver:OnUpdate(dt)
-    if TheNet:IsServerPaused() then return end
+    if TheNet ~= nil and TheNet.IsServerPaused ~= nil and TheNet:IsServerPaused() then return end
 
     if self.targetlevel > 0 then
         --wot! bad state

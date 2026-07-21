@@ -18,17 +18,31 @@ local function ReturnChildren(inst)
 end
 
 local function onnear(inst)
-    if inst.components.childspawner.childreninside >= inst.components.childspawner.maxchildren then
+    local cs = inst.components.childspawner
+    local player = GetPlayer()
+    print("[batcave] onnear - childreninside="..tostring(cs.childreninside).." maxchildren="..tostring(cs.maxchildren).." canspawn="..tostring(cs:CanSpawn()).." player="..tostring(player))
+    if cs.childreninside > 0 then
+        print("[batcave] onnear - 开始释放蝙蝠")
         local tries = 10
-        while inst.components.childspawner:CanSpawn() and tries > 0 do
-            local bat = inst.components.childspawner:SpawnChild()
+        while cs:CanSpawn() and tries > 0 do
+            local bat = cs:SpawnChild()
             if bat ~= nil then
-                bat:DoTaskInTime(0, function() bat:PushEvent("panic") end)
+                print("[batcave] 蝙蝠产出 - "..tostring(bat).." GUID="..tostring(bat.GUID))
+                bat:DoTaskInTime(0, function()
+                    if player and player:IsValid() then
+                        print("[batcave] 设置玩家为仇恨目标")
+                        bat.components.combat:SetTarget(player)
+                    end
+                end)
+            else
+                print("[batcave] SpawnChild 返回 nil")
             end
             tries = tries - 1
         end
         inst.SoundEmitter:PlaySound("dontstarve/cave/bat_cave_explosion")
         inst.SoundEmitter:PlaySound("dontstarve/creatures/bat/taunt")
+    else
+        print("[batcave] onnear - 洞内无蝙蝠，跳过")
     end
 end
 
@@ -45,21 +59,18 @@ local function OnEntitySleep(inst)
 end
 
 local function onfar(inst)
+    local cs = inst.components.childspawner
+    print("[batcave] onfar - 回收子代，childreninside="..tostring(cs.childreninside))
     ReturnChildren(inst)
-    inst.components.childspawner:StopSpawning()
-    inst.components.childspawner:StartRegen()
+    cs:StopSpawning()
+    cs:StartRegen()
 end
 
-local function onaddchild(inst, count)
-    if inst.components.childspawner.childreninside == inst.components.childspawner.maxchildren then
-        inst.AnimState:PlayAnimation("eyes", true)
-        inst.SoundEmitter:PlaySound("dontstarve/cave/bat_cave_warning", "full")
-    end
-end
-
+-- DS childspawner 没有 SetOnAddChildFn（DST only），
+-- 改用 SetOccupiedFn / SetVacateFn：
+--   occupied（首只蝙蝠再生回来）→ 播 eyes
+--   vacate（最后一只飞出）→ 切回 idle
 local function onspawnchild(inst, child)
-    inst.AnimState:PlayAnimation("idle", true)
-    inst.SoundEmitter:KillSound("full")
     inst.SoundEmitter:PlaySound("dontstarve/cave/bat_cave_bat_spawn")
 end
 
@@ -93,11 +104,20 @@ local function fn()
         inst.components.childspawner.childreninside = 0
     end
 	inst.components.childspawner.childname = "bat"
-    -- 初始化时没有孩子
-    inst.components.childspawner.childreninside = 0
+    -- 初始化时 2 只蝙蝠在洞内
+    inst.components.childspawner.childreninside = 2
+    print("[batcave] 初始化 - childreninside=2 maxchildren="..tostring(inst.components.childspawner.maxchildren))
     inst.components.childspawner:StartRegen()
-    inst.components.childspawner:SetOnAddChildFn(onaddchild)
     inst.components.childspawner:SetSpawnedFn(onspawnchild)
+    -- DS childspawner 兼容：有蝙蝠在里面就播 eyes
+    inst.components.childspawner:SetOccupiedFn(function(inst)
+        print("[batcave] occupied - childreninside="..tostring(inst.components.childspawner.childreninside))
+        inst.AnimState:PlayAnimation("eyes", true)
+    end)
+    inst.components.childspawner:SetVacateFn(function(inst)
+        print("[batcave] vacate - childreninside="..tostring(inst.components.childspawner.childreninside))
+        inst.AnimState:PlayAnimation("idle", true)
+    end)
 
     inst:AddComponent("inspectable")
 

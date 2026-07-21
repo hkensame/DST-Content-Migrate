@@ -242,10 +242,10 @@ end)
 -- 远古雕像 ruins_statue：暴动期间切换 _night 动画 + 灯光淡入/淡出 + 过渡特效
 -- 完整还原 DS 原版 statueruins.lua 的行为
 local _statue_nightmare_prefabs = {
-    "cave/objects/ruins_statue_head",
-    "cave/objects/ruins_statue_head_nogem",
-    "cave/objects/ruins_statue_mage",
-    "cave/objects/ruins_statue_mage_nogem",
+    "ruins_statue_head",
+    "ruins_statue_head_nogem",
+    "ruins_statue_mage",
+    "ruins_statue_mage_nogem",
 }
 for _, _name in ipairs(_statue_nightmare_prefabs) do
     AddPrefabPostInit(_name, function(inst)
@@ -253,8 +253,10 @@ for _, _name in ipairs(_statue_nightmare_prefabs) do
             local theWorld = GetWorld()
             if not theWorld then return end
 
-            local function _turnoff(light)
-                if light then light:Enable(false) end
+            -- 取消 DST 原版灯光插值任务（statueruins.lua 的 _lighttask），由我们的系统接管
+            if inst._lighttask then
+                inst._lighttask:Cancel()
+                inst._lighttask = nil
             end
 
             -- 过渡特效（紫烟 + 光柱）
@@ -273,17 +275,23 @@ for _, _name in ipairs(_statue_nightmare_prefabs) do
                 end
             end
 
-            -- 灯光淡入（warn 阶段）
+            -- 灯光淡入（warn 阶段），DST 雕像无 lighttweener，直接控制灯光
             local function _fadeIn()
                 if inst.Light then
                     inst.Light:Enable(true)
+                    inst.Light:SetRadius(3)
+                    inst.Light:SetIntensity(.9)
+                    inst.Light:SetFalloff(.9)
+                    inst.Light:SetColour(1, 1, 1)
                 end
-                inst.components.lighttweener:StartTween(nil, 3, nil, nil, nil, 0.5)
             end
 
             -- 灯光淡出（calm 阶段）
             local function _fadeOut()
-                inst.components.lighttweener:StartTween(nil, 0, nil, nil, nil, 1, _turnoff)
+                if inst.Light then
+                    inst.Light:SetRadius(0)
+                    inst.Light:Enable(false)
+                end
             end
 
             local function _updateStatue(data)
@@ -305,7 +313,9 @@ for _, _name in ipairs(_statue_nightmare_prefabs) do
                 end
 
                 -- 阶段过渡灯光淡入/淡出（参考 DS 原版 ShowState）
-                if data and data.newphase and inst.phase ~= data.newphase and data.newphase ~= "nightmare" then
+                -- 使用 inst.dst_phase 而非 inst.phase 避免与 DS 原版 statueruins.lua
+                -- 的 ShowState 函数冲突（DS 原版也在同一雕像上注册了 phasechange 监听）
+                if data and data.newphase and inst.dst_phase ~= data.newphase and data.newphase ~= "nightmare" then
                     if data.newphase == "warn" then
                         _fadeIn()
                     elseif data.newphase == "calm" then
@@ -314,7 +324,7 @@ for _, _name in ipairs(_statue_nightmare_prefabs) do
                         -- dawn：清除 bloom + 过渡特效
                         _DoFx()
                     end
-                    inst.phase = data.newphase
+                    inst.dst_phase = data.newphase
                 end
 
                 -- 根据耐久度播放对应动画
@@ -330,10 +340,14 @@ for _, _name in ipairs(_statue_nightmare_prefabs) do
 
             inst:ListenForEvent("phasechange", function(world, data)
                 if POPULATING then return end
+                local _c = GetNightmareClock()
+                print("[DST_STATUE] phasechange: new="..tostring(data and data.newphase).." dst_phase="..tostring(inst.dst_phase).." clock="..tostring(_c and _c:GetPhase()))
                 _updateStatue(data)
             end, theWorld)
 
             _updateStatue()
+            local _init_c = GetNightmareClock()
+            print("[DST_STATUE] init done, dst_phase="..tostring(inst.dst_phase).." clock_phase="..tostring(_init_c and _init_c:GetPhase()))
         end)
     end)
 end

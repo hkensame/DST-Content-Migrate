@@ -228,15 +228,17 @@ AddTask("DST_MoonCaveForest",{
     keys_given={ KEYS.ARCHIVE },
     room_tags = { },
     room_choices={
-        ["DST_MoonMushForest"] = 9,
-        ["DST_MoonMushForest_entrance"] = 1,
+        ["DST_MoonMushForest"] = 10,
     },
     background_room="DST_MoonMushForest",
     room_bg=GROUND.FUNGUSMOON,
     colour={r=0.3,g=0.3,b=0.3,a=0.9},
 })
 
--- 档案馆区域（普通房间连接，取消迷宫生成）
+-- 档案馆区域（3 个 room，每个 room 一个 32x32 布景）
+-- ArchiveCore：传送门入口 + 洞穴装饰
+-- ArchiveSub：开关大三角 + 锁盒大三角（DST archive_end 风格）
+-- ArchiveLockbox：大型音乐盒 + 8 小音乐盒 + 尘蛾巢（DST keyroom 风格）
 AddTask("DST_ArchiveArea", {
     locks={LOCKS.ARCHIVE},
     keys_given= {},
@@ -245,11 +247,11 @@ AddTask("DST_ArchiveArea", {
     room_choices = {
         ["DST_ArchiveCore"] = 1,
         ["DST_ArchiveSub"] = 1,
+        ["DST_ArchiveLockbox"] = 1,
     },
     room_bg = GROUND.ARCHIVE,
     cove_room_chance = 0,
     cove_room_max_edges = 0,
-    make_loop = true,
     colour={r=0.4,g=0.4,b=0.5,a=0.9},
 })
 
@@ -739,12 +741,13 @@ AddLevel(LEVELTYPE.CAVE, {
     id = "DST_CAVE",
     name = "DST_CAVE",
     location = "cave",
+    version = 1,
     overrides = {
         {"world_size",      "huge"},
         {"start_setpeice",  "CaveStart"},
         {"start_node",      "DST_Entrance"},
-        {"wormholes",       "never"},
     },
+    background_node_range = {0, 0},
     tasks = {
         -- 入口
         "DST_EntranceTask",

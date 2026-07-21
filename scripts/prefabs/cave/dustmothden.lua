@@ -64,7 +64,9 @@ local function MakeWhole(inst, play_growth_anim)
 end
 
 local function OnTimerDone(inst, data)
-    if data ~= nil and data.name == "repair" then
+    -- DST 传 {name = "repair"}，DS 传字符串 "repair"
+    local timer_name = type(data) == "table" and data.name or data
+    if timer_name == "repair" then
         MakeWhole(inst, true)
     end
 end

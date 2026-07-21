@@ -261,6 +261,20 @@ local function fn()
   return inst
 end
 
+----吸附到 moon_altar_link（从 placer 移至 onbuilt，兼容 Geometric Placement 网格）
+-- 吸附到 moon_altar_link，返回是否找到 link
+local function snap_to_moon_altar_link(inst)
+    local x, y, z = inst.Transform:GetWorldPosition()
+    local ents = TheSim:FindEntities(x, y, z, PLACER_SNAP_DISTANCE, { "moon_altar_link" })
+    if #ents > 0 then
+        local link_x, _, link_z = ents[1].Transform:GetWorldPosition()
+        inst.Transform:SetPosition(link_x, 0, link_z)
+        return true
+    end
+    return false
+end
+----------------
+
 --底座，单独写个底座方便生成
 local function fn2()
   local inst = CreateEntity()
@@ -282,9 +296,12 @@ local function fn2()
     inst:SetPrefabNameOverride("moon_device")
     
     inst:ListenForEvent("onbuilt", function(inst)
+        if not snap_to_moon_altar_link(inst) then
+            inst:Remove()
+            return
+        end
+
         GetPlayer().components.talker:Say("长按激活月亮虹吸器！")
-        
-        snap_to_moon_altar_link(inst) -- 吸附到 moon_altar_link
         
         local nx, _, nz = inst.Transform:GetWorldPosition()
         SpawnPrefab("moon_device").Transform:SetPosition(nx, 0, nz)
@@ -336,18 +353,8 @@ local function topfn()
     return inst
 end
 
-----吸附到 moon_altar_link（从 placer 移至 onbuilt，兼容 Geometric Placement 网格）
-local function snap_to_moon_altar_link(inst)
-    local x, y, z = inst.Transform:GetWorldPosition()
-    local ents = TheSim:FindEntities(x, y, z, PLACER_SNAP_DISTANCE, { "moon_altar_link" })
-    if #ents > 0 then
-        local link_x, _, link_z = ents[1].Transform:GetWorldPosition()
-        inst.Transform:SetPosition(link_x, 0, link_z)
-    end
-end
-----------------
 
--- 简单 placer（无 placeTestFn，兼容 Geometric Placement 网格）
+-- placer：支持 Geometric Placement 的 onupdatetransform 吸附 + OnUpdate 拦截
 local function make_moon_device_placer(name)
     local function fn(Sim)
         local inst = CreateEntity()
@@ -363,6 +370,37 @@ local function make_moon_device_placer(name)
         inst:AddTag("placer")
 
         inst:AddComponent("placer")
+
+        -- 吸附到最近的 moon_altar_link
+        inst.components.placer.onupdatetransform = function(inst)
+            local pos = inst:GetPosition()
+            local ents = TheSim:FindEntities(pos.x, 0, pos.z, PLACER_SNAP_DISTANCE, MOON_ALTAR_LINK_TAGS)
+            if #ents > 0 then
+                local targetpos = ents[1]:GetPosition()
+                inst.Transform:SetPosition(targetpos.x, 0, targetpos.z)
+            end
+        end
+
+        -- 保存 GP（或原版）的 OnUpdate，然后在实例层面包裹一层
+        local old_update = inst.components.placer.OnUpdate
+        inst.components.placer.OnUpdate = function(self, dt)
+            -- GP 的 OnUpdate（网格对齐、颜色等所有逻辑）
+            old_update(self, dt)
+
+            -- GP 跑完后用自己的 link 检测覆盖 can_build
+            -- （因为 GP mod 读 self.testfn 有 bug，can_build 一直是 true）
+            local pos = self.inst:GetPosition()
+            local ents = TheSim:FindEntities(pos.x, 0, pos.z, PLACER_SNAP_DISTANCE, MOON_ALTAR_LINK_TAGS)
+            self.can_build = #ents > 0
+        end
+
+        -- 实例级 TestPoint 覆盖：GP 的 RefreshGridPoint（第610行）用 self:TestPoint(bgpt) 给网格方块上色
+        -- 这个调用不依赖 self.testfn 分支，TestPoint 实例覆盖可以直接生效
+        inst.components.placer.TestPoint = function(self, pt)
+            local ents = TheSim:FindEntities(pt.x, 0, pt.z, PLACER_SNAP_DISTANCE, MOON_ALTAR_LINK_TAGS)
+            return #ents > 0
+        end
+
         inst.persists = false
 
         inst.AnimState:SetOrientation(ANIM_ORIENTATION.OnGround)

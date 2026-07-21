@@ -222,12 +222,17 @@ local DST_FOODS = {
 --琥珀美食（尘蛾食物）
     dustmeringue =
     {
-        test = function(cooker, names, tags) return names.refined_dust end,
+        test = function(cooker, names, tags) return names.refined_dust and not tags.inedible end,
         priority = 100,
         foodtype = "ELEMENTAL",
         perishtime = nil,
         cooktime = 2,
-        overridebuild = "cook_pot_food6",
+        overridebuild = "dustmeringue",
+        overridebank = "dustmeringue",
+        prefab_name = "dustmeringue",
+        atlasname = "images/dustmeringue.xml",
+        tags = {"dustmothfood", "molebait"},
+        floatable = {"idle", "idle"},
         health = 0,
         hunger = TUNING.CALORIES_SMALL,
         sanity = 0,

@@ -102,23 +102,35 @@ patch_special_layouts("archive_start")
 patch_special_layouts("archive_end")
 patch_special_layouts("archive_keyroom")
 
--- 注册到 objs.Layouts，使 countstaticlayouts 可以引用这些特殊房间布局
-Layouts["ArchiveStart"] = StaticLayout.Get("map/static_layouts/rooms/archive_start/archive_start")
-Layouts["ArchiveEnd"] = StaticLayout.Get("map/static_layouts/rooms/archive_end/archive_end")
-
--- 档案馆核心室（合并入口 + 开关，物体错开避免重叠）
-Layouts["ArchiveCore"] = StaticLayout.Get("map/static_layouts/rooms/archive_core/archive_core")
-
--- 档案馆设施室（合并机械室 + 蒸馏室，物体 X+96 偏移避免重叠）
-Layouts["ArchiveFacility"] = StaticLayout.Get("map/static_layouts/rooms/archive_facility/archive_facility")
-Layouts["ArchiveKeyroom"] = StaticLayout.Get("map/static_layouts/rooms/archive_keyroom/keyroom_1")
-
--- 档案馆蒸馏室布局（3色知识分配器呈等边三角形分布）
-Layouts["ArchiveDistillery"] = StaticLayout.Get("map/static_layouts/rooms/archive_distillery/distillery", {
+-- 注册到 objs.Layouts，使 countstaticlayouts 可以引用这些布景
+-- ArchiveCore：传送门入口 + 洞穴装饰（DST_ArchiveCore room 用，32x32）
+Layouts["ArchiveCore"] = StaticLayout.Get("map/static_layouts/rooms/archive_core/archive_core", {
     start_mask = PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
     fill_mask = PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
     layout_position = LAYOUT_POSITION.CENTER,
 })
+-- ArchiveSub：开关大三角 + 锁盒大三角（DST archive_end 风格，DST_ArchiveSub room 用，32x32）
+Layouts["ArchiveSub"] = StaticLayout.Get("map/static_layouts/rooms/archive_sub/archive_sub", {
+    start_mask = PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
+    fill_mask = PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
+    layout_position = LAYOUT_POSITION.CENTER,
+})
+-- ArchiveLockbox：大型音乐盒 + 8 小音乐盒 + 尘蛾巢（DST keyroom 风格，DST_ArchiveLockbox room 用，32x32）
+Layouts["ArchiveLockbox"] = StaticLayout.Get("map/static_layouts/rooms/archive_lockbox/archive_lockbox", {
+    start_mask = PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
+    fill_mask = PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
+    layout_position = LAYOUT_POSITION.CENTER,
+})
+
+-- ArchiveResource：资源点（8 符文雕像 + 烹饪锅 + 尘蛾巢 + 安保桌，32x32）
+Layouts["ArchiveResource"] = StaticLayout.Get("map/static_layouts/rooms/archive_resource/archive_resource", {
+    start_mask = PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
+    fill_mask = PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
+    layout_position = LAYOUT_POSITION.CENTER,
+})
+
+
+Layouts["ArchiveKeyroom"] = StaticLayout.Get("map/static_layouts/rooms/archive_keyroom/keyroom_1")
 
 -- 档案馆蒸馏室布局（3色知识分配器呈等边三角形分布）
 Layouts["ArchiveDistillery"] = StaticLayout.Get("map/static_layouts/rooms/archive_distillery/distillery", {

@@ -186,6 +186,14 @@ local function IsArchivePowered(inst)
     return false
 end
 
+local function getstatus(inst)
+	local theWorld = inst:GetTheWorld()
+	if theWorld ~= nil and theWorld.components.archivemanager ~= nil then
+		return not theWorld.components.archivemanager:GetPowerSetting() and "POWEROFF" or nil
+	end
+	return nil
+end
+
 local function OnActivate(inst, doer)
 	local powered
 	if inst.vaultpowered then
@@ -217,6 +225,7 @@ local function OnActivate(inst, doer)
             inst.sfx:DoTaskInTime(4.5,function() movesound(inst.sfx, baserotation, pos) end)
         end
     else
+        -- DS: inactive=true means "show activate prompt", need to re-enable after DoActivate sets it to false
         inst.components.activatable.inactive = true
         if doer and doer.components.talker then
             doer.components.talker:Say(GetString(doer.prefab, "ANNOUNCE_ARCHIVE_NO_POWER"), nil, true)
@@ -256,6 +265,7 @@ local function updateart(inst)
 		inst.components.inspectable.getstatus = nil
 	else
 		inst.AnimState:Hide("moss")
+		inst.components.inspectable.getstatus = getstatus
 	end
 end
 

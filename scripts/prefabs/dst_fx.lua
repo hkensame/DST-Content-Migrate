@@ -24,36 +24,7 @@ end
 
 local dst_fx =
 {
-    {
-        name = "bee_poof_big",
-        bank = "bee_poof",
-        build = "bee_poof",
-        anim = "anim",
-        sound = "dontstarve/common/deathpoof",
-        transform = Vector3(1.4, 1.4, 1.4),
-        fn = function(inst)
-            inst.AnimState:SetFinalOffset(1)
-            inst.SoundEmitter:PlaySound("dontstarve/creatures/together/bee_queen/beeguard/puff", nil, .6)
-        end,
-    },
-    {
-        name = "bee_poof_small",
-        bank = "bee_poof",
-        build = "bee_poof",
-        anim = "anim",
-        sound = "dontstarve/common/deathpoof",
-        transform = Vector3(1.4, 1.4, 1.4),
-        fn = FinalOffset1,
-    },
-    {
-        name = "honey_splash",
-        bank = "honey_splash",
-        build = "honey_splash",
-        anim = "anim",
-        --nofaced = true,
-        transform = Vector3(1.4, 1.4, 1.4),
-        fn = FinalOffset1,
-    },
+
     {
         name = "mining_moonglass_fx",
         bank = "glass_mining_fx",
@@ -158,14 +129,7 @@ local dst_fx =
         subfolder = "antlion",
         anim = "idle3",
     },
-    {--克眼冲刺特效
-        name = "slide_puff",
-        bank = "fx_slidepuff",
-        build = "slide_puff",
-        subfolder = "antlion",
-        anim = "anim",
-        fn = FinalOffset1,
-    },
+
     {--给予泰拉瑞亚噩梦燃料的特效
         name = "shadow_despawn",
         bank = "statue_ruins_fx",
@@ -203,14 +167,7 @@ local dst_fx =
         build = "tree_petal_fx",
         anim = "chop",
     },
-    { --破碎蜘蛛
-        name = "spider_mutate_fx",
-        bank = "mutate_fx",
-        build = "mutate_fx",
-        subfolder = "moonisland",
-        anim = "mutate",
-        nofaced = true,
-    },
+
     { --天体科技
         name = "moon_altar_link_fx",
         bank = "moon_altar_link_fx",

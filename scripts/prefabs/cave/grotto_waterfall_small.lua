@@ -93,6 +93,7 @@ local function falls1()
 
     inst.entity:AddTransform()
     inst.entity:AddAnimState()
+    inst.entity:AddSoundEmitter()
     -- 🔴 DS 不需要 AddNetwork
 
     inst.AnimState:SetBuild("moonglass_bigwaterfall")
@@ -129,6 +130,11 @@ local function falls1()
     inst.components.lootdropper.max_speed = 1.2
     inst.components.lootdropper.min_speed = 0.3
 
+    -- 🟡 瀑布流水音效
+    inst:DoTaskInTime(0, function()
+        inst.SoundEmitter:PlaySound("grotto/common/waterfall_LP", "waterfall_loop")
+    end)
+
     return inst
 end
 
@@ -137,6 +143,7 @@ local function falls2()
 
     inst.entity:AddTransform()
     inst.entity:AddAnimState()
+    inst.entity:AddSoundEmitter()
     -- 🔴 DS 不需要 AddNetwork
 
     inst.AnimState:SetBuild("moonglass_bigwaterfall")
@@ -174,6 +181,11 @@ local function falls2()
     inst.components.lootdropper:SetChanceLootTable("moonglass_prop")
     inst.components.lootdropper.max_speed = 1.2
     inst.components.lootdropper.min_speed = 0.3
+
+    -- 🟡 瀑布流水音效
+    inst:DoTaskInTime(0, function()
+        inst.SoundEmitter:PlaySound("grotto/common/waterfall_LP", "waterfall_loop")
+    end)
 
     return inst
 end

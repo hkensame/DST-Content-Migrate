@@ -162,7 +162,7 @@ end
 
 local function sway(inst)
     local anim_to_play = (math.random() > .5 and anims[inst.size].sway1) or anims[inst.size].sway2
-    print("[PALMCONETREE] sway: size=", inst.size, " anim=", anim_to_play)
+    -- sway diagnostic removed
     inst.AnimState:PlayAnimation(anim_to_play, true)
 end
 
@@ -201,7 +201,7 @@ local function set_short(inst)
     if inst.size == SHORT then
         return
     end
-    print("[PALMCONETREE] set_short called for ", tostring(inst))
+    -- set_short diagnostic removed
     inst.size = SHORT
     if inst.components.workable then
         inst.components.workable:SetWorkLeft(TUNING.PALMCONETREE_CHOPS_SMALL or 5)
@@ -215,7 +215,7 @@ local function set_short(inst)
 end
 
 local function grow_short(inst)
-    print("[PALMCONETREE] grow_short")
+    -- grow_short diagnostic removed
     inst.AnimState:SetBank("dst_palmcone_short")
     inst.AnimState:SetBuild("dst_palmcone_short")
     inst.AnimState:PlayAnimation("grow_tall_to_short")
@@ -254,7 +254,7 @@ local function set_normal(inst)
     if inst.size == NORMAL then
         return
     end
-    print("[PALMCONETREE] set_normal called for ", tostring(inst))
+    -- set_normal diagnostic removed
     inst.size = NORMAL
     if inst.components.workable then
         inst.components.workable:SetWorkLeft(TUNING.PALMCONETREE_CHOPS_NORMAL or 10)
@@ -268,7 +268,7 @@ local function set_normal(inst)
 end
 
 local function grow_normal(inst)
-    print("[PALMCONETREE] grow_normal")
+    -- grow_normal diagnostic removed
     inst.AnimState:SetBank("dst_palmcone_nomal")
     inst.AnimState:SetBuild("dst_palmcone_nomal")
     inst.AnimState:PlayAnimation("grow_short_to_normal")
@@ -307,7 +307,7 @@ local function set_tall(inst)
     if inst.size == TALL then
         return
     end
-    print("[PALMCONETREE] set_tall called for ", tostring(inst))
+    -- set_tall diagnostic removed
     inst.size = TALL
     if inst.components.workable then
         inst.components.workable:SetWorkLeft(TUNING.PALMCONETREE_CHOPS_TALL or 15)
@@ -321,7 +321,7 @@ local function set_tall(inst)
 end
 
 local function grow_tall(inst)
-    print("[PALMCONETREE] grow_tall")
+    -- grow_tall diagnostic removed
     inst.AnimState:SetBank("dst_palmcone_tall")
     inst.AnimState:SetBuild("dst_palmcone_tall")
     inst.AnimState:PlayAnimation("grow_normal_to_tall")
@@ -458,7 +458,7 @@ end
 
 local function make_short()
     local function fn()
-        print("[PALMCONETREE] Creating palmconetree_short")
+        -- Creating palmconetree_short
         local inst = CreateEntity()
 
         inst.entity:AddTransform()
@@ -505,7 +505,7 @@ local function make_short()
         inst.AnimState:SetTime(math.random() * .2)
         inst:DoTaskInTime(1, function(inst)
             if inst and inst:IsValid() then
-                print("[PALMCONETREE] 1s check: size=", inst.size, " bank/build OK")
+                -- 1s check diagnostic removed
             end
         end)
 
@@ -518,7 +518,7 @@ end
 
 local function make_normal()
     local function fn()
-        print("[PALMCONETREE] Creating palmconetree_normal")
+        -- Creating palmconetree_normal
         local inst = CreateEntity()
 
         inst.entity:AddTransform()
@@ -565,7 +565,7 @@ local function make_normal()
         inst.AnimState:SetTime(math.random() * .2)
         inst:DoTaskInTime(1, function(inst)
             if inst and inst:IsValid() then
-                print("[PALMCONETREE] 1s check: size=", inst.size, " bank/build OK")
+                -- 1s check diagnostic removed
             end
         end)
 
@@ -578,7 +578,7 @@ end
 
 local function make_tall()
     local function fn()
-        print("[PALMCONETREE] Creating palmconetree_tall")
+        -- Creating palmconetree_tall
         local inst = CreateEntity()
 
         inst.entity:AddTransform()
@@ -625,7 +625,7 @@ local function make_tall()
         inst.AnimState:SetTime(math.random() * .2)
         inst:DoTaskInTime(1, function(inst)
             if inst and inst:IsValid() then
-                print("[PALMCONETREE] 1s check: size=", inst.size, " bank/build OK")
+                -- 1s check diagnostic removed
             end
         end)
 
@@ -638,7 +638,7 @@ end
 
 local function make_generic()
     local function fn()
-        print("[PALMCONETREE] Creating palmconetree (random)")
+        -- Creating palmconetree (random)
         local inst = CreateEntity()
 
         inst.entity:AddTransform()
@@ -685,7 +685,7 @@ local function make_generic()
         inst.AnimState:SetTime(math.random() * .2)
         inst:DoTaskInTime(1, function(inst)
             if inst and inst:IsValid() then
-                print("[PALMCONETREE] 1s check: size=", inst.size, " bank/build OK")
+                -- 1s check diagnostic removed
             end
         end)
 
