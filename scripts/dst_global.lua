@@ -4,6 +4,14 @@ GLOBAL.setmetatable(env,{__index=function(t,k) return GLOBAL.rawget(GLOBAL,k) en
 require("physics")
 require "recipe"
 require("behaviourtree")
+
+-- ==================== DS 兼容：DST 特有方法补丁 ====================
+-- DS 没有 SetPhysicsRadiusOverride，补充为空操作提前兜底
+-- dst_global.lua 中的 AddGlobalClassPostConstruct 会注入完整实现
+if rawget(GLOBAL, "EntityScript") and not GLOBAL.EntityScript.SetPhysicsRadiusOverride then
+    GLOBAL.EntityScript.SetPhysicsRadiusOverride = function() end
+end
+
 --------------------------<增加全局>--------------------------
 
 -- 确保沙箱中存在 CommonHandlers/CommonStates，避免 dst_global.lua 加载时 nil 崩溃

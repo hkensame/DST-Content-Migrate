@@ -193,6 +193,14 @@ return Class(function(self, inst)
     function self:OnPostInit()
         print(string.format("[DAYWALKER] OnPostInit: SPAWN_DAYWALKER=%s", tostring(TUNING.SPAWN_DAYWALKER)))
         if TUNING.SPAWN_DAYWALKER then
+            -- 补注册：扫描世界中已存在的 daywalkerspawningground
+            -- 因为世界生成时推送的 ms_registerdaywalkerspawningground 事件
+            -- 当时组件尚未创建，事件已丢失，需要手动补注册
+            local x, y, z = self.inst.Transform:GetWorldPosition()
+            local existing = TheSim:FindEntities(x, y, z, 10000, nil, nil, {"daywalkerspawningground"})
+            for i, ground in ipairs(existing) do
+                self:TryToRegisterSpawningPoint(ground)
+            end
             -- DS 洞穴没有连续的 daytime 事件（时钟一直处于 day 阶段），
             -- 改用 DoPeriodicTask 定时检测，确保生成条件和重生延迟正常工作。
             -- 30 秒 ≈ 现实 30 秒检测一次，不会密集也不会过于稀疏。

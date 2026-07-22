@@ -1469,7 +1469,7 @@ AddRoom("DST_BGVentsRoom", {
         {
             cave_vent_mite_spawner = 1,
         },
-        distributepercent = .24,
+        distributepercent = .12,
         distributeprefabs =
         {
             cave_vent_rock  = 0.1,
@@ -1498,7 +1498,7 @@ AddRoom("DST_VentsRoom", {
         {
             cave_vent_mite_spawner = 1,
         },
-        distributepercent = .22,
+        distributepercent = .12,
         distributeprefabs=
         {
             cave_vent_rock  = 0.4,
@@ -1524,7 +1524,7 @@ AddRoom("DST_CentipedeNest", {
         countprefabs = {
             cave_vent_mite_spawner = 1,
         },
-        distributepercent = .32,
+        distributepercent = .12,
         distributeprefabs =
         {
             cave_vent_rock  = 0.3,
@@ -1584,7 +1584,7 @@ AddRoom("DST_VentsRoom_exit", {
         {
             cave_vent_mite_spawner = 1,
         },
-		distributepercent = 0.13,
+		distributepercent = 0.12,
         distributeprefabs =
         {
             cave_vent_rock = 0.1,
@@ -1914,7 +1914,7 @@ AddRoom("DST_WetWilds", {
         distributepercent = 0.20,
         distributeprefabs=
         {
-            lichen = .2,
+            lichen = .1,
             cave_fern = 0.08,
             pillar_algae = .002,
             pond_cave = 0.1,
@@ -1933,8 +1933,8 @@ AddRoom("DST_LichenMeadow", {
         distributepercent = 0.15,
         distributeprefabs=
         {
-            lichen = 0.3,
-            cave_fern = 0.7,
+            lichen = 0.15,
+            cave_fern = 0.5,
             pillar_algae = 0.01,
             slurper_spawner = 0.15,
             fissure_lower = 0.05,
@@ -1954,11 +1954,11 @@ AddRoom("DST_LichenLand", {
     value = GROUND.BRICK,
 
     contents =  {
-        distributepercent = 0.35,
+        distributepercent = 0.15,
         distributeprefabs=
         {
-            lichen = 0.4,
-            cave_fern = 0.3,
+            lichen = 0.3,
+            cave_fern = 0.5,
             pillar_algae = 0.03,
             slurper_spawner = 0.05,
             fissure_lower = 0.05,
@@ -1975,7 +1975,7 @@ AddRoom("DST_CaveJungle", {
         distributepercent = 0.25,
         distributeprefabs=
         {
-            lichen = 0.3,
+            lichen = 0.2,
             cave_fern = 0.5,
             pillar_algae = 0.03,
 
@@ -2307,11 +2307,11 @@ AddRoom("DST_LabyrinthEntrance", {
     tags = {"ForceConnected", "LabyrinthEntrance"},
     type = NODE_TYPE.Room,
     contents =  {
-        distributepercent = .2,
+        distributepercent = .15,
         distributeprefabs=
         {
-            lichen = .6,
-            cave_fern = 1,
+            lichen = .4,
+            cave_fern = 0.8,
             pillar_algae = .03,
 
             flower_cave = .2,
@@ -2380,7 +2380,7 @@ AddRoom("DST_AtriumMazeEntrance", {
         distributepercent = .15,
         distributeprefabs=
         {
-            lichen = .8,
+            lichen = .4,
             cave_fern = 1,
             pillar_algae = .03,
 
@@ -2540,7 +2540,7 @@ AddRoom("ToadstoolArenaBGMud", {
         distributepercent = .12,
         distributeprefabs=
         {
-            pond_cave = 0.2,
+            pond_cave = 0.1,
 
             flower_cave = 0.1,
             flower_cave_double = 0.1,

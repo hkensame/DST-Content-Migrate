@@ -44,21 +44,32 @@ AddClassPostConstruct("widgets/sanitybadge", function(self)
         end
     end
 
-    -- [2] Override PulseRed: during enlightenment, flash white instead of red
+    -- [2] Override PulseRed: during enlightenment, swap green/red meaning
     local _PulseRed = self.PulseRed
+    local _PulseGreen = self.PulseGreen
     function self:PulseRed()
         if is_enlightened then
-            self.pulse:GetAnimState():SetMultColour(1, 1, 1, 1)
-            self.pulse:GetAnimState():PlayAnimation("pulse")
+            -- Swapped: red becomes green during lunacy (like DST)
+            _PulseGreen(self)
         else
             _PulseRed(self)
         end
     end
+    function self:PulseGreen()
+        if is_enlightened then
+            -- Swapped: green becomes red during lunacy
+            _PulseRed(self)
+        else
+            _PulseGreen(self)
+        end
+    end
 
     -- [3] Icon switching functions
+    -- DS 的 sanity build 是预着色单张贴图，没有 "brain" 等可覆写符号
+    -- 用 SetMultColour 叠蓝色透明层来模拟颜色变化
     local function SetLunacyIcon()
         if self.anim then
-            self.anim:GetAnimState():OverrideSymbol("brain", "status_sanity", "lunacy_icon")
+            self.anim:GetAnimState():SetMultColour(0.75, 0.91, 0.94, 1)
         end
         if self.circleframe then
             self.circleframe:GetAnimState():OverrideSymbol("icon", "status_sanity", "lunacy_icon")
@@ -70,8 +81,7 @@ AddClassPostConstruct("widgets/sanitybadge", function(self)
 
     local function RestoreSanityIcon()
         if self.anim then
-            self.anim:GetAnimState():ClearOverrideSymbol("brain")
-            -- DS 的 sanitybadge 使用预着色的 "sanity" build，不要加 SetMultColour 乘算（否则颜色被锁定）
+            self.anim:GetAnimState():SetMultColour(1, 1, 1, 1)
         end
         if self.circleframe then
             -- 必须用 OverrideSymbol 重新指定 sanity 图标，而非 ClearOverrideSymbol（否则回退到 status_meter 默认图标）

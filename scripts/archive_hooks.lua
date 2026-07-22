@@ -98,7 +98,7 @@ AddPrefabPostInit("cave", function(inst)
 end)
 
 -- 说明：dst_nightmareclock（暴动系统）和 daywalkerspawner（梦魇疯猪）
--- 的初始化已移至 dst_nightmare_init.lua，与档案馆电源系统职责分离
+-- 的初始化已移至 dst_nightmare.lua，与档案馆电源系统职责分离
 
 -- 注入 GetTheWorld（供 prefab runtime 函数调用 TheWorld.components）
 AddPrefabPostInit("archive_security_waypoint", _injectGetTheWorld)
@@ -149,19 +149,3 @@ AddPrefabPostInit("archive_resonator", _injectGetTheWorld)
 
 -- tree_rocks：注入 GetTheWorld（供 GetLootWeightedTable 调用 TheWorld.Map）
 AddPrefabPostInit("tree_rocks", _injectGetTheWorld)
-
--- molebat：注入 GetTheWorld + 注册地震事件（DS 无 TheWorld.net，事件源为 TheWorld 本身）
-AddPrefabPostInit("molebat", function(inst)
-    _injectGetTheWorld(inst)
-    inst:DoTaskInTime(0, function()
-        local theWorld = _cave_world
-        if theWorld == nil then return end
-        inst:ListenForEvent("startquake", function()
-            inst._quaking = true
-            if inst.components.sleeper then inst.components.sleeper:WakeUp() end
-        end, theWorld)
-        inst:ListenForEvent("endquake", function()
-            inst._quaking = nil
-        end, theWorld)
-    end)
-end)

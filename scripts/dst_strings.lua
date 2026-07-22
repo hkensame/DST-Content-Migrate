@@ -874,6 +874,35 @@ STRINGS.RECIPE_DESC.OCEANTREE_PILLAR = "等待完善……"
 --------------------------<梦魇疯猪 Daywalker>--------------------------
 STRINGS.NAMES.DAYWALKER = "梦魇疯猪"
 STRINGS.NAMES.DAYWALKER_PILLAR = "囚禁柱"
+
+STRINGS.DAYWALKER_IMPRISONED_FAR =
+{
+	"被囚禁在远方的古老存在。。。",
+}
+
+STRINGS.DAYWALKER_IMPRISONED_NEAR =
+{
+	"这些束缚依然牢固。。。",
+	"囚禁之力还在压制它。。。",
+}
+
+STRINGS.DAYWALKER_RE_IMPRISONED_NEAR =
+{
+	"再次被压制了！",
+	"囚禁之力正在恢复。。。",
+}
+
+STRINGS.DAYWALKER_IMPRISONED_STRUGGLE =
+{
+	"它正在挣扎！",
+	"束缚在颤抖！",
+}
+
+STRINGS.DAYWALKER_IMPRISONED_PILLAR_BREAKING =
+{
+	"柱子出现裂痕了！",
+	"囚禁之力正在减弱！",
+}
 STRINGS.NAMES.SHADOW_LEECH = "暗影水蛭"
 STRINGS.NAMES.DREADSTONE = "恐惧石"
 STRINGS.NAMES.HORRORFUEL = "恐怖燃料"

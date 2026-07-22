@@ -12,7 +12,7 @@ local function ExtendDebuff(inst)
     inst.countdown = 3 + (inst._level < CONTROL_LEVEL and EXTEND_TICKS or math.floor(TUNING.STALKER_MINDCONTROL_DURATION / FRAMES + .5))
 end
 
-local function OnUpdate(inst, ismastersim)
+local function OnUpdate(inst)
     local parent = inst.entity:GetParent()
     if parent ~= nil then
         local old = inst._level
@@ -21,7 +21,7 @@ local function OnUpdate(inst, ismastersim)
         end
         parent:PushEvent("mindcontrollevel", inst._level / MAX_LEVEL)
 
-        if ismastersim and inst._level >= CONTROL_LEVEL then
+        if inst._level >= CONTROL_LEVEL then
             if old < CONTROL_LEVEL then
                 ExtendDebuff(inst)
             end
@@ -29,12 +29,10 @@ local function OnUpdate(inst, ismastersim)
         end
     end
 
-    if ismastersim then
-        if inst.countdown > 1 then
-            inst.countdown = inst.countdown - 1
-        else
-            inst.components.debuff:Stop()
-        end
+    if inst.countdown > 1 then
+        inst.countdown = inst.countdown - 1
+    else
+        inst.components.debuff:Stop()
     end
 end
 
@@ -48,7 +46,7 @@ local function fn()
 
     inst._level = 0 --net_byte(inst.GUID, "mindcontroller._level")
 
-    inst:DoPeriodicTask(0, OnUpdate, nil, TheWorld.ismastersim)
+    inst:DoPeriodicTask(0, OnUpdate)
 --[[
     inst.entity:SetPristine()
 

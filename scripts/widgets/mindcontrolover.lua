@@ -21,7 +21,7 @@ local MindControlOver = Class(UIAnim, function(self, owner)
     self:GetAnimState():SetBank("mind_control_overlay")
     self:GetAnimState():SetBuild("mind_control_overlay")
     self:GetAnimState():PlayAnimation("empty")
-    if self.GetAnimState().AnimateWhilePaused ~= nil then
+    if self:GetAnimState().AnimateWhilePaused ~= nil then
         self:GetAnimState():AnimateWhilePaused(false)
     end
     self:Hide()

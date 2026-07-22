@@ -114,6 +114,31 @@ if GetModConfigData("klaus") == true then
     end)
 end
 
+
+-- 2.9 molebat：DS 无 TheWorld.net，事件源为 TheWorld 本身
+-- 注入 GetTheWorld 并注册洞穴地震事件
+AddPrefabPostInit("molebat", function(inst)
+    inst.GetTheWorld = function() return _cave_world end
+    inst:DoTaskInTime(0, function()
+        local theWorld = _cave_world
+        if theWorld == nil then return end
+        inst:ListenForEvent("startquake", function()
+            inst._quaking = true
+            if inst.components.sleeper then inst.components.sleeper:WakeUp() end
+        end, theWorld)
+        inst:ListenForEvent("endquake", function()
+            inst._quaking = nil
+        end, theWorld)
+    end)
+end)
+
+-- 2.10 蝙蝠大脑覆写（洞穴环境下避免蝙蝠错误回家消失）
+AddPrefabPostInit("bat", function(inst)
+    local DstBatBrain = require("brains/dst_batbrain")
+    inst:SetBrain(DstBatBrain)
+end)
+
+
 -- ==================== 3. Widget 层补丁 (AddClassPostConstruct) ====================
 
 -- 3.1 启迪之冠格子缩放
@@ -124,6 +149,18 @@ AddClassPostConstruct("widgets/containerwidget",function(self)
         if self.container and self.container.prefab=="alterguardianhat" then
             self:SetScale(0.5, 0.5, 0.5)
             self:MoveToFront()
+        end
+    end
+end)
+
+-- 3.2 精神控制 UI 覆盖层
+AddClassPostConstruct("screens/playerhud", function(self)
+    local _SetMainCharacter = self.SetMainCharacter
+    function self:SetMainCharacter(maincharacter)
+        _SetMainCharacter(self, maincharacter)
+        if maincharacter then
+            local MindControlOver = require "widgets/mindcontrolover"
+            self.overlayroot:AddChild(MindControlOver(maincharacter))
         end
     end
 end)

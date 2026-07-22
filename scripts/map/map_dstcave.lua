@@ -294,9 +294,9 @@ AddTask("DST_CentipedeCaveTask", {
     locks={ LOCKS.CAVE, LOCKS.TIER4, },
     keys_given={ KEYS.CAVE, KEYS.TIER5, KEYS.CENTIPEDE },
     room_choices={
-        ["DST_VentsRoom"] = 3,
-        ["DST_RockTreeRoom"] = 3,
-        ["DST_VentsRoom_exit"] = 3,
+        ["DST_VentsRoom"] = 2,
+        ["DST_RockTreeRoom"] = 2,
+        ["DST_VentsRoom_exit"] = 2,
         ["DST_CentipedeNest"] = 1,
     },
     background_room="DST_BGVentsRoom",

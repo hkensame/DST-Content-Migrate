@@ -97,7 +97,7 @@ end
 
 local SPIN_CANT_TAGS = {"brightmareboss", "brightmare", "INLIMBO", "FX", "NOCLICK", "playerghost"}
 local SPIN_ONEOF_TAGS = {"_health", "CHOP_workable", "HAMMER_workable", "MINE_workable"}
-local SPIN_TAGS = {"brightmareboss", "brightmare", "INLIMBO", "FX", "NOCLICK", "playerghost", "_health", "CHOP_workable", "HAMMER_workable", "MINE_workable"}
+local AOE_RANGE_PADDING = 3
 local SPIN_FX_RATE = 10*FRAMES
 local states =
 {
@@ -417,9 +417,9 @@ local states =
                 local hit_player = false
 
                 local ix, iy, iz = inst.Transform:GetWorldPosition()
-                local targets = TheSim:FindEntities( --改，扫地aoe伤害，去掉了一个表不知道有什么影响
-                    ix, iy, iz, TUNING.ALTERGUARDIAN_PHASE2_CHOP_RANGE,
-                     nil, SPIN_TAGS --SPIN_CANT_TAGS, SPIN_ONEOF_TAGS
+                local targets = TheSim:FindEntities(
+                    ix, iy, iz, TUNING.ALTERGUARDIAN_PHASE2_CHOP_RANGE + AOE_RANGE_PADDING,
+                    nil, SPIN_CANT_TAGS, SPIN_ONEOF_TAGS
                 )
                 for _, target in ipairs(targets) do
                     if target ~= inst and target:IsValid() and not target:IsInLimbo() then
@@ -482,6 +482,7 @@ local states =
 
             inst.AnimState:PlayAnimation("attk_spin_pst")
 
+            inst.components.timer:StopTimer("spin_cd")
             inst.components.timer:StartTimer("spin_cd", TUNING.ALTERGUARDIAN_PHASE2_SPINCD)
         end,
 
@@ -489,9 +490,9 @@ local states =
         {
             TimeEvent(8*FRAMES, function(inst)
                 local ix, iy, iz = inst.Transform:GetWorldPosition()
-                local targets = TheSim:FindEntities( --改
-                    ix, iy, iz, TUNING.ALTERGUARDIAN_PHASE2_CHOP_RANGE,
-                    nil, SPIN_CANT_TAGS--, SPIN_ONEOF_TAGS
+                local targets = TheSim:FindEntities(
+                    ix, iy, iz, TUNING.ALTERGUARDIAN_PHASE2_CHOP_RANGE + AOE_RANGE_PADDING,
+                    nil, SPIN_CANT_TAGS, SPIN_ONEOF_TAGS
                 )
                 for _, target in ipairs(targets) do
                     if target ~= inst and target:IsValid() and not target:IsInLimbo() then

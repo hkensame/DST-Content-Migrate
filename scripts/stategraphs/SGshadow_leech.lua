@@ -324,7 +324,11 @@ local states =
 		end,
 
 		onexit = function(inst)
-			inst.Follower:StopFollowing()
+			if inst._followtask ~= nil then
+				inst._followtask:Cancel()
+				inst._followtask = nil
+			end
+			inst._attachpos = nil
 			inst.Physics:SetActive(true)
 			inst:RemoveTag("notarget")
 			inst:ToggleBrain(true)

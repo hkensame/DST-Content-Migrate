@@ -1,5 +1,19 @@
 require("stategraphs/commonstates")
 
+-- DS 兼容：DST 专用工具函数
+local shallowcopy = rawget(_G, "shallowcopy") or function(src, dest)
+	for k, v in pairs(src) do
+		dest[k] = v
+	end
+end
+
+-- DS 兼容：FrameEvent 是 DST 专属，DS 用 TimeEvent(frame * FRAMES)
+local _TimeEvent = rawget(_G, "TimeEvent")
+local _FRAMES = rawget(_G, "FRAMES")
+local FrameEvent = rawget(_G, "FrameEvent") or (_TimeEvent ~= nil and _FRAMES ~= nil
+	and function(frame, fn) return _TimeEvent(frame * _FRAMES, fn) end)
+	or function() end
+
 local SGDaywalkerCommon = {}
 
 --------------------------------------------------------------------------

@@ -1,3 +1,7 @@
+-- DS 兼容：DST 的玩家排序搜索函数
+local FindPlayersInRangeSortedByDistance = rawget(_G, "FindPlayersInRangeSortedByDistance")
+	or function() return {} end
+
 local assets =
 {
 	Asset("ANIM", "anim/shadow_leech.zip"),
@@ -36,7 +40,11 @@ local function OnSpawnFor(inst, daywalker, delay)
 end
 
 local function OnFlungFrom(inst, daywalker, speedmult, randomdir)
-	inst.Follower:StopFollowing()
+	if inst._followtask ~= nil then
+		inst._followtask:Cancel()
+		inst._followtask = nil
+	end
+	inst._attachpos = nil
 
 	local x, y, z = daywalker.Transform:GetWorldPosition()
 	local rot = randomdir and math.random() * 360 or daywalker.Transform:GetRotation() + math.random() * 10 - 5

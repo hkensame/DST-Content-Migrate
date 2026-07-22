@@ -8,6 +8,13 @@ local assets =
 	Asset("ANIM", "anim/daywalker_defeat.zip"),
 }
 
+-- DS 兼容：DST 的玩家搜索函数
+local FindPlayersInRange = rawget(_G, "FindPlayersInRange") or function() return {} end
+local FindClosestPlayerInRange = rawget(_G, "FindClosestPlayerInRange") or function() return nil end
+
+-- DS 兼容：DST 独有的巨大生物物理，DS 用普通生物物理代替
+local MakeGiantCharacterPhysics = rawget(_G, "MakeGiantCharacterPhysics") or MakeCharacterPhysics
+
 local prefabs =
 {
 	"shadow_leech",
@@ -136,18 +143,35 @@ local function SpawnChains(inst)
 	if inst.chains == nil then
 		inst.neckchain = CreateShackleNeckBand()
 		inst.neckchain.entity:SetParent(inst.entity)
-		inst.neckchain.Follower:FollowSymbol(inst.GUID, "shackle_neck_band_follow", nil, nil, nil, true)
 		inst.chains = {}
 		for i = 1, 12 do
 			local link = CreateChainBodyLink()
 			link.entity:SetParent(inst.entity)
-			link.Follower:FollowSymbol(inst.GUID, "chain_body_link_follow_"..tostring(i), nil, nil, nil, true)
 			table.insert(inst.chains, link)
 		end
+		-- DS 兼容：不用 FollowSymbol，改用定时器跟踪符号位置
+		inst._chainfollowtask = inst:DoPeriodicTask(0, function()
+			if inst.neckchain == nil then return end
+			if inst.AnimState ~= nil and inst.AnimState.GetSymbolPosition ~= nil then
+				local x, y, z = inst.AnimState:GetSymbolPosition("shackle_neck_band_follow", 0, 0, 0)
+				inst.neckchain.Transform:SetPosition(x, y, z)
+				for i = 1, math.min(#inst.chains, 12) do
+					local link = inst.chains[i]
+					if link ~= nil then
+						x, y, z = inst.AnimState:GetSymbolPosition("chain_body_link_follow_"..tostring(i), 0, 0, 0)
+						link.Transform:SetPosition(x, y, z)
+					end
+				end
+			end
+		end)
 	end
 end
 
 local function RemoveChains(inst)
+	if inst._chainfollowtask ~= nil then
+		inst._chainfollowtask:Cancel()
+		inst._chainfollowtask = nil
+	end
 	if inst.neckchain ~= nil then
 		inst.neckchain:Remove()
 		inst.neckchain = nil
@@ -212,7 +236,17 @@ end
 
 local function SetLeechAttached(inst, leech, attachpos)
 	leech.components.entitytracker:TrackEntity("daywalker", inst)
-	leech.Follower:FollowSymbol(inst.GUID, "shadowleech_"..attachpos, nil, nil, nil, true)
+	leech._attachpos = attachpos
+	-- DS 兼容：不用 FollowSymbol，改用定时器跟踪
+	if leech._followtask == nil then
+		leech._followtask = leech:DoPeriodicTask(0, function()
+			local dw = leech.components.entitytracker:GetEntity("daywalker")
+			if dw ~= nil and dw.AnimState ~= nil and dw.AnimState.GetSymbolPosition ~= nil and leech._attachpos ~= nil then
+				local x, y, z = dw.AnimState:GetSymbolPosition("shadowleech_"..leech._attachpos, 0, 0, 0)
+				leech.Transform:SetPosition(x, y, z)
+			end
+		end)
+	end
 	leech.sg:GoToState("attached")
 end
 
@@ -451,7 +485,22 @@ local function CreateHead()
 
 	inst.eye = CreateEyeFlame()
 	inst.eye.entity:SetParent(inst.entity)
-	inst.eye.Follower:FollowSymbol(inst.GUID, "follow_eye", nil, nil, nil, true)
+	-- DST 的 Follower:FollowSymbol 在 DS 签名不同导致崩溃，统一用定时器手动跟随
+	inst.eye._followtask = inst:DoPeriodicTask(0, function()
+		if inst.eye and inst.eye:IsValid() then
+			if inst.AnimState and inst.AnimState.GetSymbolPosition then
+				local x, y, z = inst.AnimState:GetSymbolPosition("follow_eye", 0, 0, 0)
+				if x ~= nil then
+					inst.eye.Transform:SetPosition(x, y, z)
+				end
+			end
+		else
+			if inst.eye and inst.eye._followtask then
+				inst.eye._followtask:Cancel()
+				inst.eye._followtask = nil
+			end
+		end
+	end)
 
 	return inst
 end
@@ -464,7 +513,15 @@ local function SetHeadTracking(inst, track)
 			if inst.head == nil then
 				inst.head = CreateHead()
 				inst.head.entity:SetParent(inst.entity)
-				inst.head.Follower:FollowSymbol(inst.GUID, "HEAD_follow", nil, nil, nil, true, true)
+				-- DS 兼容：不用 FollowSymbol，改用定时器跟踪
+				if inst.head._headfollowtask == nil then
+					inst.head._headfollowtask = inst:DoPeriodicTask(0, function()
+						if inst.head ~= nil and inst.AnimState ~= nil and inst.AnimState.GetSymbolPosition ~= nil then
+							local x, y, z = inst.AnimState:GetSymbolPosition("HEAD_follow", 0, 0, 0)
+							inst.head.Transform:SetPosition(x, y, z)
+						end
+					end)
+				end
 				inst.highlightchildren = { inst.head }
 			end
 			inst.head.stalking = inst._stalking
@@ -614,13 +671,13 @@ local PHASES =
 local function RetargetFn(inst)
 	local target = inst.components.combat.target
 	local inrange = target ~= nil and inst:IsNear(target, TUNING.DAYWALKER_ATTACK_RANGE + target:GetPhysicsRadius(0))
+	local x, y, z = inst.Transform:GetWorldPosition()
 
 	if target ~= nil and target:HasTag("player") then
 		local newplayer = FindClosestPlayerInRange(x, y, z, inrange and TUNING.DAYWALKER_ATTACK_RANGE or TUNING.DAYWALKER_KEEP_AGGRO_DIST, true)
 		return newplayer
 	end
 
-	local x, y, z = inst.Transform:GetWorldPosition()
 	local nearplayers = FindPlayersInRange(x, y, z, inrange and TUNING.DAYWALKER_ATTACK_RANGE or TUNING.DAYWALKER_AGGRO_DIST, true)
 	return #nearplayers > 0 and nearplayers[math.random(#nearplayers)] or nil, true
 end
@@ -668,7 +725,9 @@ local function SetEngaged(inst, engaged)
 				inst.components.health:StopRegen()
 			end
 			inst.components.combat:ResetCooldown()
-			inst.components.combat:DropTarget()
+			if inst.components.combat.DropTarget ~= nil then
+				inst.components.combat:DropTarget()
+			end
 		end
 	end
 end
@@ -739,7 +798,9 @@ local function MakeChained(inst)
 		inst:RemoveEventCallback("newcombattarget", OnNewTarget)
 		inst:RemoveEventCallback("minhealth", OnMinHealth)
 		inst.components.timer:StopTimer("despawn")
-		inst.components.combat:DropTarget()
+		if inst.components.combat.DropTarget ~= nil then
+			inst.components.combat:DropTarget()
+		end
 		inst.components.combat:SetRetargetFunction(nil)
 		inst.components.combat:SetDefaultDamage(TUNING.DAYWALKER_STRUGGLE_DAMAGE)
 		inst.components.talker:ShutUp()
@@ -781,7 +842,9 @@ local function MakeUnchained(inst)
 		inst.components.sanityaura.aura = -TUNING.SANITYAURA_SUPERHUGE
 		inst:RemoveTag("notarget")
 		inst:RemoveTag("noteleport")
-		inst.AnimState:ClearAllOverrideSymbols()
+		if inst.AnimState.ClearAllOverrideSymbols ~= nil then
+			inst.AnimState:ClearAllOverrideSymbols()
+		end
 		inst:SwitchToFacingModel(4)
 		inst.SoundEmitter:KillSound("chainloop")
 
@@ -799,7 +862,9 @@ local function MakeHarassed(inst)
 		inst:RemoveEventCallback("newcombattarget", OnNewTarget)
 		inst:RemoveEventCallback("minhealth", OnMinHealth)
 		inst.components.timer:StopTimer("despawn")
-		inst.components.combat:DropTarget()
+		if inst.components.combat.DropTarget ~= nil then
+			inst.components.combat:DropTarget()
+		end
 		inst.components.combat:SetRetargetFunction(nil)
 		inst.components.combat:SetDefaultDamage(TUNING.DAYWALKER_STRUGGLE_DAMAGE)
 		inst.components.sanityaura.aura = -TUNING.SANITYAURA_SUPERHUGE
@@ -840,7 +905,9 @@ local function MakeDefeated(inst)
 		if not inst.components.timer:TimerExists("despawn") then
 			inst.components.timer:StartTimer("despawn", DESPAWN_TIME, not inst.looted)
 		end
-		inst.components.combat:DropTarget()
+		if inst.components.combat.DropTarget ~= nil then
+			inst.components.combat:DropTarget()
+		end
 		inst.components.combat:SetRetargetFunction(nil)
 		inst.components.sanityaura.aura = -TUNING.SANITYAURA_MED
 		inst:RemoveTag("hostile")
@@ -1015,7 +1082,22 @@ local function fn()
 
 	inst.eye = CreateEyeFlame()
 	inst.eye.entity:SetParent(inst.entity)
-	inst.eye.Follower:FollowSymbol(inst.GUID, "follow_eye", nil, nil, nil, true)
+	-- DST 的 Follower:FollowSymbol 在 DS 签名不同导致崩溃，统一用定时器手动跟随
+	inst.eye._followtask = inst:DoPeriodicTask(0, function()
+		if inst.eye and inst.eye:IsValid() then
+			if inst.AnimState and inst.AnimState.GetSymbolPosition then
+				local x, y, z = inst.AnimState:GetSymbolPosition("follow_eye", 0, 0, 0)
+				if x ~= nil then
+					inst.eye.Transform:SetPosition(x, y, z)
+				end
+			end
+		else
+			if inst.eye and inst.eye._followtask then
+				inst.eye._followtask:Cancel()
+				inst.eye._followtask = nil
+			end
+		end
+	end)
 
 	inst.override_combat_fx_height = "low"
 	inst.footstep = "daywalker/action/step"

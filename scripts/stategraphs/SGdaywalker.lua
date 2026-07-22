@@ -45,11 +45,16 @@ local function _transfer_statemem_to_electrocute(inst, playermelee)
 	end
 end
 
+-- DS 兼容：FrameEvent 是 DST 专属，DS 用 TimeEvent(frame * FRAMES)
+local _TimeEvent = rawget(_G, "TimeEvent")
+local _FRAMES = rawget(_G, "FRAMES")
+local FrameEvent = rawget(_G, "FrameEvent") or (_TimeEvent ~= nil and _FRAMES ~= nil
+	and function(frame, fn) return _TimeEvent(frame * _FRAMES, fn) end)
+	or function() end
+
 local events =
 {
 	CommonHandlers.OnLocomote(true, true),
-    CommonHandlers.OnSink(),
-    CommonHandlers.OnFallInVoid(),
 	EventHandler("doattack", function(inst)
 		if not (inst.sg:HasStateTag("busy") or inst.defeated) then
 			ChooseAttack(inst)
@@ -145,6 +150,14 @@ local events =
 		end
 	end),
 }
+
+-- OnSink/OnFallInVoid 是 DST CommonHandlers 独有，DS 不存在
+if CommonHandlers.OnSink ~= nil then
+	table.insert(events, CommonHandlers.OnSink())
+end
+if CommonHandlers.OnFallInVoid ~= nil then
+	table.insert(events, CommonHandlers.OnFallInVoid())
+end
 
 --------------------------------------------------------------------------
 
@@ -1806,9 +1819,14 @@ SGDaywalkerCommon.AddRunStates(states,
 		end
 	end,
 })
-CommonStates.AddSinkAndWashAshoreStates(states, {washashore = "hit",})
-CommonStates.AddVoidFallStates(states, {voiddrop = "hit",})
-CommonStates.AddElectrocuteStates(states,
+if CommonStates.AddSinkAndWashAshoreStates ~= nil then
+	CommonStates.AddSinkAndWashAshoreStates(states, {washashore = "hit",})
+end
+if CommonStates.AddVoidFallStates ~= nil then
+	CommonStates.AddVoidFallStates(states, {voiddrop = "hit",})
+end
+if CommonStates.AddElectrocuteStates ~= nil then
+	CommonStates.AddElectrocuteStates(states,
 {	--timeline
 	pst =
 	{
@@ -1941,5 +1959,6 @@ CommonStates.AddElectrocuteStates(states,
 		end
 	end,
 })
+end
 
 return StateGraph("daywalker", states, events, "idle")

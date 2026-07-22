@@ -1,9 +1,32 @@
 require("stategraphs/commonstates")
 
+-- DS 兼容：DST 的 FrameEvent 用 TimeEvent 替代
+local _TimeEvent = rawget(_G, "TimeEvent")
+local _FRAMES = rawget(_G, "FRAMES")
+local FrameEvent = rawget(_G, "FrameEvent") or (_TimeEvent ~= nil and _FRAMES ~= nil
+	and function(frame, fn) return _TimeEvent(frame * _FRAMES, fn) end)
+	or function() end
+
+-- DS 兼容：prefab 中不能直引 TheWorld
+local _TheWorld = rawget(_G, "TheWorld")
+-- DS 兼容：CHATPRIORITIES 是 DST 枚举
+local CHATPRIORITIES = rawget(_G, "CHATPRIORITIES") or { HIGH = 1 }
+
+-- DS 兼容：talker:Chatter 是 DST 独有
+local function SafeChatter(talker, strtbl, count, ...)
+	if talker.Chatter ~= nil then
+		talker:Chatter(strtbl, count, ...)
+	end
+end
+
 local events =
 {
-	CommonHandlers.OnElectrocute(),
 }
+
+-- OnElectrocute 是 DST CommonHandlers 独有
+if CommonHandlers.OnElectrocute ~= nil then
+	table.insert(events, CommonHandlers.OnElectrocute())
+end
 
 local function CheckPillars(inst)
 	local resonating, idle = inst:CountPillars()
@@ -42,12 +65,12 @@ local states =
 			if chatter then
 				local strtbl =
 					(not isnear and "DAYWALKER_IMPRISONED_FAR") or
-					(	TheWorld.components.daywalkerspawner ~= nil and
-						TheWorld.components.daywalkerspawner:GetPowerLevel() > 1 and
+					(	_TheWorld ~= nil and _TheWorld.components.daywalkerspawner ~= nil and
+						_TheWorld.components.daywalkerspawner:GetPowerLevel() > 1 and
 						"DAYWALKER_RE_IMPRISONED_NEAR"
 					) or
 					"DAYWALKER_IMPRISONED_NEAR"
-				inst.components.talker:Chatter(strtbl, math.random(#STRINGS[strtbl]), nil, nil, CHATPRIORITIES.HIGH)
+				SafeChatter(inst.components.talker, strtbl, math.random(#STRINGS[strtbl]), nil, nil, CHATPRIORITIES.HIGH)
 			end
 			if isnear then
 				inst.sg:SetTimeout(3 + 2 * math.random())
@@ -89,7 +112,7 @@ local states =
 			inst.AnimState:PlayAnimation("chained_1")
 			inst.SoundEmitter:PlaySound("daywalker/voice/struggle1")
 			local strtbl = "DAYWALKER_IMPRISONED_STRUGGLE"
-			inst.components.talker:Chatter(strtbl, math.random(#STRINGS[strtbl]), nil, nil, CHATPRIORITIES.LOW)
+			SafeChatter(inst.components.talker, strtbl, math.random(#STRINGS[strtbl]), nil, nil, CHATPRIORITIES.LOW)
 		end,
 		timeline =
 		{
@@ -109,7 +132,7 @@ local states =
 		onenter = function(inst)
 			inst.AnimState:PlayAnimation("chained_2")
 			inst.SoundEmitter:PlaySound("daywalker/voice/struggle2")
-			inst.components.talker:Chatter("DAYWALKER_IMPRISONED_STRUGGLE", 2, nil, nil, CHATPRIORITIES.HIGH)
+			SafeChatter(inst.components.talker, "DAYWALKER_IMPRISONED_STRUGGLE", 2, nil, nil, CHATPRIORITIES.HIGH)
 		end,
 		timeline =
 		{
@@ -168,7 +191,7 @@ local states =
 				local any, all = CheckPillars(inst)
 				if not all then
 					local strtbl = any and "DAYWALKER_IMPRISONED_PILLAR_BREAKING" or "DAYWALKER_IMPRISONED_STRUGGLE"
-					inst.components.talker:Chatter(strtbl, math.random(#STRINGS[strtbl]), nil, nil, CHATPRIORITIES.HIGH)
+					SafeChatter(inst.components.talker, strtbl, math.random(#STRINGS[strtbl]), nil, nil, CHATPRIORITIES.HIGH)
 				end
 			end
 		end,
@@ -283,6 +306,7 @@ local states =
 	},
 }
 
+if CommonStates.AddElectrocuteStates ~= nil then
 CommonStates.AddElectrocuteStates(states,
 {	--timeline
 	loop =
@@ -304,5 +328,6 @@ CommonStates.AddElectrocuteStates(states,
 	loop = "chained_shock_loop",
 	pst = "chained_shock_pst",
 })
+end
 
 return StateGraph("daywalker_imprisoned", states, events, "idle")

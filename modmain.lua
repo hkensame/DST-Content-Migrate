@@ -5,76 +5,8 @@ GLOBAL.setmetatable(env,{
 if GLOBAL.PLATFORM == "Android" then GLOBAL.SJ = true else GLOBAL.SJ = false end --手机判定
 
 
--- ==================== DS 兼容：DST 特有方法补丁 ====================
--- DS 没有 SetPhysicsRadiusOverride，补充为空操作
-if rawget(GLOBAL, "EntityScript") and not GLOBAL.EntityScript.SetPhysicsRadiusOverride then
-    GLOBAL.EntityScript.SetPhysicsRadiusOverride = function() end
-end
 
--- ==================== 天体制作栏 ====================
-RECIPETABS.DST_CELESTIAL = {
-    str = "DST_CELESTIAL",
-    sort = 700,
-    priority = 1,
-    icon = "tab_celestial.tex",
-    icon_atlas = "images/tab_celestial.xml",
-}
 
--- ==================== 天体科技树 ====================
-GLOBAL.TECH = GLOBAL.TECH or {}
-GLOBAL.TECH.CELESTIAL_ONE = { CELESTIAL = 1 }
-GLOBAL.TECH.CELESTIAL_THREE = { CELESTIAL = 3 }
-GLOBAL.TECH.CELESTIAL_NONE = { CELESTIAL = 0 }
-
-GLOBAL.TUNING = GLOBAL.TUNING or {}
-GLOBAL.TUNING.PROTOTYPER_TREES = GLOBAL.TUNING.PROTOTYPER_TREES or {}
-GLOBAL.TUNING.PROTOTYPER_TREES.MOON_ALTAR = { CELESTIAL = 1 }
-GLOBAL.TUNING.PROTOTYPER_TREES.MOON_ALTAR_FULL = { CELESTIAL = 3 }
-GLOBAL.TUNING.PROTOTYPER_TREES.MOON_ALTAR_MAX  = { CELESTIAL = 4 }
-
--- ==================== 棕榈锥树 TUNING ====================
-GLOBAL.TUNING.PALMCONETREE_CHOPS_SMALL = 5
-GLOBAL.TUNING.PALMCONETREE_CHOPS_NORMAL = 10
-GLOBAL.TUNING.PALMCONETREE_CHOPS_TALL = 15
-
--- ==================== 梦魇疯猪 Daywalker 注册 ====================
-AddPrefabPostInit("daywalkerspawningground", function(inst)
-    inst:DoTaskInTime(0, function()
-        local theWorld = rawget(GLOBAL, "TheWorld")
-        if theWorld == nil then return end
-        theWorld:PushEvent("ms_registerdaywalkerspawningground", inst)
-    end)
-end)
-
--- ==================== DST_CAVE 犀牛宝箱替换 ====================
--- minotaurchest 没有 Physics 组件，FindEntities 无法空间查找
--- 改用 PostInit 在 chest 创建时直接替换 cave_regenerator → atrium_key
--- 标记由 minotaur_spawner.lua 的死亡事件设置
-AddPrefabPostInit("minotaurchest", function(inst)
-    local dead_pos = rawget(GLOBAL, "_DST_CAVE_MINOTAUR_DEAD")
-    if dead_pos then
-        local x, y, z = inst.Transform:GetWorldPosition()
-        local dx = x - dead_pos.x
-        local dz = z - dead_pos.z
-        if dx*dx + dz*dz < 400 then  -- 20 单位内
-            rawset(GLOBAL, "_DST_CAVE_MINOTAUR_DEAD", nil)
-            inst:DoTaskInTime(0, function()
-                if inst.components and inst.components.container then
-                    for i = 1, inst.components.container:GetNumSlots() do
-                        local item = inst.components.container:GetItemInSlot(i)
-                        if item and item.prefab == "cave_regenerator" then
-                            item:Remove()
-                        end
-                    end
-                    local key = SpawnPrefab("atrium_key")
-                    if key then
-                        inst.components.container:GiveItem(key)
-                    end
-                end
-            end)
-        end
-    end
-end)
 
 -- ==================== GetTheWorld 实体注入 ====================
 -- DS 的 PrefabFiles 脚本中 GLOBAL/TheWorld 不可用（strict.lua 保护）
@@ -101,9 +33,6 @@ for _, prefab_name in ipairs(_inject_getworld_prefabs) do
     end)
 end
 
--- ==================== 暴动循环注册 ====================
--- 暴动系统注册已移至 archive_hooks.lua（AddPrefabPostInit("cave")），避免重复
--- 梦魇疯猪生成器 daywalkerspawner 也已移至 cave postinit，见 archive_hooks.lua
 
 -- 覆写 LoadPrefabFile：确保多返回值的 prefab 文件的所有实体都被 mod.Prefabs 捕获
 -- DS 的 require() 只能拿到第一个返回值，而 LoadPrefabFile 内部用 {fn()} 捕获了全部
@@ -391,12 +320,15 @@ Assets = {
   Asset("ANIM", "anim/burntground.zip"),
   -- 启蒙系统：月灵理智徽章（需从 DST 提取 status_sanity.zip）
   Asset("ANIM", "anim/status_sanity.zip"),
+  -- 镐子反震动画
+  Asset("ANIM", "anim/player_actions_pickaxe_recoil.zip"),
   
   Asset("ANIM", "anim/alterguardian/alterguardian_spike.zip"),
   Asset("ANIM", "anim/alterguardian/alterguardian_laser_hit_sparks_fx.zip"),
   Asset("ANIM", "anim/alterguardian/swap_altar_crownpiece.zip"), -- moon_altar_crown 碎片
   Asset("ANIM", "anim/moonisland/moon_altar_pieces.zip"), -- 祭坛碎片共用 bank
   Asset("ANIM", "anim/atrium/mind_control_overlay.zip"), --暗影织影者
+  Asset("ANIM", "anim/mindcontrol_anim.zip"), -- 精神控制角色动画（独立 bank）
 
   Asset("ANIM", "anim/cave/archive_centipede.zip"),
   Asset("ANIM", "anim/cave/archive_centipede_actions.zip"),
@@ -454,10 +386,6 @@ Assets = {
   Asset("ANIM", "anim/bulb_plant_double_withered_build.zip"),
   Asset("ANIM", "anim/bulb_plant_triple_withered_build.zip"),
   Asset("ANIM", "anim/bulb_plant_springy_withered_build.zip"),
-
-  -- vent 区音效
-  Asset("SOUND", "sound/rifts6.fsb"),
-  Asset("SOUNDPACKAGE", "sound/rifts6.fev"),
 
   Asset("ANIM", "anim/lavaarena_staff_smoke_fx.zip"),
   Asset("ANIM", "anim/dst_leaves_canopy.zip"), --水中木叶片
@@ -562,6 +490,7 @@ Assets = {
   Asset("SOUND", "sound/monkeyisland_music.fsb"),
   Asset("SOUND", "sound/moonstorm.fsb"),
   Asset("SOUND", "sound/rifts.fsb"),
+  Asset("SOUND", "sound/rifts6.fsb"),
   Asset("SOUND", "sound/toadstool.fsb"),
   Asset("SOUND", "sound/turf_crafting_station.fsb"),
   Asset("SOUND", "sound/turnoftides.fsb"),
@@ -581,6 +510,7 @@ Assets = {
   Asset("SOUNDPACKAGE", "sound/monkeyisland.fev"),
   Asset("SOUNDPACKAGE", "sound/moonstorm.fev"),
   Asset("SOUNDPACKAGE", "sound/rifts.fev"),
+  Asset("SOUNDPACKAGE", "sound/rifts6.fev"),
   Asset("SOUNDPACKAGE", "sound/toadstool.fev"),
   Asset("SOUNDPACKAGE", "sound/turf_crafting_station.fev"),
   Asset("SOUNDPACKAGE", "sound/turnoftides.fev"),
@@ -591,10 +521,11 @@ Assets = {
   Asset("SOUNDPACKAGE", "sound/hookline_2.fev"),
   Asset("SOUNDPACKAGE", "sound/mushroom_light.fev"),
 
+  
+  -- ========== ATLAS ==========
   Asset("IMAGE", "images/tab_celestial.tex"),
   Asset("ATLAS", "images/tab_celestial.xml"),
-
-  -- ========== ATLAS ==========
+  
   Asset("IMAGE", "images/banner_bg.tex"),
   Asset("ATLAS", "images/banner_bg.xml"),
   Asset("IMAGE", "images/carrat_altas.tex"),
@@ -661,6 +592,7 @@ Assets = {
   Asset("ATLAS", "images/spore_small.xml"),
   Asset("IMAGE", "images/spore_tall.tex"),
   Asset("ATLAS", "images/spore_tall.xml"),
+
 
   
   -- minimap icons in images/ (IMAGE before ATLAS)
@@ -855,9 +787,6 @@ RemapSoundEvent("dontstarve/common/together/mushroom_lamp/craft_2", "mushroom_li
 RemapSoundEvent("dontstarve/common/together/mushroom_lamp/change_colour", "mushroom_light/mushlamp_change_colour_2")
 
 -- ==================== Alter Guardian Boss 音效重映射（DST→DS 兼容）====================
--- moonstorm.fev 中的事件路径和代码路径一致，不需要重映射。
--- 之前错误地将有效事件映射到 SoundDef 内部名，导致所有声音失效。
-
 -- ==================== turnoftides 额外重映射 ====================
 -- fruit_dragon 组没有 footstep 事件，回退到 stretch（移动声）
 RemapSoundEvent("turnoftides/creatures/together/fruit_dragon/footstep", "turnoftides/creatures/together/fruit_dragon/stretch")
@@ -971,52 +900,48 @@ AddMinimapAtlas("images/palmcone_tree.xml")
 AddMinimapAtlas("images/palmcone_tree_burnt.xml")
 AddMinimapAtlas("images/palmcone_tree_stump.xml")
 
--- ==================== 天体制作栏标签注册 ====================
-STRINGS.TABS.DST_CELESTIAL = "天体"
-
-AddClassPostConstruct("widgets/crafttabs", function(self)
-    self.tabnames = self.tabnames or {}
-    table.insert(self.tabnames, RECIPETABS.DST_CELESTIAL)
-end)
-
--- ==================== 科技树 + 蓝图统一管理 ====================
-modimport("scripts/system/tech_manager.lua")
+-- ==================== 科技栏 + 蓝图系统 ====================
+modimport("scripts/system/tech_tabs.lua")        -- 自定义科技栏定义
+modimport("scripts/system/blueprint_system.lua")  -- 蓝图注册 + Builder 注入
 
 modimport("scripts/dst_foods.lua")
 --modimport("scripts/dst_global.lua")  -- 已移至 PrefabFiles 之前
 modimport("scripts/dst_recipes.lua")
-modimport("scripts/dst_sg.lua")
+modimport("scripts/wilsonsgs/actions_sg.lua")
+modimport("scripts/wilsonsgs/combat_sg.lua")
+modimport("scripts/wilsonsgs/movement_sg.lua")
+modimport("scripts/wilsonsgs/status_sg.lua")
 modimport("scripts/dst_strings.lua")
 -- dst_tuning.lua 已移至 PrefabFiles 之前加载
 
 -- 启蒙系统组件无需显式注册：DS 的 entityscript.lua 在 inst:AddComponent("enlightenment") 时
 -- 会自动 require("components/enlightenment") 延迟加载，只要文件在 scripts/components/ 下即可。
-
 -- 启蒙系统 (Enlightenment)
 modimport("scripts/prefabs/enlightenment/enlightenment_triggers.lua")
 modimport("scripts/prefabs/enlightenment/enlightenment_hud.lua")
 
+-- ==================== 精神控制：SG 状态注入 ====================
+modimport("scripts/wilsonsgs/mindcontrol_sg.lua")
+
+-- ==================== 镐子反震：SG 状态注入 ====================
+modimport("scripts/wilsonsgs/recoil_sg.lua")
+
 require("physics")
 require("behaviourtree")
 
--- ==================== 蝙蝠大脑覆写 ====================
--- DS 原版蝙蝠大脑的 GoHomeAction 用 GetClock():IsDay() 判断，
--- 洞穴环境下表面白天会导致蝙蝠立即回家消失。
--- 用自定义大脑替换，改用 iscaveday + 支持 panic 事件处理。
-AddPrefabPostInit("bat", function(inst)
-    local DstBatBrain = require("brains/dst_batbrain")
-    inst:SetBrain(DstBatBrain)
-end)
-
 -- ==================== DST 模组功能补丁 ====================
 -- 原 modmain.lua 中的功能代码已拆分为独立文件，通过 modimport 加载
-modimport("scripts/dst_init.lua")           -- 模组初始化（信息覆盖 + Android 检查）
-modimport("scripts/dst_player.lua")         -- 玩家初始化（grogginess + 标签注入）
+modimport("scripts/dst_player.lua")         -- 玩家初始化（grogginess + debuffable）
+
+-- 联机版标签补丁：DST 的 FindEntities 依赖 _combat/_health 标签过滤
+AddComponentPostInit("combat", function(self) if self.inst then self.inst:AddTag("_combat") end end)
+AddComponentPostInit("health", function(self) if self.inst then self.inst:AddTag("_health") end end)
+AddComponentPostInit("sanity", function(self) if self.inst then self.inst:AddTag("_sanity") end end)
 modimport("scripts/dst_compat_patches.lua")  -- 兼容补丁合集（实体/Widget/DLC）
 modimport("scripts/dst_component_api.lua")   -- 所有组件 API 扩展
 modimport("scripts/archive_hooks.lua")   -- 档案馆 prefab 运行时 Hook 注入
-modimport("scripts/dst_nightmare_init.lua")     -- 暴动时钟 + daywalkerspawner 初始化（从 archive_hooks 拆分）
-modimport("scripts/dst_nightmare_postinits.lua") -- 暴动预制体延迟注册 + Colour Cube 滤镜
+modimport("scripts/dst_nightmare.lua") -- 暴动系统（时钟初始化 + 预制体延迟注册 + Colour Cube 滤镜）
+modimport("scripts/dst_daywalkerspawner.lua") -- 白梦魇疯猪 spawner 初始化
 
 -- ==================== DST 火焰蔓延系统 ====================
 -- DST 式蓄火→点燃火焰蔓延机制，移植自 DST Fire Spreading mod

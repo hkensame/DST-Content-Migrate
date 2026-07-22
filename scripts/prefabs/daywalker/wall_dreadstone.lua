@@ -1,5 +1,8 @@
 require "prefabutil"
 
+-- DS 兼容：prefab 中安全访问 TheWorld
+local _TheWorld = rawget(_G, "TheWorld")
+
 local assets =
 {
     Asset("ANIM", "anim/wall.zip"),
@@ -45,7 +48,9 @@ local function makeobstacle(inst)
     inst.Physics:SetMass(0)
     inst.Physics:CollidesWith(COLLISION.ITEMS)
     inst.Physics:CollidesWith(COLLISION.CHARACTERS)
-    inst.Physics:CollidesWith(COLLISION.WAVES)
+    if rawget(_G, "COLLISION") and COLLISION.WAVES then
+        inst.Physics:CollidesWith(COLLISION.WAVES)
+    end
     inst.Physics:SetActive(true)
     local ground = GetWorld()
     if ground then
@@ -183,11 +188,11 @@ local function ValidRepairFn(inst)
     end
 
     local x, y, z = inst.Transform:GetWorldPosition()
-    if TheWorld.Map:IsAboveGroundAtPoint(x, y, z) then
+    if _TheWorld ~= nil and _TheWorld.Map:IsAboveGroundAtPoint(x, y, z) then
         return true
     end
 
-    if TheWorld.Map:IsVisualGroundAtPoint(x, y, z) then
+    if _TheWorld ~= nil and _TheWorld.Map:IsVisualGroundAtPoint(x, y, z) then
         for i, v in ipairs(TheSim:FindEntities(x, 0, z, 1, {"player"})) do
             if v ~= inst and
                 v.entity:IsVisible() and

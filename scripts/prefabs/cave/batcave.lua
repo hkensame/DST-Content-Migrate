@@ -20,29 +20,21 @@ end
 local function onnear(inst)
     local cs = inst.components.childspawner
     local player = GetPlayer()
-    print("[batcave] onnear - childreninside="..tostring(cs.childreninside).." maxchildren="..tostring(cs.maxchildren).." canspawn="..tostring(cs:CanSpawn()).." player="..tostring(player))
     if cs.childreninside > 0 then
-        print("[batcave] onnear - 开始释放蝙蝠")
         local tries = 10
         while cs:CanSpawn() and tries > 0 do
             local bat = cs:SpawnChild()
             if bat ~= nil then
-                print("[batcave] 蝙蝠产出 - "..tostring(bat).." GUID="..tostring(bat.GUID))
                 bat:DoTaskInTime(0, function()
                     if player and player:IsValid() then
-                        print("[batcave] 设置玩家为仇恨目标")
                         bat.components.combat:SetTarget(player)
                     end
                 end)
-            else
-                print("[batcave] SpawnChild 返回 nil")
             end
             tries = tries - 1
         end
         inst.SoundEmitter:PlaySound("dontstarve/cave/bat_cave_explosion")
         inst.SoundEmitter:PlaySound("dontstarve/creatures/bat/taunt")
-    else
-        print("[batcave] onnear - 洞内无蝙蝠，跳过")
     end
 end
 
@@ -60,7 +52,6 @@ end
 
 local function onfar(inst)
     local cs = inst.components.childspawner
-    print("[batcave] onfar - 回收子代，childreninside="..tostring(cs.childreninside))
     ReturnChildren(inst)
     cs:StopSpawning()
     cs:StartRegen()
@@ -100,22 +91,20 @@ local function fn()
 	inst.components.childspawner:SetRegenPeriod(TUNING.BATCAVE_REGEN_TIME)
 	inst.components.childspawner:SetSpawnPeriod(TUNING.BATCAVE_SPAWN_TIME)
 	inst.components.childspawner:SetMaxChildren(TUNING.BATCAVE_MAX_CHILDREN)
-    if not TUNING.BATCAVE_ENABLED then
+    inst.components.childspawner.childname = "bat"
+    if TUNING.BATCAVE_ENABLED then
+        -- 初始化时 2 只蝙蝠在洞内
+        inst.components.childspawner.childreninside = 2
+    else
         inst.components.childspawner.childreninside = 0
     end
-	inst.components.childspawner.childname = "bat"
-    -- 初始化时 2 只蝙蝠在洞内
-    inst.components.childspawner.childreninside = 2
-    print("[batcave] 初始化 - childreninside=2 maxchildren="..tostring(inst.components.childspawner.maxchildren))
     inst.components.childspawner:StartRegen()
     inst.components.childspawner:SetSpawnedFn(onspawnchild)
     -- DS childspawner 兼容：有蝙蝠在里面就播 eyes
     inst.components.childspawner:SetOccupiedFn(function(inst)
-        print("[batcave] occupied - childreninside="..tostring(inst.components.childspawner.childreninside))
         inst.AnimState:PlayAnimation("eyes", true)
     end)
     inst.components.childspawner:SetVacateFn(function(inst)
-        print("[batcave] vacate - childreninside="..tostring(inst.components.childspawner.childreninside))
         inst.AnimState:PlayAnimation("idle", true)
     end)
 

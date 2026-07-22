@@ -75,8 +75,8 @@ local function OnPostUpdate(inst)
 		local dfront = (y2 - y1) * RESOLUTION_Y / h
 		local front = dfront > -10
 
-		x1, y1, z1 = inst.AnimState:GetSymbolPosition("swap_shackle")
-		x2, y2, z2 = prisoner.AnimState:GetSymbolPosition("swap_shackle")
+		x1, y1, z1 = inst.AnimState:GetSymbolPosition("swap_shackle", 0, 0, 0)
+		x2, y2, z2 = prisoner.AnimState:GetSymbolPosition("swap_shackle", 0, 0, 0)
 		if front then
 			local theta = TheCamera:GetHeading() * DEGREES
 			x2 = x2 + math.cos(theta)
@@ -202,7 +202,20 @@ local function SpawnChains(inst)
 	if inst.chains == nil then
 		inst.chainbracket = CreateChainBracket()
 		inst.chainbracket.entity:SetParent(inst.entity)
-		inst.chainbracket.Follower:FollowSymbol(inst.GUID, "swap_shackle", nil, nil, nil, true)
+		-- DS 兼容：不用 FollowSymbol，改用 GetSymbolPosition 每帧跟踪
+		inst.chainbracket._followupdate = inst:DoPeriodicTask(0, function()
+			if inst.chainbracket ~= nil and inst.AnimState ~= nil and inst.AnimState.GetSymbolPosition ~= nil then
+				local x, y, z = inst.AnimState:GetSymbolPosition("swap_shackle", 0, 0, 0)
+				inst.chainbracket.Transform:SetPosition(x, y, z)
+				if inst.vibratespike then
+					inst.chainbracket.Transform:SetPosition(
+						x + math.random() * .2 - .1,
+						y,
+						z + math.random() * .2 - .1)
+					inst.vibratespike = false
+				end
+			end
+		end)
 		inst.chains = {}
 		for i = 0, CHAIN_LEN do
 			table.insert(inst.chains, CreateChainLink())
@@ -218,9 +231,12 @@ end
 
 local function RemoveChains(inst, broken)
 	if inst.chainbracket ~= nil then
+		if inst.chainbracket._followupdate ~= nil then
+			inst.chainbracket._followupdate:Cancel()
+			inst.chainbracket._followupdate = nil
+		end
 		if broken then
 			local x, y, z = inst.chainbracket.Transform:GetWorldPosition()
-			inst.chainbracket.Follower:StopFollowing()
 			inst.chainbracket.entity:SetParent(nil)
 			inst.chainbracket.Transform:SetPosition(x, y, z)
 			inst.chainbracket.AnimState:PlayAnimation("chain_break")
@@ -455,7 +471,7 @@ local function OnWorked(inst, worker, workleft, numworks)
 	end
 	inst.SoundEmitter:KillSound("vibrate_loop")
 	inst.SoundEmitter:KillSound("chain_vibrate_loop")
-	if workleft <= 1 and not changed and worker ~= nil and worker:HasAnyTag("player", "possessedbody", "toughworker") then
+	if workleft <= 1 and not changed and worker ~= nil and (worker:HasTag("player") or worker:HasTag("possessedbody") or worker:HasTag("toughworker")) then
 		inst.SoundEmitter:PlaySound("daywalker/pillar/pickaxe_hit_unbreakable")
 		local trigger_vibrate = worker:HasTag("toughworker")
 		if not trigger_vibrate then
@@ -481,7 +497,7 @@ local function OnWorked(inst, worker, workleft, numworks)
 				prisoner:PushEvent("pillarvibrating")
 			end
 		else
-			worker:PushEvent("tooltooweak", { workaction = ACTIONS.MINE })
+			worker:PushEvent("tooltooweak", { workaction = ACTIONS.MINE, target = inst })
 		end
 	end
 end
@@ -607,6 +623,8 @@ local function fn()
 	inst.entity:AddAnimState()
 	inst.entity:AddSoundEmitter()
 	inst.entity:AddMiniMapEntity()
+	-- DS 兼容：DST 默认有 Light 实体组件，DS 需要手动添加
+	inst.entity:AddLight()
 
 	inst:AddTag("daywalker_pillar")
 	inst:AddTag("event_trigger")

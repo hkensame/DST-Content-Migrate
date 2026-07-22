@@ -1,7 +1,7 @@
 -- ==================== 精神控制：SGwilson 状态注入 ====================
 -- 向 DS 的 wilson stategraph 注入 mindcontrolled 事件和状态
--- 动画文件（mindcontrol_pre/loop/pst）若未移植也不会崩溃，
--- 角色只是不会播放特定动画（控制器已被禁用，不影响功能）
+-- 动画剪辑 mindcontrol_pre/loop/pst 由 mindcontrol_anim.zip 提供
+-- bank 名 = wilson，引擎自动合并到 wilson bank
 
 -- 事件监听：收到 "mindcontrolled" 后切换到受控状态
 AddStategraphEvent("wilson", EventHandler("mindcontrolled", function(inst)

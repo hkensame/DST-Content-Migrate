@@ -685,6 +685,9 @@ end
 local function OnSoldiersChanged(inst)
     if inst.hasshield ~= (inst.components.commander:GetNumSoldiers() > 0) then
         inst.hasshield = not inst.hasshield
+        -- DS 版 health.redirect 不检查返回值，无条件拦截所有伤害
+        -- 改用 SetInvincible 来开关无敌
+        inst.components.health:SetInvincible(inst.hasshield)
         if not inst.hasshield then
             inst.components.timer:StopTimer("channelers_cd")
             inst.components.timer:StartTimer("channelers_cd", TUNING.STALKER_CHANNELERS_CD)
@@ -1429,7 +1432,7 @@ local function atrium_fn()
 
     inst:AddComponent("commander")
 
-    inst.components.health.redirect = nodmgshielded
+    --inst.components.health.redirect = nodmgshielded  -- DS 的 health.redirect 无条件拦截，不适用
 
     inst.EnableCameraFocus = EnableCameraFocus
     inst.BattleChatter = AtriumBattleChatter

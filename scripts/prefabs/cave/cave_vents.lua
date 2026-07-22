@@ -107,6 +107,7 @@ local TIMER_NAMES = {
 
 local function SpewHotSteam(inst)
     PlaySpewAnimation(inst)
+    inst.components.timer:StopTimer(TIMER_NAMES.SPEW_HOT)
     inst.components.timer:StartTimer(TIMER_NAMES.SPEW_HOT, GetSpewTime(inst))
 end
 
