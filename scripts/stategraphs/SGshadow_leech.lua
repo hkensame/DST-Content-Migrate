@@ -115,7 +115,7 @@ local states =
 						local angle = dir0 ~= nil and (dir0 + math.random() * 90 - 45) * DEGREES or math.random() * TWOPI
 						local x = x0 + math.cos(angle) * radius
 						local z = z0 - math.sin(angle) * radius
-						if GetWorld().Map:IsPassableAtPoint(x, 0, z) then
+						if IsPassableAtPoint(x, 0, z) then
 							inst.Physics:Teleport(x, 0, z)
 							break
 						end
@@ -234,7 +234,7 @@ local states =
 				target = inst:GetPosition()
 				target.x = target.x + math.cos(theta) * dist
 				target.z = target.z - math.sin(theta) * dist
-			elseif EntityScript.is_instance(target) and target:IsValid() then
+			elseif target.GUID ~= nil and target:IsValid() then
 				inst.sg.statemem.target = target
 				target = target:GetPosition()
 				dist = math.sqrt(inst:GetDistanceSqToPoint(target))
@@ -242,7 +242,9 @@ local states =
 			inst:ForceFacePoint(target)
 			inst.sg.statemem.speed = math.min(16.5, dist / (11 * FRAMES))
 			inst.Physics:SetMotorVelOverride(inst.sg.statemem.speed, 0, 0)
-			inst.Physics:ClearCollidesWith(COLLISION.SANITY)
+			if inst.Physics.ClearCollidesWith ~= nil then
+				inst.Physics:ClearCollidesWith(COLLISION.SANITY)
+			end
 		end,
 
 		timeline =
@@ -350,7 +352,9 @@ local states =
 			inst.SoundEmitter:PlaySound("daywalker/leech/fall_off")
 			inst.sg.statemem.speed = -10 * (speedmult or 1)
 			inst.Physics:SetMotorVelOverride(inst.sg.statemem.speed, 0, 0)
-			inst.Physics:ClearCollidesWith(COLLISION.SANITY)
+			if inst.Physics.ClearCollidesWith ~= nil then
+				inst.Physics:ClearCollidesWith(COLLISION.SANITY)
+			end
 		end,
 
 		timeline =

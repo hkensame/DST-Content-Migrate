@@ -165,10 +165,35 @@ return Class(function(self, inst)
         return nil
     end
 
+    function self:FindExistingDaywalker()
+        local x, y, z = self.inst.Transform:GetWorldPosition()
+        local entities = TheSim:FindEntities(x, y, z, 10000, nil, nil, {"daywalker"})
+        for _, ent in ipairs(entities) do
+            if ent:IsValid() and not ent:HasTag("companion") and not ent.defeated then
+                return ent
+            end
+        end
+        return nil
+    end
+
     function self:OnDayChange()
         print(string.format("[DAYWALKER] OnDayChange: daywalker=%s days_to_spawn=%d spawnpoints=%d",
             self.daywalker ~= nil and tostring(self.daywalker.GUID) or "nil",
             self.days_to_spawn, #self.spawnpoints))
+
+        -- 如果 self.daywalker 引用丢失（如存档加载时 LoadPostPass 未能恢复），扫描已有 daywalker
+        if self.daywalker == nil then
+            local existing = self:FindExistingDaywalker()
+            if existing ~= nil then
+                self:WatchDaywalker(existing)
+                print(string.format("[DAYWALKER] OnDayChange: recovered existing daywalker GUID=%s",
+                    tostring(existing.GUID)))
+                return
+            end
+        elseif not self.daywalker:IsValid() then
+            self.daywalker = nil
+        end
+
         if self.daywalker ~= nil then return end
         if self.days_to_spawn > 0 then
             self.days_to_spawn = self.days_to_spawn - 1

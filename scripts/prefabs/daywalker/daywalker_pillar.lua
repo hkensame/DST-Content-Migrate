@@ -394,10 +394,6 @@ local function SetLightColour(inst, intensity)
 	inst.Light:SetColour(LIGHT_COLOUR[1] * intensity, LIGHT_COLOUR[2] * intensity, LIGHT_COLOUR[3] * intensity)
 end
 
-local function AlwaysRecoil(inst, worker, tool, numworks)
-	return true, numworks
-end
-
 local function UpdateBuild(inst, workleft)
 	if math.floor(workleft) <= 1 then
 		if inst.level ~= "lowest" then
@@ -406,7 +402,6 @@ local function UpdateBuild(inst, workleft)
 			inst.AnimState:OverrideSymbol("pillar_full", "daywalker_pillar", "pillar_lowest")
 			inst.base.AnimState:OverrideSymbol("pillar_full", "daywalker_pillar", "pillar_lowest_base")
 			SetLightColour(inst, 1.3)
-			inst.components.workable:SetShouldRecoilFn(AlwaysRecoil)
 			return true, dlevel
 		end
 	elseif workleft <= 4 then
@@ -416,7 +411,6 @@ local function UpdateBuild(inst, workleft)
 			inst.AnimState:OverrideSymbol("pillar_full", "daywalker_pillar", "pillar_low")
 			inst.base.AnimState:OverrideSymbol("pillar_full", "daywalker_pillar", "pillar_low_base")
 			SetLightColour(inst, 1.2)
-			inst.components.workable:SetShouldRecoilFn(nil)
 			return true, dlevel
 		end
 	elseif workleft <= 7 then
@@ -426,7 +420,6 @@ local function UpdateBuild(inst, workleft)
 			inst.AnimState:OverrideSymbol("pillar_full", "daywalker_pillar", "pillar_med")
 			inst.base.AnimState:OverrideSymbol("pillar_full", "daywalker_pillar", "pillar_med_base")
 			SetLightColour(inst, 1.1)
-			inst.components.workable:SetShouldRecoilFn(nil)
 			return true, dlevel
 		end
 	end
@@ -473,32 +466,27 @@ local function OnWorked(inst, worker, workleft, numworks)
 	inst.SoundEmitter:KillSound("chain_vibrate_loop")
 	if workleft <= 1 and not changed and worker ~= nil and (worker:HasTag("player") or worker:HasTag("possessedbody") or worker:HasTag("toughworker")) then
 		inst.SoundEmitter:PlaySound("daywalker/pillar/pickaxe_hit_unbreakable")
-		local trigger_vibrate = worker:HasTag("toughworker")
-		if not trigger_vibrate then
-			local tool = worker.components.inventory ~= nil and worker.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS) or nil
-			trigger_vibrate = tool ~= nil and tool.components.tool ~= nil and tool.components.tool:CanDoToughWork()
-		end
-		if trigger_vibrate then
-			local prisoner = inst.prisoner
-			if prisoner ~= nil then
-				Pillar_PlayAnimation(inst, "pillar_shake", true)
-				local num = 1
-				if prisoner.CountPillars ~= nil then
-					num = prisoner:CountPillars()
-				end
-				inst.SoundEmitter:PlaySound("daywalker/pillar/chain_rattle_"..tostring(math.min(3, num)), "vibrate_loop")
-				inst.SoundEmitter:PlaySound("daywalker/pillar/chain_shake_lp", "chain_vibrate_loop")
-				if inst.vibrate_task ~= nil then
-					inst.vibrate_task:Cancel()
-				end
-				inst.vibrate_task = inst:DoTaskInTime(6, OnEndVibrate)
-				inst:PushEvent("daywalker_pillar.restartvibrate")
 
-				prisoner:PushEvent("pillarvibrating")
+		-- 最低阶段：柱子震颤 + 角色反震同时触发
+		local prisoner = inst.prisoner
+		if prisoner ~= nil then
+			Pillar_PlayAnimation(inst, "pillar_shake", true)
+			local num = 1
+			if prisoner.CountPillars ~= nil then
+				num = prisoner:CountPillars()
 			end
-		else
-			worker:PushEvent("tooltooweak", { workaction = ACTIONS.MINE, target = inst })
+			inst.SoundEmitter:PlaySound("daywalker/pillar/chain_rattle_"..tostring(math.min(3, num)), "vibrate_loop")
+			inst.SoundEmitter:PlaySound("daywalker/pillar/chain_shake_lp", "chain_vibrate_loop")
+			if inst.vibrate_task ~= nil then
+				inst.vibrate_task:Cancel()
+			end
+			inst.vibrate_task = inst:DoTaskInTime(12, OnEndVibrate)
+			inst:PushEvent("daywalker_pillar.restartvibrate")
+
+			prisoner:PushEvent("pillarvibrating")
 		end
+
+		worker:PushEvent("tooltooweak", { workaction = ACTIONS.MINE, target = inst })
 	end
 end
 

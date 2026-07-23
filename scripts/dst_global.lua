@@ -5,6 +5,18 @@ require("physics")
 require "recipe"
 require("behaviourtree")
 
+-- ==================== DST 工具函数 shallowcopy (DS 没有) ====================
+if GLOBAL.rawget(GLOBAL, "shallowcopy") == nil then
+    GLOBAL.rawset(GLOBAL, "shallowcopy", function(src, dest)
+        if src == nil then return dest or {} end
+        dest = dest or {}
+        for k, v in pairs(src) do
+            dest[k] = v
+        end
+        return dest
+    end)
+end
+
 -- ==================== DS 兼容：DST 特有方法补丁 ====================
 -- DS 没有 SetPhysicsRadiusOverride，补充为空操作提前兜底
 -- dst_global.lua 中的 AddGlobalClassPostConstruct 会注入完整实现
@@ -190,7 +202,7 @@ GLOBAL.FindPlayersInRangeSq = function(x, y, z, rangesq, isalive)
     local players = {}
     local v = GetPlayer()
     if v ~= nil and
-        (isalive == nil or isalive ~= v.components.health:IsDead()) and
+        (isalive == nil or not isalive or not v.components.health:IsDead()) and
         v.entity:IsVisible() and
         v:GetDistanceSqToPoint(x, y, z) < rangesq then
         table.insert(players, v)
@@ -206,7 +218,7 @@ GLOBAL.FindPlayersInRangeSqSortedByDistance = function(x, y, z, rangesq, isalive
     local players = {}
     local v = GetPlayer()
     if v ~= nil and
-        (isalive == nil or isalive ~= v.components.health:IsDead()) and
+        (isalive == nil or not isalive or not v.components.health:IsDead()) and
         v.entity:IsVisible() then
         local distsq = v:GetDistanceSqToPoint(x, y, z)
         if distsq < rangesq then
@@ -906,3 +918,17 @@ if CommonStates.AddHitState == nil then
         })
     end
 end
+
+-- ==================== 补充: Talker:Chatter (DST 独有, DS 降级为 Say) ====================
+-- Talker 组件是懒加载的，需要用 AddComponentPostInit 确保注入
+AddComponentPostInit("talker", function(Talker)
+    if Talker.Chatter == nil then
+        Talker.Chatter = function(self, strtbl, strid, time, forcetext, echotochatpriority)
+            local tbl = _G.STRINGS ~= nil and _G.STRINGS[strtbl]
+            if tbl ~= nil and #tbl > 0 then
+                local idx = (type(strid) == "number" and strid > 0) and strid or math.random(#tbl)
+                self:Say(tbl[idx], time, forcetext == true)
+            end
+        end
+    end
+end)

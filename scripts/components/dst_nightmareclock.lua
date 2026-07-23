@@ -138,7 +138,9 @@ end, _world)
 
 inst:ListenForEvent("ms_setnightmarephase", function(src, phase)
     if _lockedphase ~= nil then return end
-    phase = PHASES[phase]
+    if type(phase) == "string" then
+        phase = PHASES[phase]
+    end
     if phase ~= nil then
         _phase = phase
         _phasedirty = true
@@ -308,10 +310,86 @@ function self:GetTimeLeftInEra()
     return _remainingtimeinphase
 end
 
+--[[ Public Interface: Phase Control ]]
+-- 这些方法提供直白的 API，方便从外部快速操控暴动阶段
+
+--- 强制跳转到指定阶段
+-- @param phasename string 阶段名："calm" / "warn" / "wild" / "dawn"（也接受 "nightmare" 自动映射到 wild）
+-- @param instant boolean 是否立即触发（不等待下一帧），默认 true
+function self:SetPhase(phasename, instant)
+    if phasename == "nightmare" then
+        phasename = "wild"
+    end
+    local phase = PHASES[phasename]
+    if phase == nil then return end
+
+    _phase = phase
+    _phasedirty = true
+    local resulttime = _segs[_phase] * TUNING.SEG_TIME + math.random() * TUNING.NIGHTMARE_SEG_VARIATION * TUNING.SEG_TIME
+    _totaltimeinphase = resulttime
+    _remainingtimeinphase = _totaltimeinphase
+    update_public_phase()
+
+    if instant == nil or instant then
+        self:LongUpdate(0)
+    end
+end
+
+--- 立即进入下一阶段
+function self:NextPhase()
+    _remainingtimeinphase = 0
+    self:LongUpdate(0)
+end
+
+--- 锁定到指定阶段（持续停留，不推进）
+-- @param phasename string 阶段名，传 nil 等同于解锁
+function self:LockPhase(phasename)
+    if phasename == "nightmare" then
+        phasename = "wild"
+    end
+    _lockedphase = phasename and PHASES[phasename] or nil
+    if _lockedphase ~= nil then
+        _phase = _lockedphase
+        local resulttime = _segs[_phase] * TUNING.SEG_TIME + math.random() * TUNING.NIGHTMARE_SEG_VARIATION * TUNING.SEG_TIME
+        _totaltimeinphase = resulttime
+        _remainingtimeinphase = 0
+    end
+    self:LongUpdate(0)
+end
+
+--- 解锁暴动阶段，恢复正常轮转
+function self:UnlockPhase()
+    _lockedphase = nil
+    -- 重新计算当前阶段剩余时间，避免卡住
+    local resulttime = _segs[_phase] * TUNING.SEG_TIME + math.random() * TUNING.NIGHTMARE_SEG_VARIATION * TUNING.SEG_TIME
+    _totaltimeinphase = resulttime
+    _remainingtimeinphase = resulttime
+end
+
+--- 检查是否处于锁定状态
+function self:IsLocked()
+    return _lockedphase ~= nil
+end
+
+--- 获取当前阶段原始名（"calm"/"warn"/"wild"/"dawn"）
+function self:GetRawPhase()
+    return PHASE_NAMES[_phase]
+end
+
+--- 获取各阶段的段数配置
+function self:GetSegs()
+    local segs = {}
+    for i, v in ipairs(PHASE_NAMES) do
+        segs[v] = _segs[i]
+    end
+    return segs
+end
+
 --[[ Debug ]]
 
 function self:GetDebugString()
-    return string.format("%s: %2.2f ", PHASE_NAMES[_phase], _remainingtimeinphase)
+    local lockinfo = _lockedphase ~= nil and (" [LOCKED:" .. PHASE_NAMES[_lockedphase] .. "]") or ""
+    return string.format("%s: %2.2f%s", PHASE_NAMES[_phase], _remainingtimeinphase, lockinfo)
 end
 
 --[[ End ]]

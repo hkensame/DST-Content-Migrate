@@ -4,16 +4,15 @@
 -- 因此依赖 _cave_world 缓存（从 archive_hooks.lua 导入）
 
 AddPrefabPostInit("cave", function(inst)
+    -- 同步添加组件（不延迟），确保 DS 存档加载时 OnLoad/LoadPostPass 能恢复数据
+    inst:AddComponent("daywalkerspawner")
+
     inst:DoTaskInTime(0, function()
         if not (inst.meta and inst.meta.level_id == "DST_CAVE") then
             return
         end
 
-        -- 梦魇疯猪 daywalkerspawner
-        if not inst.components.daywalkerspawner then
-            inst:AddComponent("daywalkerspawner")
-            inst.components.daywalkerspawner:OnPostInit()
-        end
+        inst.components.daywalkerspawner:OnPostInit()
     end)
 end)
 

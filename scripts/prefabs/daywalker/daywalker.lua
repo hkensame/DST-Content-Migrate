@@ -228,7 +228,7 @@ local function StartTrackingLeech(inst, leech)
 		inst._leeches[leech] = true
 		inst:ListenForEvent("onremove", inst._onremoveleech, leech)
 		inst:MakeHarassed()
-		if not inst.sg:HasStateTag("canattach") and inst.sg:HasState("tired") then
+		if not inst.sg:HasStateTag("canattach") and inst.sg.sg.states["tired"] ~= nil then
 			inst.sg:GoToState("tired")
 		end
 	end
@@ -325,6 +325,7 @@ local function DetachLeech(inst, attachpos, speedmult, randomdir)
 	end
 	inst._busy_attach_pos[attachpos] = inst:DoTaskInTime(2, ClearTask, inst._busy_attach_pos, attachpos)
 	inst.components.entitytracker:ForgetEntity(attachpos)
+	inst._leeches[todetach] = nil
 	todetach:OnFlungFrom(inst, speedmult, randomdir)
 	return true
 end
@@ -333,6 +334,7 @@ local function OnAttachmentInterrupted(inst, leech)
 	for i, v in ipairs(ATTACH_POS) do
 		if inst.components.entitytracker:GetEntity(v) == leech then
 			inst.components.entitytracker:ForgetEntity(v)
+			inst._leeches[leech] = nil
 			return
 		end
 	end

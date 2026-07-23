@@ -1,14 +1,9 @@
 -- ==================== 自定义动作：TOUCH / REPAIR2 / BATHBOMB ====================
 
 local EN = GetModConfigData("language")
-if GLOBAL.PLATFORM == "Android" then
-    GLOBAL.SJ = true
-else
-    GLOBAL.SJ = false
-end
 
 -- 触摸动作
-local TOUCH = SJ and Action(2) or Action({},2)
+local TOUCH = Action({},2)
 TOUCH.str = EN and "touch" or "触摸"
 TOUCH.id = "TOUCH"
 TOUCH.fn = function(act)
@@ -26,7 +21,7 @@ AddAction(TOUCH)
 AddStategraphActionHandler("wilson", ActionHandler(TOUCH, "give"))
 
 -- 修复动作
-local REPAIR2 = SJ and Action(2) or Action({},2)
+local REPAIR2 = Action({},2)
 REPAIR2.str = EN and "repair" or "修复"
 REPAIR2.id = "REPAIR2"
 REPAIR2.fn = function(act)
@@ -39,7 +34,7 @@ AddAction(REPAIR2)
 AddStategraphActionHandler("wilson", ActionHandler(REPAIR2, "dolongaction"))
 
 -- 浴弹动作
-local BATHBOMB = SJ and Action(2) or Action({},2)
+local BATHBOMB = Action({},2)
 BATHBOMB.str = EN and "Toss In" or "投入"
 BATHBOMB.id = "BATHBOMB"
 BATHBOMB.fn = function(act)

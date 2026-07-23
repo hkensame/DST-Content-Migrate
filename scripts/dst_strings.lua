@@ -904,6 +904,49 @@ STRINGS.DAYWALKER_IMPRISONED_PILLAR_BREAKING =
 	"囚禁之力正在减弱！",
 }
 STRINGS.NAMES.SHADOW_LEECH = "暗影水蛭"
+
+STRINGS.DAYWALKER_LEECH_BITE =
+{
+	"啊！",
+	"嗷！！",
+}
+
+STRINGS.DAYWALKER_SHAKE_LEECHES =
+{
+	"给我下去！",
+	"滚开！！",
+	"嗷嗷嗷！",
+	"害虫！",
+}
+
+STRINGS.DAYWALKER_COLLIDE =
+{
+	"呃啊啊！",
+	"唔！",
+}
+
+STRINGS.DAYWALKER_ATTACK =
+{
+	"嘿嘿嘿……",
+	"自由……自由了！！",
+	"吼啊啊！！",
+	"烦人的家伙！",
+	"我要撕碎你！",
+	"全是我的！",
+}
+
+STRINGS.DAYWALKER_POWERDOWN =
+{
+	"我……我的力量……",
+	"还没完！",
+}
+
+STRINGS.DAYWALKER_TIRED =
+{
+	"呼……呼……",
+	"好多了……对，好多了。",
+}
+
 STRINGS.NAMES.DREADSTONE = "恐惧石"
 STRINGS.NAMES.HORRORFUEL = "恐怖燃料"
 STRINGS.NAMES.ARMORDREADSTONE = "恐惧石甲"

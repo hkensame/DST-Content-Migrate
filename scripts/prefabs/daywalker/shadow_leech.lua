@@ -68,7 +68,8 @@ local function CanBeAttacked(inst)
 		return player.components.sanity:IsCrazy()
 	end
 	-- 无目标或目标无 sanity 时，检查附近的玩家
-	local players = FindPlayersInRangeSortedByDistance(inst.Transform:GetWorldPosition(), 20, false)
+	local x, y, z = inst.Transform:GetWorldPosition()
+	local players = FindPlayersInRangeSortedByDistance(x, y, z, 20, false)
 	for i, v in ipairs(players) do
 		if v.components.sanity and v.components.sanity:IsCrazy() then
 			return true

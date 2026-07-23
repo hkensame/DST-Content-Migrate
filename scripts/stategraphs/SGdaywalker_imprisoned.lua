@@ -21,6 +21,9 @@ end
 
 local events =
 {
+	EventHandler("pillarvibrating", function(inst)
+		inst.sg:GoToState("struggle3")
+	end),
 }
 
 -- OnElectrocute 是 DST CommonHandlers 独有
@@ -39,7 +42,10 @@ local function DoIdleChain(inst)
 end
 
 local function DoChainBreakShake(inst)
-	ShakeAllCameras(CAMERASHAKE.FULL, 1.4, .02, .2, inst, 30)
+	local player = GetPlayer()
+	if player and player.components.playercontroller then
+		player.components.playercontroller:ShakeCamera(inst, "FULL", 1.4, .02, .2, 30)
+	end
 end
 
 local states =
@@ -81,9 +87,6 @@ local states =
 
 		events =
 		{
-			EventHandler("pillarvibrating", function(inst)
-				inst.sg:GoToState("struggle3")
-			end),
 		},
 
 		ontimeout = function(inst)

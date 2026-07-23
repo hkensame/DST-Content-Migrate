@@ -16,4 +16,9 @@ RegisterTechTab("DST_CELESTIAL", {
     icon_atlas = "images/tab_celestial.xml",
 }, "天体")
 
+-- ==================== 近程门控 ====================
+-- CELESTIAL 配方需要靠近天体祭坛才能制作
+EnableProximityGate("CELESTIAL")
+
+
 print("[TECHTABS] tech_tabs.lua 加载完成")

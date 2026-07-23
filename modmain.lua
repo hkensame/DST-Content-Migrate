@@ -322,6 +322,8 @@ Assets = {
   Asset("ANIM", "anim/status_sanity.zip"),
   -- 镐子反震动画
   Asset("ANIM", "anim/player_actions_pickaxe_recoil.zip"),
+  -- 击飞动画
+  Asset("ANIM", "anim/player_attacks_recoil.zip"),
   
   Asset("ANIM", "anim/alterguardian/alterguardian_spike.zip"),
   Asset("ANIM", "anim/alterguardian/alterguardian_laser_hit_sparks_fx.zip"),

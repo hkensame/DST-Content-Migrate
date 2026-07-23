@@ -385,21 +385,31 @@ local function fastRunTest(inst)
     end
 end
 
-CommonStates.AddRunStates = function(states, timelines, anims, softstop, enterexitfns)
+CommonStates.AddRunStates = function(states, timelines, anims, softstop, delaystart, fns)
    local startrun = State{
             name = "run_start",
             tags = {"moving", "running", "canrotate"},
             
             onenter = function(inst) 
-                inst.components.locomotor:RunForward()
+				if fns ~= nil and fns.startonenter ~= nil then
+					fns.startonenter(inst)
+				end
+				if delaystart then
+					inst.components.locomotor:StopMoving()
+				else
+					inst.components.locomotor:RunForward()
+				end
                 inst.AnimState:PlayAnimation(get_loco_state(inst, anims and anims.startrun, "run_pre"))
-                if enterexitfns and enterexitfns.startenter then
-                    enterexitfns.startenter(inst)
+                if fns ~= nil and fns.startenter ~= nil then
+                    fns.startenter(inst)
                 end                
             end,
             onexit = function(inst) 
-                if enterexitfns and enterexitfns.startexit then
-                    enterexitfns.startexit(inst)
+                if fns ~= nil and fns.startonexit ~= nil then
+                    fns.startonexit(inst)
+                end
+                if fns ~= nil and fns.startexit ~= nil then
+                    fns.startexit(inst)
                 end
                 inst.cleantransition = nil
             end,
@@ -417,24 +427,31 @@ CommonStates.AddRunStates = function(states, timelines, anims, softstop, enterex
             name = "run",
             tags = {"moving", "running", "canrotate"},
             
-            onenter = function(inst)                 
+            onenter = function(inst)
+				if fns ~= nil and fns.runonenter ~= nil then
+					fns.runonenter(inst)
+				end
                 inst.components.locomotor:RunForward()
                 inst.AnimState:PlayAnimation(get_loco_state(inst, anims and anims.run, "run_loop"..fastRunTest(inst) ))
-                if enterexitfns and enterexitfns.enter then
-                    enterexitfns.enter(inst)
-                end                  
+                if fns ~= nil and fns.enter ~= nil then
+                    fns.enter(inst)
+                end
+				inst.sg:SetTimeout(inst.AnimState:GetCurrentAnimationLength())
             end,
-            onexit = function(inst)                 
-                if enterexitfns and enterexitfns.loopexit then                    
-                    enterexitfns.loopexit(inst)
+            onexit = function(inst)
+				if fns ~= nil and fns.runonexit ~= nil then
+					fns.runonexit(inst)
+				end
+                if fns ~= nil and fns.loopexit ~= nil then                    
+                    fns.loopexit(inst)
                 end
                 inst.cleantransition = nil
-            end,            
-            
-            events=
-            {   
-                EventHandler("animover", function(inst) inst.cleantransition = true  inst.sg:GoToState("run") end ),        
-            },
+            end,
+
+			ontimeout = function(inst)
+				inst.cleantransition = true
+				inst.sg:GoToState("run")
+			end,
             
             
         }
@@ -454,13 +471,19 @@ CommonStates.AddRunStates = function(states, timelines, anims, softstop, enterex
                 else
                     inst.AnimState:PlayAnimation(get_loco_state(inst, anims and anims.stoprun, "run_pst"))
                 end
-                if enterexitfns and enterexitfns.endenter then
-                    enterexitfns.endenter(inst)
+                if fns ~= nil and fns.endonenter ~= nil then
+                    fns.endonenter(inst)
+                end
+                if fns ~= nil and fns.endenter ~= nil then
+                    fns.endenter(inst)
                 end                   
             end,
-            onexit = function(inst) 
-                if enterexitfns and enterexitfns.endexit then
-                    enterexitfns.endexit(inst)
+            onexit = function(inst)
+                if fns ~= nil and fns.endonexit ~= nil then
+                    fns.endonexit(inst)
+                end
+                if fns ~= nil and fns.endexit ~= nil then
+                    fns.endexit(inst)
                 end
             end,             
             events=

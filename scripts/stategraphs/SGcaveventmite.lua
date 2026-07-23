@@ -2,6 +2,10 @@
 -- SGcaveventmite.lua — 地热螨状态图
 
 require("stategraphs/commonstates")
+-- DS 兼容：commonstates.lua 的 CommonHandlers = {} 清掉了电击空函数，重新注入
+if CommonHandlers.TryElectrocuteOnAttacked == nil then
+	CommonHandlers.TryElectrocuteOnAttacked = function(inst, data) return false end
+end
 
 local actionhandlers =
 {

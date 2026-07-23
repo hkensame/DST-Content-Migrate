@@ -1,4 +1,17 @@
 require("stategraphs/commonstates")
+-- DS 兼容：commonstates.lua 的 CommonHandlers = {} 会清掉 dst_global.lua 注入的电击系统空函数，需要重新注入
+if CommonHandlers.TryElectrocuteOnAttacked == nil then
+	CommonHandlers.TryElectrocuteOnAttacked = function(inst, data) return false end
+end
+if CommonHandlers.TryElectrocuteOnEvent == nil then
+	CommonHandlers.TryElectrocuteOnEvent = function(inst, data) return false end
+end
+if CommonHandlers.UpdateHitRecoveryDelay == nil then
+	CommonHandlers.UpdateHitRecoveryDelay = function(inst) end
+end
+if CommonHandlers.HitRecoveryDelay == nil then
+	CommonHandlers.HitRecoveryDelay = function(inst, ...) return true end
+end
 local SGDaywalkerCommon = require("stategraphs/SGdaywalker_common")
 
 --------------------------------------------------------------------------
@@ -757,7 +770,7 @@ local states =
 			inst.SoundEmitter:PlaySound("daywalker/voice/hurt")
 			inst.sg.mem.struggle_count = (inst.sg.mem.struggle_count or 0) + 1
 			inst.sg.mem.shrug_count = 0
-			TryChatter(inst, "DAYWALKER_SHAKE_LEECHES", nil, nil, CHATPRIORITIES.HIGH)
+			TryChatter(inst, "DAYWALKER_SHAKE_LEECHES", nil, nil, (rawget(_G, "CHATPRIORITIES") or {}).HIGH)
 		end,
 
 		timeline =
@@ -881,7 +894,7 @@ local states =
 			inst.Physics:SetMotorVelOverride(2, 0, 0)
 			inst.sg.mem.shrug_count = (inst.sg.mem.shrug_count or 0) + 1
 			inst.sg.mem.struggle_count = 0
-			TryChatter(inst, "DAYWALKER_SHAKE_LEECHES", nil, nil, CHATPRIORITIES.HIGH)
+			TryChatter(inst, "DAYWALKER_SHAKE_LEECHES", nil, nil, (rawget(_G, "CHATPRIORITIES") or {}).HIGH)
 		end,
 
 		onupdate = function(inst)
@@ -1770,7 +1783,7 @@ local states =
 		timeline =
 		{
 			FrameEvent(13, function(inst)
-				TryChatter(inst, "DAYWALKER_POWERDOWN", nil, nil, CHATPRIORITIES.HIGH)
+				TryChatter(inst, "DAYWALKER_POWERDOWN", nil, nil, (rawget(_G, "CHATPRIORITIES") or {}).HIGH)
 			end),
 		},
 

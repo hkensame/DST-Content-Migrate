@@ -19,19 +19,31 @@ local SGDaywalkerCommon = {}
 --------------------------------------------------------------------------
 
 SGDaywalkerCommon.DoRoarShake = function(inst)
-	ShakeAllCameras(CAMERASHAKE.FULL, 1.4, .02, .2, inst, 30)
+	local player = GetPlayer()
+	if player and player.components.playercontroller then
+		player.components.playercontroller:ShakeCamera(inst, "FULL", 1.4, .02, .2, 30)
+	end
 end
 
 SGDaywalkerCommon.DoPounceShake = function(inst)
-	ShakeAllCameras(CAMERASHAKE.FULL, .4, .02, .15, inst, 20)
+	local player = GetPlayer()
+	if player and player.components.playercontroller then
+		player.components.playercontroller:ShakeCamera(inst, "FULL", .4, .02, .15, 20)
+	end
 end
 
 SGDaywalkerCommon.DoDefeatShake = function(inst)
-	ShakeAllCameras(CAMERASHAKE.VERTICAL, .6, .025, .2, inst, 20)
+	local player = GetPlayer()
+	if player and player.components.playercontroller then
+		player.components.playercontroller:ShakeCamera(inst, "VERTICAL", .6, .025, .2, 20)
+	end
 end
 
 SGDaywalkerCommon.DoSleepShake = function(inst)
-	ShakeAllCameras(CAMERASHAKE.VERTICAL, .5, .02, .15, inst, 20)
+	local player = GetPlayer()
+	if player and player.components.playercontroller then
+		player.components.playercontroller:ShakeCamera(inst, "VERTICAL", .5, .02, .15, 20)
+	end
 end
 
 --------------------------------------------------------------------------
@@ -40,7 +52,7 @@ SGDaywalkerCommon.TryChatter = function(inst, delaytbl, strtblname, index, ignor
 	local t = GetTime()
 	local delays = delaytbl[strtblname]
 	if ignoredelay or (inst.sg.mem.lastchatter or 0) + (delays and delays.delay or 0) < t then
-		prioritylevel = prioritylevel or CHATPRIORITIES.LOW
+		prioritylevel = prioritylevel or (rawget(_G, "CHATPRIORITIES") or {}).LOW
 		inst.sg.mem.lastchatter = t
 		inst.components.talker:Chatter(strtblname, index or math.random(#STRINGS[strtblname]), (delays and delays.len) or nil, nil, prioritylevel)
 	end

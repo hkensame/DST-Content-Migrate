@@ -125,6 +125,10 @@ AddComponentPostInit("workable", function(self)
     local tool = worker.components.inventory ~= nil and worker.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS) or nil
     local recoil
     recoil, numworks = self:ShouldRecoil(worker, tool, numworks)
+    if recoil then
+      worker:PushEvent("tooltooweak", { workaction = self.action, target = self.inst })
+      return
+    end
     self:WorkedBy_Internal(worker, numworks)
   end
   function self:WorkedBy_Internal(worker, numworks)

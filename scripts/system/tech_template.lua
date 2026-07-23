@@ -42,16 +42,12 @@ function RegisterTechTab(tab_name, tab_def, tab_string)
     print(string.format("[TEMPLATE] 注册制作栏: %s", tab_name))
 end
 
--- 注册科技建筑：建筑提供该科技等级，离开建筑范围无法制作
--- 同时为此科技启用近程门控（KnowsRecipe/CanBuild 拦截）
-function RegisterTechBuilding(prefab, tech_name, level)
-    GLOBAL.TUNING = GLOBAL.TUNING or {}
-    GLOBAL.TUNING.PROTOTYPER_TREES = GLOBAL.TUNING.PROTOTYPER_TREES or {}
-    GLOBAL.TUNING.PROTOTYPER_TREES[prefab] = { [tech_name] = level }
+-- 启用近程门控：指定科技不再全局可用，需要附近有 prototyper 建筑提供等级
+-- 底层标记控制 CanBuild/KnowsRecipe 拦截。
+function EnableProximityGate(tech_name)
     _proximity_techs[tech_name] = true
-    print(string.format("[TEMPLATE] 注册科技建筑: %s → %s=%d（已启用近程门控）", prefab, tech_name, level))
+    print(string.format("[TEMPLATE] 近程门控已开启: %s", tech_name))
 end
-
 
 -- ==================== Prototyper GetTechTrees 扩展 ====================
 local STANDARD_TECHS = { "SCIENCE", "MAGIC", "ANCIENT" }

@@ -450,4 +450,4 @@ local shadowheart_recipe = Recipe("shadowheart", {
 }, RECIPETABS.MAGIC, TECH.MAGIC_TWO)
 
 shadowheart_recipe.image = "shadowheart.tex"
-thulecitebugnet_recipe.atlas = "images/dst_boss.xml"
+shadowheart_recipe.atlas = "images/dst_boss.xml"

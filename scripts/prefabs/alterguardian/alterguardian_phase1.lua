@@ -354,7 +354,16 @@ local function fn()
     inst.AnimState:SetBank("alterguardian_phase1")
     inst.AnimState:SetBuild("alterguardian_phase1")
 
-    MakeCharacterPhysics(inst, 500, 1.25) --改MakeGiantCharacterPhysics(inst, 500, 1.25)
+    -- 改MakeGiantCharacterPhysics(inst, 500, 1.25)：DS 没有该函数，手动设置 GIANTS 碰撞组以支持地形破坏
+    do
+        local phys = inst.entity:AddPhysics()
+        phys:SetMass(500)
+        phys:SetFriction(0)
+        phys:SetDamping(5)
+        phys:SetCollisionGroup(COLLISION.GIANTS)
+        phys:SetCollisionMask(COLLISION.WORLD, COLLISION.OBSTACLES, COLLISION.CHARACTERS, COLLISION.GIANTS)
+        phys:SetCapsule(1.25, 1)
+    end
 
     inst:AddTag("brightmareboss")
     inst:AddTag("epic")
